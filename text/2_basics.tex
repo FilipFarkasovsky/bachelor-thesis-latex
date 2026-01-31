@@ -1,0 +1,13 @@
+\chapter{Feature Selection Methods}
+
+\textbf{Search strategies}
+
+A \textit{search strategy} defines the order in which the variable subsets are evaluated. These strategies are particularly important for wrapper methods. Few of the search strategies are proposed by Guyon et al.\cite{guyon2006}. Most common strategies are forward selection, backward elimination, floating search, branch-and-bound, and randomized search. \textit{Forward selection} starts with no features and adds them one by one, keeping those that improve the model the most. \textit{Backward elimination} starts with all features and removes them one by one, discarding those that contribute least.
+
+Both methods are considered exhaustive searches, as they evaluate all possible subsets of features up to a certain size. For datasets with many features, forward and backward selection can be computationally expensive. In forward selection, if the optimal number of features $k$ is unknown, one may need to evaluate all subsets of size $1$ to $k$, requiring $\binom{N}{1} + \binom{N}{2} + \dots + \binom{N}{k}$ combinations, which gives a time complexity of $O(2^N)$. 
+
+For this reason, more efficient algorithms have been developed, such as sequential forward selection (SFS) and sequential backward selection (SBS). SFS starts with an empty feature set and iteratively adds the feature,that yields the greatest improvement in model performance, while previously selected features remain selected. SBS is similar to SFS, but it starts with the full feature set and iteratively removes the feature that contributes the least. Both SFS and SBS are heuristic, thus they do not guarantee the optimal subset. Research also shows that exhaustive search is more prone to overfitting, than sequential methods. \textcolor{red}{[add citation or reference]}
+
+Floating methods are an extension of sequential selection methods that allow conditional backtracking: Sequential Forward Floating Selection (SFFS) can remove previously added features if they later become redundant, and Sequential Backward Floating Selection (SBFS) can re-add previously removed features, making the search more flexible and often more accurate than simple SFS or SBS.
+
+\textit{Branch and bound strategies} are systematic search methods used to find the optimal subset of features without evaluating all possibilities. Branch and bound relies on monotonicity, but this assumption is rarely satisfied in deep neural networks, making it less effective than heuristic methods.
