@@ -78,9 +78,13 @@
   }
   
   % LABELS
-  \node[above=15,align=center,mygreen!60!black] at ($(N2-1) - (1, 0)$) {input layer};
-  \node[above=20,align=center,myblue!60!black] at ($(N2-1)!0.5!(N3-1)$) {hidden layers};
-  \node[above=15,align=center,myred!60!black] at ($(N3-1) + (1, 0)$) {output layer};
+  \node[above=15,align=center,mygreen!60!black,font=\normalfont] at ($(N2-1)-(1,0)$) {input layer};
+\node[above=20,align=center,myblue!60!black,font=\normalfont] at ($(N2-1)!0.5!(N3-1)$) {hidden layers};
+\node[above=15,align=center,myred!60!black,font=\normalfont] at ($(N3-1)+(1,0)$) {output layer};
+
+  %\node[above=15,align=center,mygreen!60!black] at ($(N2-1) - (1, 0)$) {input layer};
+  %\node[above=20,align=center,myblue!60!black] at ($(N2-1)!0.5!(N3-1)$) {hidden layers};
+  %\node[above=15,align=center,myred!60!black] at ($(N3-1) + (1, 0)$) {output layer};
   
 \end{tikzpicture}
 % your TikZ code here
