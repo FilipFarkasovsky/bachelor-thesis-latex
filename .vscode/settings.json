@@ -19,10 +19,28 @@
         }
     ],
     "latex-workshop.latex.autoBuild.run": "onFileChange",
-"latex-workshop.view.pdf.viewer": "tab",
-"latex-workshop.view.pdf.ref.viewer": "tabOrBrowser",
+    "latex-workshop.view.pdf.viewer": "tab",
+    "latex-workshop.view.pdf.ref.viewer": "tabOrBrowser",
     "latex-workshop.synctex.afterBuild.enabled": true,
     "latex-workshop.latex.autoBuild.enabled": true,
     "latex-workshop.message.update.show": true,
-    "latex-workshop.message.warning.show": true
+    "latex-workshop.message.warning.show": true,
+
+      "files.exclude": {
+    "**/*.aux": true,
+    "**/*.log": true,
+    "**/*.out": true,
+    "**/*.toc": true,
+    "**/*.lof": true,
+    "**/*.lot": true,
+    "**/*.fls": true,
+    "**/*.fdb_latexmk": true,
+    "**/*.synctex.gz": true,
+    "**/*.bbl": true,
+    "**/*.blg": true,
+    "**/*.auxlock": true,
+    "**/*.idx": true,
+    "**/*.ilg": true,
+    "**/*.ind": true
+  }
 }
