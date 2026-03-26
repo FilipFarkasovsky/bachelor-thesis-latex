@@ -431,8 +431,8 @@ R^2 = 1 - \frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2
 
 In the context of neural networks, metrics such as MSE and RMSE are not only useful for evaluating overall prediction performance, but also guiding the training process. They are often used as a loss functions during network optimization, helping adjust weights and biases to minimize prediction error.
 
-\section{Introduction to Feature Selection}
-\label{sec:introduction-feature-selection}
+\section{Motivation for Feature Selection}
+\label{sec:motivation-feature-selection}
 % Feature selection method - page 19
 One of the fundamental motivations for feature selection is to deal with a \textit{curse of dimensionality}, which refers to problems that arise when analyzing high-dimensional data. As the number of features increases, the volume of the feature space grows exponentially, causing data points to become sparse and distances between them to lose their discriminative power. This sparsity reduces effectivity of many algorithms and increases computational cost.
 
@@ -447,7 +447,7 @@ As illustrated by the authors in  \cite{hastie2001}; consider the task of locati
 
 The number of features determines a \textit{hypothesis space}, the set of all functions a learning algorithm can choose to map inputs to outputs, and this space grows exponentially as the number of features increases \cite{mitchell1997, goodfellow2016}.
 
-For instance, with $n$ binary features and a binary class, the size of the hypothesis space is $2^{2^n}$. For non-binary features, the size of the hypothesis space grows even more rapidly. For instance, if each feature can take $m$ values and the class has $l$ possible labels, the hypothesis space size becomes $l^{m^n}$, which further emphasizes the importance of feature selection.
+For instance, with $n$ binary features and a binary label, the size of the hypothesis space is $2^{2^n}$. For non-binary features, the size of the hypothesis space grows even more rapidly. For instance, if each feature can take $m$ values and the class has $l$ possible labels, the hypothesis space size becomes $l^{m^n}$, which further emphasizes the importance of feature selection.
 
 \textcolor{red}{ Hypothesis space of a linear regression }
 
