@@ -4,6 +4,13 @@
 
 \section{Overview of Neural Networks}
 \label{sec:overview-neural-networks}
+
+\textcolor{pink}{Do neural networks need feature selection?
+Does overparameterization reduce need for sparsity?
+What is the trade-off between predictive accuracy and interpretability?
+How does correlated input affect selection stability?
+Can feature selection harm representation learning?}
+
 Neural networks are one of the most popular algorithms of machine learning. Their were inspired by the structure and function of biological neurons, which are the fundamental units of nervous tissue. To distinguish them from their biological counterpart, sometimes the term \textit{Artificial neural networks (ANNs)} is used. 
 
 Neural network can be viewed as a composition of affine transformations and non-linear activation functions, which allows them to serve as universal approximators. This property is established in many theorems; several of which are mentioned by Goodfellow in \cite{goodfellow2016}. Their ability to capture complex patterns makes them widely applicable in areas such as computer vision, natural language processing, and predictive modeling. A detailed treatment of neural network applications and methodologies can be found in the comprehensive review by Abiodun et al. \cite{abiodun2019}.
@@ -489,6 +496,8 @@ A fully connected neural network with one hidden layer of 128 neurons can be use
 Each combination of these values defines a distinct hypothesis, illustrating that even a relatively simple architecture can have a large expressive \textit{capacity}, which is its ability to represent a wide range of functions or patterns in the data.
 
 \textcolor{orange}{Mention XOR problem}
+
+
 
 However, such a large hypothesis space can lead to poor generalization. \textit{Generalization} is the ability of a model to perform well on new, unseen data, not just on the data it was trained on. It reflects how well the model captures the underlying patterns rather than memorizing noise.
 
