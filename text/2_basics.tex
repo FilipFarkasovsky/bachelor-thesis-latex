@@ -87,18 +87,48 @@ where the components of $\phi(x)$ are typically functions of all input variables
 
 As a result, feature selection is preferred when interpretability is important, while feature extraction is more suitable when the goal is maximal dimensionality reduction or capturing complex structure in the data.
 
-\section{Applications of feature selection}
+\section{Applications of Feature Selection}
 Feature selection becomes particularly important in datasets with high dimensionality, noisy features, or a small number of samples relative to the number of features. High-dimensional datasets often contain irrelevant or redundant features, which can reduce model performance and increase computational cost. 
 For example, in genomics, a single experiment can measure tens of thousands of gene expression levels for only a few hundred samples. In such cases, most features are either irrelevant or occur with very low frequency, making it difficult for learning algorithms to identify meaningful patterns. 
 Similarly, text classification datasets may contain thousands of words that contribute little to the predictive task. Feature selection mitigates these issues by identifying a subset of informative and non-redundant features.
-\section{Search strategies}
 
-A \textit{search strategy} defines the order in which the variable subsets are evaluated. These strategies are particularly important for wrapper methods. Few of the search strategies are proposed by Guyon et al. \cite{guyon2006}. Most common strategies are forward selection, backward elimination, floating search, branch-and-bound, and randomized search. \textit{Forward selection} starts with no features and adds them one by one, keeping those that improve the model the most. \textit{Backward elimination} starts with all features and removes them one by one, discarding those that contribute least.
+\section{Feature Selection Algorithms}
+Feature selection methods can be classified by whether they use label information during selection. Supervised methods rely on labeled data to identify features that best predict the target, as in classification or regression. Unsupervised methods do not use labels and instead select features based on intrinsic properties of the data, such as variance or similarity, making them suitable for clustering or exploratory analysis. Semi-supervised methods combine labeled and unlabeled data, exploiting the small amount of labeled information while leveraging the structure in the unlabeled data. In this thesis, we focus exclusively on supervised feature selection methods.  
+
+From the perspective of selection strategy, feature selection algorithms can be categorized into wrapper, filter, and embedded methods, with additional approaches including hybrid and ensemble methods ([1]).
+
+\subsection{Wrapper methods} 
+Wrapper methods perform a search over the space of possible feature subsets to find the one that optimizes a predictive model’s performance. These methods evaluate subsets according to a search strategy, which determines the order and selection of candidate subsets. Search strategies vary and will be introduced in the next section. Iterations continue until a stopping criterion is satisfied, such as a maximum number of iterations or a minimal improvement in model performance.
+
+For a classifier $f$ and a candidate subset $S \subseteq \{1, \dots, p\}$, the subset is assessed using a cost function
+
+\[
+\mathcal{L}(S) = \text{PredictiveError}(f_S),
+\]
+
+where $f_S$ is trained on the features in $S$. The objective of the wrapper method is then to find the subset that minimizes this cost function:
+
+\[
+S^* = \min_{S \subseteq \{1, \dots, p\}} \mathcal{L}(S).
+\]
+ Wrappers can be applied to any model but are computationally expensive. The main drawback of wrappers is that each subset evaluation requires training and predicting at least one model, which significantly increases computational cost \cite{ang2015}. In this thesis, we examine SVM Recursive Feature Elimination (SVM-RFE) as an example of a wrapper method. 
+
+\subsection{Filter methods}
+Filter methods are independent of any learning algorithm and rely on intrinsic properties of the data. They rank or score features using statistical or information-theoretic criteria such as correlation, chi-squared statistics, mutual information, or information gain. Filter methods are computationally efficient and often serve as a preprocessing step. In this thesis, we discuss Kruskal--Wallis, Mutual Information, ReliefF, and mRMR as representative filter methods.
+
+\subsection{Embedded methods}
+Embedded methods perform feature selection during the training of the model. These methods are part of the model either as built-in functionality or via regularization. Common embedded approaches include decision tree--based algorithms such as Classifcation and Regression Trees (CART), and Random Forest, as well as variants of multinomial logistic regression. Some embedded methods apply regularization to perform feature weighting, forcing coefficients to shrink or become exactly zero, as in LASSO or Elastic Net. Embedded methods inherit the merits of wrapper and filter methods: they account for feature interactions with the learning algorithm and are generally more efficient than wrappers. 
+
+
+\section{Search strategies}
+A \textit{search strategy} defines the order in which the variable subsets are evaluated. These strategies are particularly important for wrapper methods. Few of the search strategies are proposed by Guyon et al. \cite{guyon2006}. Most common strategies are forward selection, backward elimination, floating search, and randomized search. 
+
+\textit{Forward selection} starts with an empty feature set and adds features one at a time, keeping those that improve the model's performance. \textit{Backward elimination} starts with all features and removes them iteratively, discarding those that contribute least to the predictive power.
 
 Both methods are considered exhaustive searches, as they evaluate all possible subsets of features up to a certain size. For datasets with many features, forward and backward selection can be computationally expensive. In forward selection, if the optimal number of features $k$ is unknown, one may need to evaluate all subsets of size $1$ to $k$, requiring $\binom{N}{1} + \binom{N}{2} + \dots + \binom{N}{k}$ combinations, which gives a time complexity of $O(2^N)$. 
 
 For this reason, more efficient algorithms have been developed, such as sequential forward selection (SFS) and sequential backward selection (SBS). SFS starts with an empty feature set and iteratively adds the feature, that yields the greatest improvement in model performance, while previously selected features remain selected. SBS is similar to SFS, but it starts with the full feature set and iteratively removes the feature that contributes the least. Both SFS and SBS are heuristic, thus they do not guarantee the optimal subset. Research also shows that exhaustive search is more prone to overfitting, than sequential methods. \textcolor{red}{[add citation or reference]}
 
-Floating methods are an extension of sequential selection methods that allow conditional backtracking: Sequential Forward Floating Selection (SFFS) can remove previously added features if they later become redundant, and Sequential Backward Floating Selection (SBFS) can re-add previously removed features, making the search more flexible and often more accurate than simple SFS or SBS.
+\emph{Floating search} extends forward or backward selection by allowing conditional inclusion or exclusion of features. \emph{Sequential Forward Floating Selection} (SFFS) can remove previously added features if they later become redundant, and \emph{Sequential Backward Floating Selection} (SBFS) can re-add previously removed features, making the search more flexible.
 
-\textit{Branch and bound strategies} are systematic search methods used to find the optimal subset of features without evaluating all possibilities. Branch and bound relies on monotonicity, but this assumption is rarely satisfied in deep neural networks, making it less effective than heuristic methods.
+\emph{Randomized search} explores the subset space probabilistically, using heuristics or metaheuristics such as genetic algorithms.
