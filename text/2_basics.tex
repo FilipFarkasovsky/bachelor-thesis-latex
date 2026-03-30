@@ -93,28 +93,46 @@ For example, in genomics, a single experiment can measure tens of thousands of g
 Similarly, text classification datasets may contain thousands of words that contribute little to the predictive task. Feature selection mitigates these issues by identifying a subset of informative and non-redundant features.
 
 \section{Feature Selection Algorithms}
-Feature selection methods can be classified by whether they use label information during selection. Supervised methods rely on labeled data to identify features that best predict the target, as in classification or regression. Unsupervised methods do not use labels and instead select features based on intrinsic properties of the data, such as variance or similarity, making them suitable for clustering or exploratory analysis. Semi-supervised methods combine labeled and unlabeled data, exploiting the small amount of labeled information while leveraging the structure in the unlabeled data. In this thesis, we focus exclusively on supervised feature selection methods.  
+\textbf{Based on label availability} \\
+Feature selection methods can be classified by whether they use label information during selection. \emph{Supervised methods} rely on labeled data to identify features that best predict the target, as in classification or regression. \emph{Unsupervised methods} do not use labels and instead select features based on intrinsic properties of the data, such as variance or similarity, making them suitable for clustering or exploratory analysis. \emph{Semi-supervised} methods combine labeled and unlabeled data, exploiting the small amount of labeled information while leveraging the structure in the unlabeled data. In this thesis, we focus exclusively on supervised feature selection methods.  
 
+\textbf{Based on output type} \\
+Feature selection methods can also be categorized according to the form of their output. Some methods return a \emph{subset of features}, typically represented as a vector of selected feature indices. Others produce a \emph{rank of features}, often as an ordered list indicating their relative importance. A third type of output consists of \emph{feature weights}, where each feature is assigned a relevance score; these weights can subsequently be used to derive a ranking by ordering features according to their values.
+
+\textbf{Univariate or multivariate methods} \\
+Feature selection methods can also be classified as univariate or multivariate (Lazar et al., 2012). Univariate methods evaluate each feature independently with respect to the target variable, ignoring dependencies between features. These approaches are typically simple and computationally efficient, but they may fail to capture feature interactions. In contrast, multivariate methods evaluate features jointly and account for dependencies among them. While these methods are generally more complex, they tend to be more robust as they can capture feature interactions and synergy.
+
+\textbf{Selection strategies} \\
 From the perspective of selection strategy, feature selection algorithms can be categorized into wrapper, filter, and embedded methods, with additional approaches including hybrid and ensemble methods ([1]).
 
 \subsection{Wrapper methods} 
-Wrapper methods perform a search over the space of possible feature subsets to find the one that optimizes a predictive model’s performance. These methods evaluate subsets according to a search strategy, which determines the order and selection of candidate subsets. Search strategies vary and will be introduced in the next section. Iterations continue until a stopping criterion is satisfied, such as a maximum number of iterations or a minimal improvement in model performance.
-
-For a classifier $f$ and a candidate subset $S \subseteq \{1, \dots, p\}$, the subset is assessed using a cost function
+Wrapper methods perform a search over the space of possible feature subsets to find the one that optimizes a predictive model’s performance. Formally, each candidate subset \(S \subseteq \{1, \dots, p\}\) is assessed using a cost function \(\mathcal{L}(S)\), which typically represents a measure of prediction error. Common choices include misclassification error \textcolor{red}{need to be established}need to be established), mean squared error, or cross-validated risk. For example, in a general setting the cost function can be written as
 
 \[
-\mathcal{L}(S) = \text{PredictiveError}(f_S),
+\mathcal{L}(S) = \frac{1}{n} \sum_{i=1}^{n} \ell\big(y_i, f_S(x_i)\big),
 \]
+where \(\ell(\cdot, \cdot)\) is a loss function, \(x_i\) denotes the feature vector restricted to the subset \(S\), and \(f_S\) is the model trained using only the features in \(S\).
 
-where $f_S$ is trained on the features in $S$. The objective of the wrapper method is then to find the subset that minimizes this cost function:
-
+Here, \(f_S\) is trained on the features in \(S\). The objective of the wrapper method is then to find the subset that minimizes this cost function:
 \[
 S^* = \min_{S \subseteq \{1, \dots, p\}} \mathcal{L}(S).
 \]
+
+These methods evaluate subsets according to a search strategy, which determines the order and selection of candidate subsets. These methods proceed iteratively: in each step, a candidate subset is evaluated, and the search is updated accordingly. Iterations continue until a stopping criterion is satisfied, such as a maximum number of iterations or a minimal improvement in model performance. Search strategies vary, and some of them will be discussed in the next section.
+
  Wrappers can be applied to any model but are computationally expensive. The main drawback of wrappers is that each subset evaluation requires training and predicting at least one model, which significantly increases computational cost \cite{ang2015}. In this thesis, we examine SVM Recursive Feature Elimination (SVM-RFE) as an example of a wrapper method. 
 
 \subsection{Filter methods}
-Filter methods are independent of any learning algorithm and rely on intrinsic properties of the data. They rank or score features using statistical or information-theoretic criteria such as correlation, chi-squared statistics, mutual information, or information gain. Filter methods are computationally efficient and often serve as a preprocessing step. In this thesis, we discuss Kruskal--Wallis, Mutual Information, ReliefF, and mRMR as representative filter methods.
+Filter methods are independent of any learning algorithm and rely on intrinsic properties of the data. They usually rank or score features using statistical or information-theoretic criteria such as correlation, chi-squared statistics, mutual information, or information gain. Filter methods are computationally efficient and often serve as a preprocessing step.
+
+Some of the Filter methods
+
+ The main difference lies in the scoring function.
+In filtering approaches, the cost function is defined in terms of data
+intrinsic characteristics. In contrast, in wrapper approaches, the cost
+function is based on the predictive error of a single classifier
+
+In this thesis, we discuss Kruskal--Wallis, Mutual Information, ReliefF, and mRMR as representative filter methods.
 
 \subsection{Embedded methods}
 Embedded methods perform feature selection during the training of the model. These methods are part of the model either as built-in functionality or via regularization. Common embedded approaches include decision tree--based algorithms such as Classifcation and Regression Trees (CART), and Random Forest, as well as variants of multinomial logistic regression. Some embedded methods apply regularization to perform feature weighting, forcing coefficients to shrink or become exactly zero, as in LASSO or Elastic Net. Embedded methods inherit the merits of wrapper and filter methods: they account for feature interactions with the learning algorithm and are generally more efficient than wrappers. 
@@ -132,3 +150,70 @@ For this reason, more efficient algorithms have been developed, such as sequenti
 \emph{Floating search} extends forward or backward selection by allowing conditional inclusion or exclusion of features. \emph{Sequential Forward Floating Selection} (SFFS) can remove previously added features if they later become redundant, and \emph{Sequential Backward Floating Selection} (SBFS) can re-add previously removed features, making the search more flexible.
 
 \emph{Randomized search} explores the subset space probabilistically, using heuristics or metaheuristics such as genetic algorithms.
+
+
+\section{HILBERT SCHmidt}
+\section*{Hilbert-Schmidt Independence Criterion Lasso Based Feature Selection}
+
+For high-dimensional and small sample data (e.g., dimensionality $> 10^5$ and the number of samples $< 10^3$), the Hilbert-Schmidt Independence Criterion Lasso (HSIC Lasso) is useful.
+
+The HSIC Lasso optimization problem is given by:
+\[
+\mathrm{HSIC\text{-}Lasso}:\quad
+\min_{\mathbf{x}} \;
+\frac{1}{2} \sum_{k,l=1}^{n} x_k x_l \,\mathrm{HSIC}(f_k, f_l)
+- \sum_{k=1}^{n} x_k \,\mathrm{HSIC}(f_k, c)
++ \lambda \|\mathbf{x}\|_1
+\]
+subject to
+\[
+x_1, \ldots, x_n \geq 0.
+\]
+
+Here,
+\[
+\mathrm{HSIC}(f_k, c) = \mathrm{tr}(\bar{\mathbf{K}}^{(k)} \bar{\mathbf{L}})
+\]
+is a kernel-based independence measure called the empirical Hilbert-Schmidt Independence Criterion (HSIC), where $\mathrm{tr}(\cdot)$ denotes the trace and $\lambda$ is the regularization parameter.
+
+The centered Gram matrices are defined as:
+\[
+\bar{\mathbf{K}}^{(k)} = \mathbf{\Gamma} \mathbf{K}^{(k)} \mathbf{\Gamma}, 
+\qquad
+\bar{\mathbf{L}} = \mathbf{\Gamma} \mathbf{L} \mathbf{\Gamma},
+\]
+where
+\[
+K^{(k)}_{i,j} = K(u_{k,i}, u_{k,j}), 
+\qquad
+L_{i,j} = L(c_i, c_j),
+\]
+and $K(\cdot,\cdot)$ and $L(\cdot,\cdot)$ are kernel functions.
+
+The centering matrix is given by:
+\[
+\mathbf{\Gamma} = \mathbf{I}_m - \frac{1}{m} \mathbf{1}_m \mathbf{1}_m^T,
+\]
+where $\mathbf{I}_m$ is the $m$-dimensional identity matrix, and $\mathbf{1}_m$ is the $m$-dimensional vector of ones.
+
+The $\ell_1$-norm is denoted by $\|\cdot\|_1$.
+
+HSIC always takes a non-negative value and is zero if and only if two random variables are statistically independent when a universal reproducing kernel such as the Gaussian kernel is used.
+
+The HSIC Lasso can equivalently be written as:
+\[
+\mathrm{HSIC\text{-}Lasso}:\quad
+\min_{\mathbf{x}} \;
+\frac{1}{2} \left\| \bar{\mathbf{L}} - \sum_{k=1}^{n} x_k \bar{\mathbf{K}}^{(k)} \right\|_F^2
++ \lambda \|\mathbf{x}\|_1
+\]
+subject to
+\[
+x_1, \ldots, x_n \geq 0.
+\]
+
+Here, $\|\cdot\|_F$ denotes the Frobenius norm. The optimization problem is a Lasso problem and can be efficiently solved using modern optimization methods such as the dual augmented Lagrangian method.
+
+
+\section{Properties of Feature Selectors}
+
