@@ -242,6 +242,8 @@ y_{i,k} =
 
 and \(\hat{y}_{i,k}\) is the predicted probability for class $k$  of sample $i$ .
 
+In classification tasks solved by neural networks, the model typically ouputs a vector of predicted probabilities obtained through the \textit{softmax} or \textit{sigmoid} activation function. To transform these probability scores into one class decision, a \emph{decision threshold}, or also called \textit{cut-off} point must be specified. In binary classification, a default threshold is 0.5, but by adjusting this value, we can better suit the model to the requirements of a specific application. In multinomial classification usually an observation is assigned with the class with highest predicted probability.
+
 \subsection{Gradient Descent}
 \label{sec:gradient-descent}
 Gradient descent is an optimization algorithm used to train neural networks by minimizing loss function. Its main idea is iteratively adjusting the parameters of the model in the the direction that reduces loss the most. Formally, for a set of parameters $\boldsymbol{\theta}$ and a differentiable loss function $\mathcal{L}(\boldsymbol{\theta})$, the update rule naturally is:
@@ -305,22 +307,22 @@ In this section, we introduce commonly used metrics for evaluating the performan
 \subsection{Criterias for classification tasks}
 \label{sec:criteria-cassification-tasks}
 
-For classification models, the goal is to assign new samples to their appropriate categories. One of the most commonly used metrics in classification is \textit{accuracy}. Accuracy represents the proportion of correctly classified samples out of all samples. Although accuracy provides an intuitive measure of performance, it can be misleading when class distributions are imbalanced.
+In classification, the goal is to assign observations to predefined classes. Model performance is evaluated by comparing predicted labels with true labels.
 
-For example, consider a diesase with a low prevalence, such as $0.5\%$, and assume that healthy cases are assigned to the negative class, while disease cases are assigned to the positive class. If we create a naive model that classifies every observation as negative, the accuracy of this model would be 99.5\%. At first glance, this might appear to be a model with excellent predictive performance. However, this high accuracy is misleading, as the model fails completely to identify people with a disease. This example illustrates that accuracy alone can be insufficient. For this reason, additional metrics are used that better capture performance across different types of errors.
-
-In classification tasks solved by neural networks, the model typically ouputs a vector of predicted probabilities obtained through the \textit{softmax} or \textit{sigmoid} activation function, which are defined in ~\ref{sec:activation-functions-ouput-layer}. To transform these probability scores into one class decision, a decision threshold, or also called \textit{cut-off} point must be specified. In binary classification, a default threshold is 0.5, but by adjusting this value, we can better suit the model to the requirements of a specific application. In multinomial classification usually an observation is assigned with the class with highest predicted probability.
-
-In the theory of binary classification, predictions can be divided into four distinct categories:
+In binary classification, each observation belongs to one of four categories:
 
 \begin{itemize}
-    \item \textbf{True Positive (TP)}: a sample from the positive class that has been correctly classified as positive.
-    \item \textbf{True Negative (TN)}: a sample from the negative class that has been correctly classified as negative.
-    \item \textbf{False Positive (FP)}: a sample from the negative class that has been incorrectly classified as positive, also called a \textit{Type I error}.
-    \item \textbf{False Negative (FN)}: a sample from the positive class that has been incorrectly classified as negative, also called a \textit{ Type II error}.
+    \item \textbf{True Positive (TP)}: a positive sample correctly classified as positive.
+    \item \textbf{True Negative (TN)}: a negative sample correctly classified as negative.
+    \item \textbf{False Positive (FP)}: a negative sample incorrectly classified as positive, also called a \textit{Type I error}.
+    \item \textbf{False Negative (FN)}: a positive sample incorrectly classified as negative, also called a \textit{ Type II error}.
 \end{itemize}
 
-The results of a classification model are often summarized using a \textit{confusion matrix}, as depicted in \ref{tab:confusion_matrix}:
+These four outcomes form the basis for evaluation.
+
+In the multinomial case, \emph{one-vs-rest approach} is commonly used. Each class, observations belonging to one particular class are treated as positive, while all remaining observations are treated as negative. This reduces the problem to a series of binary classifications, allowing the same evaluation criteria to be used.
+
+The results are typicaly summarized using a \textit{confusion matrix}, as shown in \ref{tab:confusion_matrix}:
 
 
 \begin{table}[h!]
@@ -341,64 +343,56 @@ The results of a classification model are often summarized using a \textit{confu
 \label{tab:confusion_matrix}
 \end{table}
 
-From the confusion matrix, several performance measures can be derived: 
+From the confusion matrix, several performance measures can be derived: \\
 
-\begin{itemize}
-    \item \textbf{Precision} – measures the proportion of correctly predicted positive samples among all predicted positive samples:
-    \[
-        \text{Precision} = \frac{TP}{TP + FP}
-    \]
+\textbf{Accuracy}, sometimes reffered to as \emph{rand index}, or \emph{rand accuracy} is defined as the proportion of correctly classified observations among all observations, as shown in Equation~\ref{eq:accuracy}. 
 
-    \item \textbf{Recall (Sensitivity)} – measures the proportion of correctly identified positive samples out of all actual positives: 
-    \[
-        \text{Recall} = \frac{TP}{TP + FN}
-    \]
+\[
+    \text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+\] \\
 
-    \item \textbf{Specificity} – measures the proportion of correctly identified negative samples out of all actual negatives:
-    \[
-        \text{Specificity} = \frac{TN}{TN + FP}
-    \]
+Although intuitive, accuracy can be misleading in the presence of imbalanced class distributions. For example, consider a disease with a low prevalence of $0.5\%$. A naive model that classifies every observation as negative achieves an accuracy of 99.5\%. Despite this high value, the model fails to identify any positive cases. This shows that accuracy alone might not not be sufficient for evaluation of the model. 
 
-    \item \textbf{F1 score} – the harmonic mean of precision and recall:
-    \[
-        F1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
-    \]
-\end{itemize}
+\textbf{Precision} measures the proportion of correctly predicted positive samples among all predicted positive samples:
+\[
+    \text{Precision} = \frac{TP}{TP + FP}
+\] \\
 
+\textbf{Recall (Sensitivity)} is proportion of correctly identified positive samples out of all actual positives: 
+\[
+    \text{Recall} = \frac{TP}{TP + FN}
+\] \\
 
-Among these characteristics, the \textit{true positive rate (TPR)}, also known as sensitivity, represents the proportion of correctly identified positive samples, while the \textit{false positive rate (FPR)}, defined as $1 - \text{specificity}$, quantifies the proportion of negative samples incorrectly classified as positive.
+\textbf{Specificity} measures the proportion of correctly identified negative samples out of all actual negatives:
+\[
+    \text{Specificity} = \frac{TN}{TN + FP}
+\] \\
 
-Although metrics that have been already mentioned can provide valuable information about model performance at a specific classification threshold, they do not capture how the model behaves across all possible thresholds. To address this problem, methods such as the \textit{ROC curve} and the \textit{PR curve} are used.
-
-
-
-If we plot, for different values of cut-off points $p \in [0,1]$, a graph of the corresponding FPR values on the $x$-axis and TPR values on the $y$-axis, we obtain the so-called \textit{Receiver Operating Characteristic (ROC) curve}. An example of an ROC curve can be seen in \textcolor{green}{Figure~X.X}. Since the ROC curve reflects both TPR and FPR across all possible choices of the cut-off point \(p\), it represents a robust measure of the quality of binary classifiers. The most widely used scalar summary of the ROC curve is the \textit{Area Under the Curve (AUC)}, which corresponds to the total area lying below it. Clearly, \( \text{AUC} \in [0,1] \), and higher values indicate a better classifier.
-
-In addition to the full AUC, it is often useful to evaluate the classifier only on a relevant portion of the ROC curve. This leads to the concept of the \emph{partial area under the ROC curve} (pAUC). The pAUC measures the area under the ROC curve over a restricted range of FPR values, typically chosen to reflect the region where the classifier is expected to operate in practice. For example, in applications where a very low false positive rate is required, one may compute the pAUC over the interval $\mathrm{FPR} \in [0, \alpha]$ for a small $\alpha$. 
+\textbf{F1 score} is the harmonic mean of precision and recall:
+\[
+    F1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
+\] \\
 
 
-\textcolor{green}{youden index}
+\textit{The true positive rate (TPR)} corresponds to recall. \textit{The false positive rate (FPR)} is defined as $1 - \textit{specificity}$ and quantifies the proportion of negative samples incorrectly classified as positive.
 
-\textcolor{orange}{Introduce AUPR}
+\paragraph{Curve-based Metrics \\}
+The metrics above depend on a fixed \emph{classification threshold}, and they do not capture how the model behaves across all possible thresholds. To address this problem, so called \emph{curve-based methods} are used.
 
+\textit{The Receiver Operating Characteristic curve (ROC curve)} plots the true positive rate against the false positive rate for different threshold values. It describes the trade-off between correctly identifying positive samples and incorrectly classifying negative samples. An example of an ROC curve can be seen in \textcolor{green}{Figure~X.X}. Since the ROC curve reflects both TPR and FPR across all possible choices of the cut-off point \(p\), it represents a robust measure of the quality of binary classifiers. The most widely used scalar summary of the ROC curve is the \textit{Area Under the Curve (AUC)}, which corresponds to the total area lying below it. Clearly, \( \text{AUC} \in [0,1] \), and higher values indicate a better classifier.
 
-%\textbf{pAUC (Partial AUC):} computes the area under a selected portion of the ROC curve (e.g., for low FPR). This is useful when performance in a specific operating region is more relevant than overall performance.
+In some applications, only a specific part of the \emph{ROC curve} is relevant. \emph{The AUC (pAUC)} measures the area under the curve over a restricted range of FPR values, typically chosen to reflect the region where the classifier is expected to operate in practice. For example, in applications where a very low false positive rate is required, one may compute the pAUC over the interval $\mathrm{FPR} \in [0, \alpha]$ for a small $\alpha$.
 
-%\textbf{Precision--Recall (PR) Curve:} plots Precision against Recall for varying thresholds. It is particularly informative for imbalanced datasets, where ROC curves may appear overly optimistic.
+\emph{The Youden index} is another useful measure for threshold selection. It is defined as the sum of sensitivity and specificity minus one, and is often used to identify an optimal operating point.
 
-%\textbf{AUPR (Area Under the Precision--Recall Curve):} provides a single measure of performance derived from the PR curve. It reflects the model's ability to correctly identify positive samples in settings with rare positive labels.
+\emph{The precision–recall (PR) curve} plots precision against recall across thresholds. It is particularly useful for imbalanced datasets, where ROC curves may present an overly optimistic view of performance.
 
-
-\textcolor{orange}{Entropy, cross-entropy, KL - divergence}
+\emph{The area under the PR curve (AUPR)} summarizes the PR curve into a single value and reflects the model’s ability to identify positive samples when they are rare.
 
 \subsection{Criteria for Regression Tasks}
 \label{sec:criteria-regression-tasks}
 In regression tasks, we are supposed to predict the target variable that takes continous values. To assess prediction performance, several commonly used metrics can be used.
 Let $y_i$ denote the observed value of the dependent variable, $\hat{y}_i$ the predicted value, and $n$ the number of observations.
-
-
-
-
 
 \textbf{Mean Squared Error (MSE)} measures the average squared difference between observed and predicted values. Because the errors are squared, it penalizes larger errors more strongly than the smaller ones. For this reason, MSE is widely used as a training loss function.
 
@@ -406,17 +400,13 @@ Let $y_i$ denote the observed value of the dependent variable, $\hat{y}_i$ the p
 \text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
 \]
 
-
 \textbf{Root Mean Squared Error (RMSE)} is the square root of MSE. It is expressed in the same units as predicted variable, which makes interpretation more intuitive. It, however, remains sensitive to outliers.
-
 
 \[
 \text{RMSE} = \sqrt{ \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 }
 \]
 
 \textbf{Mean Absolute Error (MAE)} calculates the average absolute difference between observed and predicted values. Unlike MSE, it is less affected by extreme observations and provides a more robust measure of typical error size.
-
-
 
 \[
 \text{MAE} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|
@@ -429,7 +419,80 @@ Let $y_i$ denote the observed value of the dependent variable, $\hat{y}_i$ the p
 R^2 = 1 - \frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2}
 \]
 
-In the context of neural networks, metrics such as MSE and RMSE are not only useful for evaluating overall prediction performance, but also guiding the training process. They are often used as a loss functions during network optimization, helping adjust weights and biases to minimize prediction error.
+In the context of neural networks, metrics such as MSE and RMSE are not only useful for evaluating overall prediction performance, but also guiding the training process. They are often used as a \emph{loss functions} during network optimization, helping adjust weights and biases to minimize prediction error.
+
+\section{Information Theory}
+\emph{Information theory} is a branch of applied mathematics focused on quantifying the amount of information contained in a signal or random variable. The main idea is that observing unlikely events provides more information than observing likely ones. This framework is useful for feature selection, since it allows measuring how informative a feature is with respect to a target variable.
+
+\subsection{Self-information}
+Let $X$ be a discrete random variable with possible values $x \in \mathcal{X}$, and let $P(x)$ denote the probability mass function of $X$. The information content of a single outcome $x$ is measured by \emph{self-information}:
+\[
+I(x) = -\log P(x).
+\]
+
+Here, $P(x)$ is the probability of observing the event $x$, and the logarithm is typically taken in base $2$ or the natural logarithm, depending on the context. 
+
+This definition satisfies three intuitive properties \cite{goodfellow2016}:
+\begin{itemize}
+    \item Events with high probability have low information content.
+    \item Events with probability equal to 1 carry zero information.
+    \item Independent events have additive information.
+\end{itemize}
+
+\subsection{Entropy}
+Self-information deals only with a single outcome. To measure uncertainty over an entire probability distribution of random variable $X$, \emph{Shannon entropy} is used \cite{goodfellow2016}.
+
+It is defined as expected value of \emph{self-information}:
+\[
+H(X) = \mathbb{E}_{x \sim P}[-\log P(x)] = - \sum_{i=1}^{n} P(x_i)\log P(x_i).
+\]
+Here, $\{x_1, \ldots, x_n\} \subset \mathcal{X}$ are the possible outcomes of $X$, and $P(x_i)$ is the probability of outcome $x_i$. The entropy $H(X)$ can be interpreted as the uncertainty associated with $X$. For continuous random variables, the analogous concept is called \emph{differential entropy}, where the summation is replaced by an integral over the probability density function.
+
+Note: In practice, expressions of the form $0 \log 0$ may appear in the computation of entropy and related quantities. By convention in information theory, these terms are defined using the limit
+\[
+\lim_{x \to 0} x \log x = 0,
+\]
+and are therefore taken to be equal to zero. This ensures that entropy remains well-defined even when some events have zero probability.
+
+
+\subsection{Kullback-Leibler (KL) Divergence}
+To compare two probability distributions $P(x)$ and $Q(x)$ defined over the same space $\mathcal{X}$, the Kullback--Leibler (KL) divergence is defined as:
+\[
+D_{KL}(P \parallel Q) = \mathbb{E}_{x \sim P} \left[ \log \frac{P(x)}{Q(x)} \right]
+= \mathbb{E}_{x \sim P}[\log P(x) - \log Q(x)].
+\]
+
+Here, $P(x)$ is the true distribution and $Q(x)$ is an approximation. The expectation is taken with respect to $P(x)$. The KL divergence measures how different $Q$ is from $P$. KL divergence is always non-negative and equals zero only when the two distributions are identical. It is not symmetric, so it is not a true distance metric.
+
+\subsection{Cross-entropy}
+Closely related to KL divergence is the \emph{cross-entropy}, which is defined as:
+\[
+H(P, Q) = - \mathbb{E}_{x \sim P}[\log Q(x)],
+\]
+where $P(x)$ and $Q(x)$ are defined as above. Cross-entropy can be decomposed as:
+\[
+H(P, Q) = H(P) + D_{KL}(P \parallel Q),
+\]
+where $H(P)$ is the entropy of the true distribution $P$. Since $H(P)$ does not depend on $Q$, minimizing cross-entropy with respect to $Q$ is equivalent to minimizing the KL divergence.
+
+\subsection{Mutual Information}
+Mutual information quantifies the amount of information shared between two random variables $X$ and $Y$. It measures how much knowing one variable reduces uncertainty about the other. It is defined as:
+\[
+I(X;Y) = \mathbb{E}_{x,y}\left[\log \frac{P(x,y)}{P(x)P(y)}\right],
+\]
+where $X$ and $Y$ are random variables with joint probability distribution $P(x,y)$, and marginal distributions $P(x)$ and $P(y)$. The expectation is taken with respect to the joint distribution of $X$ and $Y$.
+
+Mutual information is symmetric and non-negative. It equals zero if and only if the variables are independent. In feature selection, it is commonly used to measure the relevance of a feature with respect to a target variable.
+
+\subsection{Redundancy}
+
+Redundancy measures the overlap of information between a feature and a set of other features. Given a feature $f$ and a set of variables $S$, redundancy can be defined as the average mutual information between $f$ and each variable in $S$:
+\[
+R(f,S) = \frac{1}{|S|} \sum_{x_i \in S} I(f,x_i),
+\]
+where $f$ is a feature represented as a random variable, $S = \{x_1, x_2, \dots, x_{|S|}\}$ is a set of random variables (features), and $I(f,x_i)$ denotes the mutual information between $f$ and $x_i$.
+
+A high redundancy value indicates that the feature $f$ shares similar information with other features in the set, which may reduce its usefulness in a feature selection process.
 
 \section{Motivation for Feature Selection}
 \label{sec:motivation-feature-selection}
@@ -554,6 +617,11 @@ Similarly, methods such as dropout, early stopping, and cross-validation help co
 
 
 \subsection{architerctures, crossvalidation, python pipeline, grid-search, hyperparameters}
-\textcolor{orange}{DIVIDING  DATA  INTO  3  CATEGORIES}
+Cross-validated risk is an estimate of a model’s expected prediction error obtained using cross-validation. In $K$-fold cross-validation, the data is partitioned into $K$ disjoint subsets (folds). For each fold $k = 1, \dots, K$, the model is trained on the remaining $K-1$ folds and evaluated on the held-out fold. Let $\mathcal{D}_k$ denote the validation set for fold $k$, and let $f^{(-k)}$ be the model trained without fold $k$. The cross-validated risk is then defined as:
 
+\[
+\text{CV Risk} = \frac{1}{K} \sum_{k=1}^{K} \frac{1}{|\mathcal{D}_k|} \sum_{(x_i, y_i) \in \mathcal{D}_k} \ell\big(y_i, f^{(-k)}(x_i)\big),
+\]
+
+where $\ell(\cdot, \cdot)$ is a loss function (e.g., misclassification error for classification or squared error for regression).
 
