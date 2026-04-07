@@ -494,95 +494,80 @@ where $f$ is a feature represented as a random variable, $S = \{x_1, x_2, \dots,
 
 A high redundancy value indicates that the feature $f$ shares similar information with other features in the set, which may reduce its usefulness in a feature selection process.
 
-\section{Motivation for Feature Selection}
-\label{sec:motivation-feature-selection}
-% Feature selection method - page 19
-One of the fundamental motivations for feature selection is to deal with a \textit{curse of dimensionality}, which refers to problems that arise when analyzing high-dimensional data. As the number of features increases, the volume of the feature space grows exponentially, causing data points to become sparse and distances between them to lose their discriminative power. This sparsity reduces effectivity of many algorithms and increases computational cost.
-
-As illustrated by the authors in  \cite{hastie2001}; consider the task of locating the nearest neighbor in \textit{p}-dimensional unit  hypercube. To capture a fixed fraction $r$ of all observations, one expands a hypercube centered at the target point so that its edge length becomes $e_p(r) = r^{1/p}$. As shown in Figure~\ref{fig:hypercube}, this neighborhood remains small in low dimensions but grows rapidly as $p$ increases. For example, in ten dimensions, capturing only $1\%$ or $10\%$ of the data already requires covering about $63\%$ and $80\%$ of each variable’s range. This shows, that two data points, which are close in a 2-dimensional space might be very distant in a 100-dimensional space. This phenomenon is referred to as \textit{sparse data}, when most of the space contains few or no observations, leaving many combinations of feature values unrepresented in large portion of space. In classification tasks, sparse data can make it more difficult to predict the class of unseen observations.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/image.png}
-    \caption{Illustration of the curse of dimensionality. Reproduced from \cite{hastie2001}.}
-    \label{fig:hypercube}
-\end{figure}
-
-The number of features determines a \textit{hypothesis space}, the set of all functions a learning algorithm can choose to map inputs to outputs, and this space grows exponentially as the number of features increases \cite{mitchell1997, goodfellow2016}.
-
-For instance, with $n$ binary features and a binary label, the size of the hypothesis space is $2^{2^n}$. For non-binary features, the size of the hypothesis space grows even more rapidly. For instance, if each feature can take $m$ values and the class has $l$ possible labels, the hypothesis space size becomes $l^{m^n}$, which further emphasizes the importance of feature selection.
-
-\textcolor{red}{ Hypothesis space of a linear regression }
 
 
-For a fixed-size training dataset, reducing the number of features effectively reduces the number of required training instances. For example, if the number of binary features is reduced from $n = 10$ to $n = 5$, and the total number of training instances $m$ is kept same, the ratio of training instances to possible input combinations, $m / 2^n$, increases exponentially, effectively increasing the coverage of the input space \cite{liu2007}. 
-
-It was demonstrated by Liu and Motoda \cite{liu2007}, feature selection can significantly reduce the hypothesis space by eliminating irrelevant and redundant features, and a smaller hypothesis space makes it easier to identify plausible hypotheses. 
-
-\textcolor{orange}{Removal of the noise}
-
-\textcolor{red}{\cite{blum1997} Definition of relevant and irrelevant features}
-
-
-Feature selection is process of selecting the most relevant features. Key aspects of feature selection include the selection criterion of the method, evaluation approach, and in some cases search strategy (mainly wrapper methods), \textcolor{green}{ which are discussed in Section XXX}. Based on the selection criterion, most of the feature selection methods belong to one of these \footnote{\textcolor{yellow}{Some methods may not fit into these three categoreies.}}three categories:
-
-\begin{enumerate}
-    \item \textbf{Filter methods}: These methods perform feature selection independently of any predictive model. They rely on intrinsic properties of the features, such as correlation, $\chi^2$ tests, or ANOVA \textcolor{pink}{GLOSSARY} to rank the features. Their main advantage is computational speed; however, they do not account for more complex interactions between features, such as non-linear or higher-order dependencies, that might influence the target variable. \textcolor{green}{Section XXs}
-    \item \textbf{Wrapper methods}: These methods are a category of feature selection techniques that evaluate subsets of features by training a machine learning model and measuring its performance. They treat the model as a black box and use it to find the combination of features that leads to the best prediction performance. Their main drawback is high computational demand, since the model must be trained multiple times for different feature subsets. \textcolor{green}{Section XXs}
-    \textcolor{pink}{GLOSSARY}
-    \item \textbf{Embedded methods}: In these methods, feature selection is integrated directly into the model training process. Examples include regularized linear models (e.g., LASSO or Ridge) \textcolor{pink}{GLOSSARY} and tree-based models that provide measures of \textit{feature importance} such as the \textit{Gini coefficient} or \textit{entropy}. \textcolor{green}{Reference to book or chapter}) 
-\end{enumerate}
-
-
-\textcolor{orange}{feaute selection improves interpretability and significantly reduce training time..}
-
-\section{Generalization in Deep Neural Networks}
+\section{Statistical Learning Theory for ANNs}
 \label{sec:generalization-neural-networks}
 
-% Deep learning - page 125
+\subsection{The No Free Lunch Theorem}
+The No Free Lunch theorem states that, averaged over all possible data-generating distributions, all learning algorithms perform equally well. In other words, no algorithm is universally superior when considering all possible problems.
+
+For ANNs this means, that no architecture or training method is universally optimal. Learning depends on inductive bias (e.g., architectural choices, regularization techniques), and the chosen model implicitly encodes assumptions about the underlying data.
+
+\subsection{Hypothesis space and VC Dimension}
+In statistical learning theory, the hypothesis space is the set of all functions that a learning algorithm can select from when fitting a model to data. Formally, given an input space $X$ and an output space $Y$, a hypothesis space $H$ is a collection of functions $h: X \to Y$.
+
+In the context of artificial neural networks (ANNs), the hypothesis space is determined by the architecture of the network, including the number of layers, the number of neurons per layer, the type of activation functions, and the connectivity pattern. For a fixed architecture, the hypothesis space consists of all functions that can be represented by varying the network parameters (weights and biases). Thus, training an ANN can be interpreted as searching within a high-dimensional hypothesis space to find a function that minimizes a given loss function.
+
 For deep neural networks, the hypothesis space is typically extremely large due to to the multiple layers and non-linear activation functions \cite{goodfellow2016}.  
 
 
-For example, consider the task of recognizing handwritten digits from the MNIST dataset, which contains $70,000$ grayscale images of digits $0$--$9$, and with image dimension of $28 \times 28$ \cite{lecun1998, mnistdataset}.  
+As an illustrative example, consider the task of recognizing handwritten digits from the MNIST dataset, which contains $70,000$ grayscale images of digits $0$--$9$, and with image dimension of $28 \times 28$ \cite{lecun1998, mnistdataset}.  
 
-A fully connected neural network with one hidden layer of 128 neurons can be used for this task. The hypothesis space - the set of all functions the network can represent - is determined by its parameters. With 784 input neurons, 128 hidden neurons, and 10 output neurons, the network has 
+A fully connected neural network with one hidden layer of 128 neurons can be used for this task. With 784 input neurons, 128 hidden neurons, and 10 output neurons, the total number of parameters is given by 
 
 \[
 \underbrace{784 \times 128}_{\text{input-to-hidden weights}} + 
 \underbrace{128}_{\text{hidden biases}} + 
 \underbrace{128 \times 10}_{\text{hidden-to-output weights}} + 
-\underbrace{10}_{\text{output biases}} \approx 100{,}000 \text{ parameters.}
+\underbrace{10}_{\text{output biases}} \approx 100{,}000 \text{.}
 \]
 
 
 
-Each combination of these values defines a distinct hypothesis, illustrating that even a relatively simple architecture can have a large expressive \textit{capacity}, which is its ability to represent a wide range of functions or patterns in the data.
-
-\textcolor{orange}{Mention XOR problem}
 
 
 
-However, such a large hypothesis space can lead to poor generalization. \textit{Generalization} is the ability of a model to perform well on new, unseen data, not just on the data it was trained on. It reflects how well the model captures the underlying patterns rather than memorizing noise.
+Each combination of these values defines a distinct hypothesis, illustrating that even a relatively simple architecture can have a large \textit{(expressive) capacity}, which is its ability to represent a wide range of functions or patterns in the data.
 
 
-When the model fits the training data too poorly it said to underfit. \textit{Underfitting} occurs when the chosen hypothesis is too simple relative to the data distribution; this prevents the model from capturing essential patterns and leads to high \textit{training error}.
-\textcolor{red}{Training error definition, formula}
+To formalize the notion of model capacity, one commonly used concept is the Vapnik–Chervonenkis (VC) dimension. The VC dimension of a hypothesis space \( \mathcal{H} \) is defined as the largest number of points that can be shattered by \( \mathcal{H} \). A set of points is said to be shattered if, for every possible labeling of these points, there exists a hypothesis in \( \mathcal{H} \) that correctly classifies them.
 
-\textcolor{orange}{Figure ilustrating Overfitting and underfitting}
+
+\subsection{Generalization and Generalisation Error}
+
+
+However, such a large hypothesis space can lead to poor generalization. \textit{Generalization} refers to the ability of a learning algorithm to perform well on previously unseen data drawn from the same underlying distribution as the training data. While a model is optimized using a finite dataset, the ultimate goal is to learn a function that approximates the true data-generating process rather than fitting the observed samples.
+
+The \textit{generalisation error} is the expected loss of a model over the true data distribution. It can be expressed as
+\[
+\mathbb{E}_{(x,y)\sim D}\left[ L\big(h(x), y\big) \right],
+\]
+where $D$ is the data-generating distribution, $L(\cdot)$ is the loss function (defined previously), and $h(x)$ is the model prediction. In practice, since the true distribution is unknown, the generalisation error is approximated using a finite dataset.
+
+\textbf{\\Training Error and Test Error\\}
+The \emph{training error (or empirical loss)} is the average loss computed on the training dataset. It reflects how well the model fits the data it was trained on.
+
+The \emph{test error} is the average loss computed on a separate dataset not used during training. This dataset is assumed to be representative of the same underlying distribution but is not used in parameter estimation.
+
+While the training error is directly optimised during learning, the test error serves as an estimator of the generalisation error. A small training error does not necessarily imply good generalisation, as the model may have memorised the training data rather than learned the underlying patterns.
+
+\textbf{\\Noise and Its Impact\\}
+Noise refers to the random variability or errors present in the data that cannot be explained by the underlying functional relationship between inputs and outputs. Noise can arise from measurement errors, incomplete information, or inherent randomness in the data-generating process.
+
+Noise limits the achievable performance of any model. Even an optimal model cannot perfectly predict outputs if the data contains irreducible noise. In practice, excessive fitting of noise leads to poor generalisation.
+
+\textbf{\\Overfitting and underfitting\\}
+When the model fits the training data too poorly it said to underfit. \textit{Underfitting} occurs when the chosen hypothesis is too simple relative to the data distribution; this prevents the model from capturing essential patterns and leads to high training error.
 
 Conversely, when the model captures not only essential patterns, but also noise, it is said to overfit. \textit{Overfitting} arises when the hypothesis is more complex than the data on which the model was trained and can lead to high \textit{generalization error}, or also called \textit{test error}.
-\textcolor{red}{Establish noise and test error}
+
+The \textit{generalisation gap} is defined as the difference between the training error and the test (generalization) error. It measures how well the model transfers learned patterns to unseen data.
+
+A large generalization gap indicates overfitting, while a small gap suggests that the model generalizes well. In deep learning, monitoring the generalization gap is a common diagnostic tool.
 
 
-To evaluate generalization, the available data is typically divided into separate subsets. The training set is used to fit the model and adjust its parameters, while the test set (or validation set) is kept aside to estimate the model’s performance on unseen data. Measuring the error on the test set provides an estimate of the generalization error, helping to identify underfitting or overfitting of the model.
-\textcolor{red}{Training seet, Validation set, test set in more detail}
-
-\textcolor{red}{Give illustative example of underfitting and overfitting}
-
-\textcolor{red}{Add figure-graph showing relation of training and generalization error withregard to number of features}
-
-\textcolor{orange}{Deep learning - page 145}
-
+\textbf{\\Bias-variance trade-off\\}
 Important concept tightly linked to overfitting and underfitting is the \emph{bias-variance trade-off}. Let 
 \(\hat f(x)\) denote the estimator learned from data, and let \(f(x)\) be the true underlying function we are estimating. The expected prediction error at a point \(x\) can be decomposed as
 \[
@@ -602,26 +587,78 @@ The variance, which underlies the problem of overfitting, increases with model c
 
 Neural networks, because of their high \emph{capacity} and extremely large hypothesis space, can achieve low bias but often exhibit large variance, especially when the number of parameters is high relative to the sample size. 
 
-For this reason, the goal in practice is to find an appropriate balance:
+\textbf{\\Validation\\}
+To estimate generalization performance and tune model hyperparameters, the dataset is typically partitioned into three subsets:
+
+\begin{itemize}
+    \item \emph{Training set}: used to fit the model parameters,
+    \item \emph{Validation set}: used to select models and tune hyperparameters,
+    \item \emph{Test set}: used for final evaluation of generalization performance.
+\end{itemize}
+
+This separation is essential to obtain an unbiased estimate of the test error and to avoid information leakage from the evaluation data into the training process.
+
+A typical workflow proceeds as follows. First, the dataset is split into training, validation, and test subsets. The model is then trained on the training set for a given choice of hyperparameters. Its performance is evaluated on the validation set, which is used to guide hyperparameter tuning and model selection. This process may be repeated multiple times for different configurations. After selecting the final model, its generalization performance is assessed once on the test set.
+
+However, when the available dataset is limited, a simple split may lead to high variance in performance estimates. In such cases, cross-validation is commonly used. The dataset is divided into \( K \) disjoint subsets (folds), and the model is trained \( K \) times. In each iteration, one fold is used as a validation set, while the remaining \( K - 1 \) folds are used for training.
+
+The cross-validation risk is defined as
 \[
-\text{Generalization Error} \approx \text{Bias}^2 + \text{Variance} + \sigma^2.
+R_{\mathrm{CV}} =
+\frac{1}{K} \sum_{k=1}^{K} \frac{1}{\lvert D_k \rvert}
+\sum_{(x_i, y_i) \in D_k}
+L\big(h^{(-k)}(x_i), y_i\big),
+\]
+where \( D_k \) denotes the \( k \)-th fold, \( \lvert D_k \rvert \) its size, \( L \) the loss function, and \( h^{(-k)} \) the model trained without using the \( k \)-th fold.
+
+Cross-validation provides a more robust estimate of the generalization error compared to a single train-test split, as it reduces the dependence on a particular partition of the data. 
+
+\subsection{Regularisation Techniques}
+Deep neural networks are highly expressive models with large hypothesis spaces, which makes them prone to overfitting. To improve generalisation performance, it is necessary to control model complexity and prevent the model from fitting noise in the training data. This is achieved through \emph{regularisation techniques}, which impose constraints on the learning process.
+
+\textbf{\\Parameter norm penalties\\}
+One common approach to address problem of overfitting is by adding a penalty term to a loss function, which effectively controls model complexity.
+
+The general form of a regularized cost functions is:
+
+\[
+L(h) = \frac{1}{n} \sum_{i=1}^{n} \ell\big(h(x_i), y_i\big) + \lambda \Omega(h),
 \]
 
-Achieving this balance typically requires the use of \emph{regularization techniques}, which will be discussed in \textcolor{green}{subsection X\_x}. For a model with parameters \(\theta\), weight decay (also known as \(L_2\)-regularization) adds a penalty \(\lambda \lVert \theta \rVert_2^2\) to the loss function, and thus effectively reducing variance:
+where $L(h)$ is the objective function to be minimized, $\ell(\cdot,\cdot)$ is the sample loss measuring the discrepancy between predictions $h(x_i)$ and true outputs $y_i$, $\Omega(h)$ is a regularization term controlling model complexity, $\lambda \ge 0$ is a regularization parameter balancing fit and complexity, and $n$ is the number of training samples. The regularization term is typically defined in terms of the model parameters by writing $h \equiv h_{\theta}$ with $\theta \in \mathbb{R}^p$.
+
+The regularization term $\Omega(h)$ is typically defined in terms of the model parameters. Let $h \equiv h_{\theta}$, where $\theta \in \mathbb{R}^p$ denotes the parameter vector of the model.
+
+\textbf{\\L1 Regularization (Lasso)\\}
+
+Lasso (Least Absolute Shrinkage and Selection Operator) uses an L1 penalty::
 \[
-L_{\mathrm{reg}}(\theta) = L(\theta) + \lambda \lVert \theta \rVert_2^2.
+\Omega(\theta) = \|\theta\|_1 = \sum_{j=1}^{p} |\theta_j|.
 \]
 
-Similarly, methods such as dropout, early stopping, and cross-validation help constrain model complexity without sacrificing too much expressive power. These strategies collectively aim to minimize expected test error by controlling variance while keeping bias acceptably low.
+L1 regularization promotes sparsity in the parameter vector, meaning that some coefficients are driven exactly to zero, which can also be interpreted as an implicit form of feature selection.
 
-
-
-\subsection{architerctures, crossvalidation, python pipeline, grid-search, hyperparameters}
-Cross-validated risk is an estimate of a model’s expected prediction error obtained using cross-validation. In $K$-fold cross-validation, the data is partitioned into $K$ disjoint subsets (folds). For each fold $k = 1, \dots, K$, the model is trained on the remaining $K-1$ folds and evaluated on the held-out fold. Let $\mathcal{D}_k$ denote the validation set for fold $k$, and let $f^{(-k)}$ be the model trained without fold $k$. The cross-validated risk is then defined as:
-
+\textbf{\\L2 Regularization (Ridge)\\}
+In L2 regularization (also known as Ridge or Weight decay), the penalty is given by the squared Euclidean norm of the parameter vector:
 \[
-\text{CV Risk} = \frac{1}{K} \sum_{k=1}^{K} \frac{1}{|\mathcal{D}_k|} \sum_{(x_i, y_i) \in \mathcal{D}_k} \ell\big(y_i, f^{(-k)}(x_i)\big),
+\Omega(\theta) = \|\theta\|_2^2 = \sum_{j=1}^{p} \theta_j^2.
 \]
 
-where $\ell(\cdot, \cdot)$ is a loss function (e.g., misclassification error for classification or squared error for regression).
+L2 regularization encourages small parameter values and tends to distribute weights more evenly across features.
 
+\textbf{\\Elastic Net regularization\\}
+Elastic Net combines both L1 and L2 penalties. The regularization term is defined as
+\[
+\Omega(\theta) = \alpha \|\theta\|_1 + (1 - \alpha)\|\theta\|_2^2,
+\]
+where $\alpha \in [0,1]$ controls the trade-off between the L1 and L2 components - it promotes sparsity and feature selection through the L1 component, while the L2 component improves stability and encourages grouping of correlated features.
+
+\textbf{\\Early stoping\\}
+Early stopping is a regularisation technique based on monitoring model performance on a validation set during training. Instead of training the model until convergence, the process is stopped when the validation error starts to increase, indicating the onset of overfitting.
+
+In practice, the data are split into training and validation sets, the model is trained iteratively (e.g., via gradient descent), and its performance on the validation set is evaluated after each epoch; training is terminated once the validation error does not decrease for a predefined number of iterations, to which we refer as patience parameter.
+
+Early stopping can be interpreted as implicit regularisation, since iterative optimisation tends to increase model complexity over time, and stopping early prevents the model from reaching overly complex solutions.
+
+\textbf{\\Dropout\\}
+Dropout is a stochastic regularisation technique in which neurons are randomly removed during training: each neuron is retained with probability $p$ and set to zero otherwise. This reduces encourages more robust representations. At test time, all neurons are used with appropriately scaled outputs. Dropout can be viewed as an approximation to averaging predictions over many network architectures.
