@@ -1,16 +1,63 @@
 \chapter*{Notation}
 \addcontentsline{toc}{chapter}{Notation}
 
-Pro snažší orientaci v textu zde čtenáři předkládáme přehled základního značení, které se v celé práci vyskytuje.
-\begin{flushleft}
 \begin{longtable}[l]{ll} %% [l] tabulka je zarovnana vlevo; [c] zarovnani na stred; [r] zarovnani v pravo
-  $\Cbb$                 & množina všech komplexních čísel \\[1mm]
-  $\Rbb$                 & množina všech reálných čísel \\[1mm]
-  $\Zbb$                 & množina všech celých čísel \\[1mm]
-  $\Nbb$                 & množina všech přirozených čísel\\[1mm]
-  $\Cbb$                 & množina všech komplexních čísel \\[1mm]
-  $\Rbb$                 & množina všech reálných čísel \\[1mm]
-  $\Zbb$                 & množina všech celých čísel \\[1mm]
-  $\Nbb$                 & množina všech 
+\multicolumn{2}{l}{\textbf{GENERAL}} \\[0.3em]
+$x, y, z$ & Scalars \\
+$\mathbf{x}, \mathbf{y}, \mathbf{z}$ & Vectors (bold lowercase) \\
+$\mathbf{W}, \mathbf{M}$ & Matrices (bold uppercase) \\
+$\mathcal{X}, \mathcal{Y}$ & Probability and vector spaces  \\
+$\mathbb{R}, \mathbb{N}$ & Sets of real and natural numbers \\
+$|S|$ & Cardinality of set $S$ \\
+$\|\cdot\|_1, \|\cdot\|_2$ & $L_1$ and $L_2$ norms \\
+$\mathbb{E}[\cdot]$ & Expectation operator \\
+[0.5em]
+\multicolumn{2}{l}{\textbf{NETWORK ARCHITECTURE}} \\[0.3em]
+$L$ & Number of layers (excluding input) \\
+$n^{(i)}$ & Number of neurons in layer $i$ \\
+$\mathbf{a}^{(i)} \in \mathbb{R}^{n^{(i)}}$ & Activation vector of layer $i$ \\
+$a^{(i)}_j$ & Activation of $j$-th neuron in layer $i$ \\
+$\mathbf{W}^{(i)} \in \mathbb{R}^{n^{(i)} \times n^{(i-1)}}$ & Weight matrix from layer $i-1$ to layer $i$ \\
+$\mathbf{b}^{(i)} \in \mathbb{R}^{n^{(i)}}$ & Bias vector of layer $i$ \\
+$\mathbf{z}^{(i)}$ & Pre-activation vector of layer $i$ \\
+$\mathbf{z}^{(i)} = \mathbf{W}^{(i)} \mathbf{a}^{(i-1)} + \mathbf{b}^{(i)}$ & Pre-activation computation \\
+$\varphi(\cdot)$ & Activation function (hidden layers) \\
+$g(\cdot)$ & Output activation function (identity, sigmoid, or softmax depending on task) \\
+[0.5em]
+\multicolumn{2}{l}{\textbf{PARAMETERS AND OPTIMIZATION}} \\[0.3em]
+$\boldsymbol{\theta} \in \mathbb{R}^p$ & All trainable parameters (weights and biases) \\
+$p$ & Total number of parameters \\
+$\eta \in \mathbb{R}_+$ & Learning rate \\
+$t$ & Iteration index in gradient descent \\
+$B$ & Mini-batch size, $B \in \mathbb{N},\ 1 < B < n$ \\
+$\nabla_{\boldsymbol{\theta}} \mathcal{L}$ & Gradient of loss with respect to $\boldsymbol{\theta}$ \\
+$\ell(\hat{y}, y)$ & Per-sample loss \\
+$\mathcal{L}(\boldsymbol{\theta})$ & Total empirical loss over training set \\
+$\Omega(\boldsymbol{\theta})$ & Regularization penalty term \\
+$\lambda \geq 0$ & Regularization strength \\
+[0.5em]
+\multicolumn{2}{l}{\textbf{DATA}} \\[0.3em]
+$n$ & Number of training samples \\
+$d$ & Input dimensionality \\
+$K$ & Number of classes \\
+$\mathbf{x}_i \in \mathbb{R}^d$ & $i$-th input sample \\
+$y_i$ & True label of sample $i$ \\
+$\hat{y}_i$ & Predicted output for sample $i$ \\
+[0.5em]
+\multicolumn{2}{l}{\textbf{INFORMATION THEORY}} \\ [0.3em]
+$P(x), Q(x)$ & Probability mass functions \\
+$I(x)$ & Self-information of outcome $x$ \\
+$H(X)$ & Shannon entropy of random variable $X$ \\
+$D_{\mathrm{KL}}(P \,\|\, Q)$ & KL divergence from $Q$ to $P$ \\
+$H(P, Q)$ & Cross-entropy of $Q$ relative to $P$ \\
+$I(X; Y)$ & Mutual information between $X$ and $Y$ \\
+$R(f, S)$ & Redundancy of feature $f$ with respect to set $S$ \\
+[0.5em]
+\multicolumn{2}{l}{\textbf{STATISTICAL LEARNING}} \\ [0.3em]
+$\mathcal{D}$ & Data-generating distribution \\
+$\mathcal{H}$ & Hypothesis space \\
+$h$ & Hypothesis (learned function) \\
+$R_{\mathrm{CV}}$ & Cross-validation risk \\
+$K$ & Number of folds in cross-validation \\
+$\sigma^2$ & Irreducible noise variance \\
 \end{longtable}
-\end{flushleft}

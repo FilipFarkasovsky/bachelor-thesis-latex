@@ -662,3 +662,8 @@ Early stopping can be interpreted as implicit regularisation, since iterative op
 
 \textbf{\\Dropout\\}
 Dropout is a stochastic regularisation technique in which neurons are randomly removed during training: each neuron is retained with probability $p$ and set to zero otherwise. This reduces encourages more robust representations. At test time, all neurons are used with appropriately scaled outputs. Dropout can be viewed as an approximation to averaging predictions over many network architectures.
+
+\textbf{\\Data Augmentation\\}
+Data augmentation increases the effective size of the training dataset by applying transformations to existing data points. In image tasks, this may include rotations, translations, or scaling; in other domains, appropriate transformations depend on the structure of the data.
+
+By exposing the model to a wider variety of inputs, data augmentation reduces overfitting and improves generalisation without explicitly modifying the model or loss function.
