@@ -285,50 +285,68 @@ Hendrycks and Gimpel in \cite{hendrycks2016} showed that its smooth, probabilist
 
 The choice of activation function in the output layer of a neural network depends on the type of task and the desired output representation. For regression tasks, where the network predicts continous values, the \textit{identity function} $\phi(x) = x$ is commonly used. 
 
-For binary classification, the sigmoid function \textcolor{green}{Section XX} is frequently used. Its output lies in the interval $(0,1)$, which can be interpreted as the probability of belonging to a positive class. Its differentiability enables efficient gradient-based learning.
+For binary classification, the sigmoid function \textcolor{green}{Section XX} is frequently used. Its output lies in the interval $(0,1)$, which can be interpreted as the probability of belonging to a positive class. Its simple derivative enables efficient gradient-based learning.
 
-For multiclass classification, the \textit{softmax} function is commonly used. Given an input vector 
+For multiclass classification, the \textit{softmax function} is commonly used. Given an input vector 
 \(\mathbf{x} = (x_1, x_2, \dots, x_k)^\top \in \mathbb{R}^k\), softmax maps it to a probability distribution over \(k\) classes:
 
-\[
-\mathrm{softmax}(x_i) = \frac{e^{x_i}}{\sum_{j=1}^{k} e^{x_j}}, \quad i = 1,2, \dots, k.
-\]
+\begin{equation}
+    \mathrm{softmax}(x_i) = \frac{e^{x_i}}{\sum_{j=1}^{k} e^{x_j}}, \quad i = 1,2, \dots, k.
+\end{equation}
 
-This ensures that \(\mathrm{softmax}(x_i) > 0\) $\forall$ \(i\) and \(\sum_{i=1}^{k} \mathrm{softmax}(x_i) = 1\), allowing the outputs to be interpreted as class probabilities. For this transformation to work, the last hidden layer must have the same number of neurons as the output layer, and its outputs are fed directly into the softmax, with no additional weights.
+This transformation has two key properties. Positivity follows from the exponential function, ensuring that $\text{softmax}(x_i) > 0 \ \forall i$. Normalization is guaranteed by the denominator, which ensures that $\sum_{i=1}^{k} \text{softmax}(x_i) = 1$. Together, these properties ensure that the softmax output forms a valid probability distribution over the $k$ classes. Each component can therefore be interpreted as the model’s estimated probability that the input belongs to the corresponding class. 
+
+Note that for this transformation to work, the last hidden layer must have the same number of neurons as the output layer.
 
 \subsection{Loss Functions}
 \label{sec:loss-functions}
-Loss function quantifies the difference between a neural network's prediction $\hat{y}$ and target value $y$. It can be used to both evaluate performance of the model, and for guidence in gradient-based learning, as it will be illustrated in the following subsection. Our goal is to minimize the prediction error by optimizing the loss function.
+Loss function quantifies the difference between a neural network's prediction $\hat{y}$ and target value $y$. It can be used to both evaluate performance of the model, and for guidence in gradient-based learning, as it will be illustrated in the following subsection.
 
-The choice of loss function depends on the type of task. For regression tasks, the \textit{mean squared error} is commonly used:
+Given a dataset of $n$ observations, the \emph{empirical risk (average loss)} is defined as:
 
-\[
-    \mathcal{L} = \text{MSE} = \frac{1}{n}\sum_{i=1}^{n}{\left(y_i - \hat{y}_i\right)^2}
-\]
+\begin{equation}
+    \mathcal{L} = \frac{1}{n} \sum_{i=1}^{n} l(y_i, \hat{y}_i)
+\end{equation}
+
+The objective of model estimation is to find parameters that minimize this empirical risk:
+
+\begin{equation}
+    \boldsymbol{\theta}^* = \arg \min_{\boldsymbol{\theta}} \frac{1}{n} \sum_{i=1}^{n} l\big(y_i, f(\mathbf{x}_i; \boldsymbol{\theta})\big)
+\end{equation}
+
+where $\mathbf{x}_i$ denotes the input features, $f(\mathbf{x}_i; \boldsymbol{\theta})$ is the model prediction, $\theta$ represents the model parameters, and $l(\cdot,\cdot)$ is the sample loss function.
+
+The choice of loss function depends on the type of task. For regression tasks, the \textit{squared error loss} is commonly used:
+
+\begin{equation}
+    l(y_i, \hat{y}_i) = {\left(y_i - \hat{y}_i\right)^2}
+\end{equation}
+
+Minimizing the squared error leads to the \emph{ordinary least squares (OLS)} estimator in linear regression. This loss function penalizes larger errors more heavily due to the quadratic term, which makes it sensitive to outliers.
 
 For binary classification, the \textit{binary cross-entropy} loss is used, which is the the negative log-likelihood of Bernoulli distribution:
 
-\[
-\mathcal{L} = - \frac{1}{n} \sum_{i=1}^{n} \Big[ y_i \log \hat{y}_i + (1 - y_i) \log (1 - \hat{y}_i) \Big],
-\]
+\begin{equation}
+    l(y_i, \hat{y}_i) = - \Big[ y_i \log \hat{y}_i + (1 - y_i) \log (1 - \hat{y}_i) \Big],
+\end{equation}
 
 where \(\hat{y}_i\) represents the predicted probability of the positive class.
 
 For multiclass classification, the \textit{categorical cross-entropy loss} is used in combination with the softmax activation:
 
-\[
-\mathcal{L} = - \frac{1}{n} \sum_{i=1}^{n} \sum_{k=1}^{k} y_{i,k} \log \hat{y}_{i,k},
-\]
+\begin{equation}
+    l(y_i, \hat{y}_i) = - \sum_{k=1}^{k} y_{i,k} \log \hat{y}_{i,k},
+\end{equation}
 
 where 
 
-\[
-y_{i,k} = 
-\begin{cases} 
-1 & \text{if sample $i$ belongs to class $k$,} \\
-0 & \text{otherwise,} 
-\end{cases}
-\]
+\begin{equation}
+    y_{i,k} = 
+    \begin{cases} 
+        1 & \text{if sample $i$ belongs to class $k$,} \\
+        0 & \text{otherwise,} 
+    \end{cases}
+\end{equation}
 
 and \(\hat{y}_{i,k}\) is the predicted probability for class $k$  of sample $i$ .
 
@@ -339,9 +357,9 @@ In classification tasks solved by neural networks, the model typically ouputs a 
 Gradient descent is an optimization algorithm used to train neural networks by minimizing loss function. Its main idea is iteratively adjusting the parameters of the model in the the direction that reduces loss the most. Formally, for a set of parameters $\boldsymbol{\theta}$ and a differentiable loss function $\mathcal{L}(\boldsymbol{\theta})$, the update rule naturally is:
 
 
-\[
-\boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t - \eta \, \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\boldsymbol{\theta}}_t),
-\]
+\begin{equation}
+    \boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t - \eta \, \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\boldsymbol{\theta}}_t),
+\end{equation}
 
 
 where $\eta \in \mathbb{R}_{>0}$ is a hyperparameter called \textit{learning rate}, which controls step size, and $\nabla_{\boldsymbol{\theta}}\mathcal{L}(\boldsymbol{\theta})$ is the gradient of loss function with respect to all parameters at iteration $t$.
@@ -352,27 +370,27 @@ Under conditions such as convexity and Lipshitz-continuity of gradients, converg
 
 There are multiple ways in which the parameters can be updated at each step, depending on the choice of \textit{batch} - subset of training data used to estimate the gradient. In \textit{batch gradient descent}, the gradient is computed over the entire dataset:
 
-\[
-\boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t - \eta \, \frac{1}{n} \sum_{i=1}^{n} \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}_t, y_i),
-\]
+\begin{equation}
+    \boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t - \eta \, \frac{1}{n} \sum_{i=1}^{n} \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}_t, y_i),
+\end{equation}
 
 where \(n\) is the total number of training samples and \(\mathcal{L}(\boldsymbol{\theta}_t, y_i)\) is the loss for a single sample. This provides an accurate update but can be computationally expensive for large datasets.
 
 
 In \textit{stochastic gradient descent}, the parameters are updated using a single randomly selected training sample per iteration:
 
-\[
-\boldsymbol{\theta_{t+1}} = \boldsymbol{\theta_t} - \eta \, \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta_t}, y_i),
-\]
+\begin{equation}
+    \boldsymbol{\theta_{t+1}} = \boldsymbol{\theta_t} - \eta \, \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta_t}, y_i),
+\end{equation}
 
 which introduces stochasticity, potentially helping the optimizer escape shallow local minima.
 
 \textit{Mini-batch gradient descent} updates the parameters using a small subset of size $B$, where $B \in \mathbb{N}$ and $1 < B < n$:
 
 
-\[
-\boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t - \eta \, \frac{1}{B} \sum_{i \in \text{mini-batch}} \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}_t, y_i),
-\]
+\begin{equation}
+    \boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t - \eta \, \frac{1}{B} \sum_{i \in \text{mini-batch}} \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}_t, y_i),
+\end{equation}
 
 
 This approach is the most commonly used in practice, because of its computational efficiency and smoother convergence \cite{gfg2025}.
@@ -382,9 +400,9 @@ It is important to mention the \textit{backpropgation algorithm}, which is used 
 For effective learning, it is crucial to choose appropriate learning rate. It controls magnitude of each step in a gradient-descent. A small learning rate can cause slow convergence. Conversely, a too large learning rate can cause divergence, or oscillatory behavior. Thus, selecting a fixed learning rate can cause instability or excessively slow convergence during training. Several modifications of learning rate are proposed. One of the most simple  is an \textit{exponential decay}:
 
 % n overview of gradient descent optimization algorithms
-\[
-\eta_t = \eta_0 e^{-\gamma t},
-\]
+\begin{equation}
+    \eta_t = \eta_0 e^{-\gamma t},
+\end{equation}
 where $\eta_0$ denotes the initial learning rate, $\gamma>0$ is the decay coefficient, and $t$ is an iteration index. 
 
 Exponential decay has some limitations, as it reduces the learning rate uniformly without considering the specific behavior of individual parameters. The most effective method are so called adaptive algorithms, such as \textit{Adam}, \textit{RMSProp}, and \textit{Adagrad}~\cite{ruder2016overview, duchi2011adaptive, kingma2015adam}. \textcolor{pink}{GLOSSARY} These methods automatically adjust the step size for each parameter based on the history of gradients - this makes them useful when the gradients of some parameters are steep while others are shallow ~\cite{ruder2016overview}. Among them, Adam has become the most widely used optimizer due to its strong empirical performance, robustness across a variety of architectures, and relatively low sensitivity to the choice of the initial learning rate~\cite{kingma2015adam}.
@@ -437,31 +455,31 @@ From the confusion matrix, several performance measures can be derived: \\
 
 \textbf{Accuracy}, sometimes reffered to as \emph{rand index}, or \emph{rand accuracy} is defined as the proportion of correctly classified observations among all observations, as shown in Equation~\ref{eq:accuracy}. 
 
-\[
+\begin{equation}
     \text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
-\] \\
+\end{equation}
 
 Although intuitive, accuracy can be misleading in the presence of imbalanced class distributions. For example, consider a disease with a low prevalence of $0.5\%$. A naive model that classifies every observation as negative achieves an accuracy of 99.5\%. Despite this high value, the model fails to identify any positive cases. This shows that accuracy alone might not not be sufficient for evaluation of the model. 
 
 \textbf{Precision} measures the proportion of correctly predicted positive samples among all predicted positive samples:
-\[
+\begin{equation}
     \text{Precision} = \frac{TP}{TP + FP}
-\] \\
+\end{equation}
 
 \textbf{Recall (Sensitivity)} is proportion of correctly identified positive samples out of all actual positives: 
-\[
+\begin{equation}
     \text{Recall} = \frac{TP}{TP + FN}
-\] \\
+\end{equation}
 
 \textbf{Specificity} measures the proportion of correctly identified negative samples out of all actual negatives:
-\[
+\begin{equation}
     \text{Specificity} = \frac{TN}{TN + FP}
-\] \\
+\end{equation}
 
 \textbf{F1 score} is the harmonic mean of precision and recall:
-\[
+\begin{equation}
     F1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
-\] \\
+\end{equation}
 
 
 \textit{The true positive rate (TPR)} corresponds to recall. \textit{The false positive rate (FPR)} is defined as $1 - \textit{specificity}$ and quantifies the proportion of negative samples incorrectly classified as positive.
@@ -514,11 +532,11 @@ In the context of neural networks, metrics such as MSE and RMSE are not only use
 \section{Information Theory}
 \emph{Information theory} is a branch of applied mathematics focused on quantifying the amount of information contained in a signal or random variable. The main idea is that observing unlikely events provides more information than observing likely ones. This framework is useful for feature selection, since it allows measuring how informative a feature is with respect to a target variable.
 
-\subsection{Self-information}
+\textbf{\\Self-information\\}
 Let $X$ be a discrete random variable with possible values $x \in \mathcal{X}$, and let $P(x)$ denote the probability mass function of $X$. The information content of a single outcome $x$ is measured by \emph{self-information}:
-\[
-I(x) = -\log P(x).
-\]
+\begin{equation}
+    I(x) = -\log P(x).
+\end{equation}
 
 Here, $P(x)$ is the probability of observing the event $x$, and the logarithm is typically taken in base $2$ or the natural logarithm, depending on the context. 
 
@@ -529,13 +547,13 @@ This definition satisfies three intuitive properties \cite{goodfellow2016}:
     \item Independent events have additive information.
 \end{itemize}
 
-\subsection{Entropy}
+\textbf{\\Entropy\\}
 Self-information deals only with a single outcome. To measure uncertainty over an entire probability distribution of random variable $X$, \emph{Shannon entropy} is used \cite{goodfellow2016}.
 
 It is defined as expected value of \emph{self-information}:
-\[
-H(X) = \mathbb{E}_{x \sim P}[-\log P(x)] = - \sum_{i=1}^{n} P(x_i)\log P(x_i).
-\]
+\begin{equation}
+    H(X) = \mathbb{E}_{x \sim P}[-\log P(x)] = - \sum_{i=1}^{n} P(x_i)\log P(x_i).
+\end{equation}
 Here, $\{x_1, \ldots, x_n\} \subset \mathcal{X}$ are the possible outcomes of $X$, and $P(x_i)$ is the probability of outcome $x_i$. The entropy $H(X)$ can be interpreted as the uncertainty associated with $X$. For continuous random variables, the analogous concept is called \emph{differential entropy}, where the summation is replaced by an integral over the probability density function.
 
 Note: In practice, expressions of the form $0 \log 0$ may appear in the computation of entropy and related quantities. By convention in information theory, these terms are defined using the limit
@@ -544,42 +562,40 @@ Note: In practice, expressions of the form $0 \log 0$ may appear in the computat
 \]
 and are therefore taken to be equal to zero. This ensures that entropy remains well-defined even when some events have zero probability.
 
-
-\subsection{Kullback-Leibler (KL) Divergence}
+\textbf{\\Kullback-Leibler (KL) Divergence\\}
 To compare two probability distributions $P(x)$ and $Q(x)$ defined over the same space $\mathcal{X}$, the Kullback--Leibler (KL) divergence is defined as:
-\[
-D_{KL}(P \parallel Q) = \mathbb{E}_{x \sim P} \left[ \log \frac{P(x)}{Q(x)} \right]
-= \mathbb{E}_{x \sim P}[\log P(x) - \log Q(x)].
-\]
+\begin{equation}
+    D_{KL}(P \parallel Q) = \mathbb{E}_{x \sim P} \left[ \log \frac{P(x)}{Q(x)} \right]
+    = \mathbb{E}_{x \sim P}[\log P(x) - \log Q(x)].
+\end{equation}
 
 Here, $P(x)$ is the true distribution and $Q(x)$ is an approximation. The expectation is taken with respect to $P(x)$. The KL divergence measures how different $Q$ is from $P$. KL divergence is always non-negative and equals zero only when the two distributions are identical. It is not symmetric, so it is not a true distance metric.
 
-\subsection{Cross-entropy}
+\textbf{\\Cross-entropy\\}
 Closely related to KL divergence is the \emph{cross-entropy}, which is defined as:
-\[
-H(P, Q) = - \mathbb{E}_{x \sim P}[\log Q(x)],
-\]
+\begin{equation}
+    H(P, Q) = - \mathbb{E}_{x \sim P}[\log Q(x)],
+\end{equation}
 where $P(x)$ and $Q(x)$ are defined as above. Cross-entropy can be decomposed as:
-\[
-H(P, Q) = H(P) + D_{KL}(P \parallel Q),
-\]
+\begin{equation}
+    H(P, Q) = H(P) + D_{KL}(P \parallel Q),
+\end{equation}
 where $H(P)$ is the entropy of the true distribution $P$. Since $H(P)$ does not depend on $Q$, minimizing cross-entropy with respect to $Q$ is equivalent to minimizing the KL divergence.
 
-\subsection{Mutual Information}
+\textbf{\\Mutual Information\\}
 Mutual information quantifies the amount of information shared between two random variables $X$ and $Y$. It measures how much knowing one variable reduces uncertainty about the other. It is defined as:
-\[
-I(X;Y) = \mathbb{E}_{x,y}\left[\log \frac{P(x,y)}{P(x)P(y)}\right],
-\]
+\begin{equation}
+    I(X;Y) = \mathbb{E}_{x,y}\left[\log \frac{P(x,y)}{P(x)P(y)}\right],
+\end{equation}
 where $X$ and $Y$ are random variables with joint probability distribution $P(x,y)$, and marginal distributions $P(x)$ and $P(y)$. The expectation is taken with respect to the joint distribution of $X$ and $Y$.
 
 Mutual information is symmetric and non-negative. It equals zero if and only if the variables are independent. In feature selection, it is commonly used to measure the relevance of a feature with respect to a target variable.
 
-\subsection{Redundancy}
-
+\textbf{\\Redundancy\\}
 Redundancy measures the overlap of information between a feature and a set of other features. Given a feature $f$ and a set of variables $S$, redundancy can be defined as the average mutual information between $f$ and each variable in $S$:
-\[
-R(f,S) = \frac{1}{|S|} \sum_{x_i \in S} I(f,x_i),
-\]
+\begin{equation}
+    R(f,S) = \frac{1}{|S|} \sum_{x_i \in S} I(f,x_i),
+\end{equation}
 where $f$ is a feature represented as a random variable, $S = \{x_1, x_2, \dots, x_{|S|}\}$ is a set of random variables (features), and $I(f,x_i)$ denotes the mutual information between $f$ and $x_i$.
 
 A high redundancy value indicates that the feature $f$ shares similar information with other features in the set, which may reduce its usefulness in a feature selection process.
@@ -630,9 +646,9 @@ To formalize the notion of model capacity, one commonly used concept is the Vapn
 However, such a large hypothesis space can lead to poor generalization. \textit{Generalization} refers to the ability of a learning algorithm to perform well on previously unseen data drawn from the same underlying distribution as the training data. While a model is optimized using a finite dataset, the ultimate goal is to learn a function that approximates the true data-generating process rather than fitting the observed samples.
 
 The \textit{generalisation error} is the expected loss of a model over the true data distribution. It can be expressed as
-\[
-\mathbb{E}_{(x,y)\sim D}\left[ L\big(h(x), y\big) \right],
-\]
+\begin{equation}
+    \mathbb{E}_{(x,y)\sim D}\left[ L\big(h(x), y\big) \right],
+\end{equation}
 where $D$ is the data-generating distribution, $L(\cdot)$ is the loss function (defined previously), and $h(x)$ is the model prediction. In practice, since the true distribution is unknown, the generalisation error is approximated using a finite dataset.
 
 \textbf{\\Training Error and Test Error\\}
@@ -693,12 +709,12 @@ A typical workflow proceeds as follows. First, the dataset is split into trainin
 However, when the available dataset is limited, a simple split may lead to high variance in performance estimates. In such cases, cross-validation is commonly used. The dataset is divided into \( K \) disjoint subsets (folds), and the model is trained \( K \) times. In each iteration, one fold is used as a validation set, while the remaining \( K - 1 \) folds are used for training.
 
 The cross-validation risk is defined as
-\[
-R_{\mathrm{CV}} =
-\frac{1}{K} \sum_{k=1}^{K} \frac{1}{\lvert D_k \rvert}
-\sum_{(x_i, y_i) \in D_k}
-L\big(h^{(-k)}(x_i), y_i\big),
-\]
+\begin{equation}
+    R_{\mathrm{CV}} =
+    \frac{1}{K} \sum_{k=1}^{K} \frac{1}{\lvert D_k \rvert}
+    \sum_{(x_i, y_i) \in D_k}
+    L\big(h^{(-k)}(x_i), y_i\big),
+\end{equation}
 where \( D_k \) denotes the \( k \)-th fold, \( \lvert D_k \rvert \) its size, \( L \) the loss function, and \( h^{(-k)} \) the model trained without using the \( k \)-th fold.
 
 Cross-validation provides a more robust estimate of the generalization error compared to a single train-test split, as it reduces the dependence on a particular partition of the data. 
@@ -711,9 +727,9 @@ One common approach to address problem of overfitting is by adding a penalty ter
 
 The general form of a regularized cost functions is:
 
-\[
-L(h) = \frac{1}{n} \sum_{i=1}^{n} \ell\big(h(x_i), y_i\big) + \lambda \Omega(h),
-\]
+\begin{equation}
+    L(h) = \frac{1}{n} \sum_{i=1}^{n} \ell\big(h(x_i), y_i\big) + \lambda \Omega(h),
+\end{equation}
 
 where $L(h)$ is the objective function to be minimized, $\ell(\cdot,\cdot)$ is the sample loss measuring the discrepancy between predictions $h(x_i)$ and true outputs $y_i$, $\Omega(h)$ is a regularization term controlling model complexity, $\lambda \ge 0$ is a regularization parameter balancing fit and complexity, and $n$ is the number of training samples. The regularization term is typically defined in terms of the model parameters by writing $h \equiv h_{\theta}$ with $\theta \in \mathbb{R}^p$.
 
@@ -722,25 +738,25 @@ The regularization term $\Omega(h)$ is typically defined in terms of the model p
 \textbf{\\L1 Regularization (Lasso)\\}
 
 Lasso (Least Absolute Shrinkage and Selection Operator) uses an L1 penalty::
-\[
-\Omega(\theta) = \|\theta\|_1 = \sum_{j=1}^{p} |\theta_j|.
-\]
+\begin{equation}
+    \Omega(\theta) = \|\theta\|_1 = \sum_{j=1}^{p} |\theta_j|.
+\end{equation}
 
 L1 regularization promotes sparsity in the parameter vector, meaning that some coefficients are driven exactly to zero, which can also be interpreted as an implicit form of feature selection.
 
 \textbf{\\L2 Regularization (Ridge)\\}
 In L2 regularization (also known as Ridge or Weight decay), the penalty is given by the squared Euclidean norm of the parameter vector:
-\[
-\Omega(\theta) = \|\theta\|_2^2 = \sum_{j=1}^{p} \theta_j^2.
-\]
+\begin{equation}
+    \Omega(\theta) = \|\theta\|_2^2 = \sum_{j=1}^{p} \theta_j^2.
+\end{equation}
 
 L2 regularization encourages small parameter values and tends to distribute weights more evenly across features.
 
 \textbf{\\Elastic Net regularization\\}
 Elastic Net combines both L1 and L2 penalties. The regularization term is defined as
-\[
-\Omega(\theta) = \alpha \|\theta\|_1 + (1 - \alpha)\|\theta\|_2^2,
-\]
+\begin{equation}
+    \Omega(\theta) = \alpha \|\theta\|_1 + (1 - \alpha)\|\theta\|_2^2,
+\end{equation}
 where $\alpha \in [0,1]$ controls the trade-off between the L1 and L2 components - it promotes sparsity and feature selection through the L1 component, while the L2 component improves stability and encourages grouping of correlated features.
 
 \textbf{\\Early stoping\\}
