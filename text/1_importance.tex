@@ -11,7 +11,7 @@ What is the trade-off between predictive accuracy and interpretability?
 How does correlated input affect selection stability?
 Can feature selection harm representation learning?}
 
-Neural networks are one of the most popular algorithms of machine learning. Their were inspired by the structure and function of biological neurons, which are the fundamental units of nervous tissue. To distinguish them from their biological counterpart, sometimes the term \textit{Artificial neural networks (ANNs)} is used. 
+Neural networks are one of the most popular algorithms of machine learning. They were loosely inspired by the structure and function of biological neurons, which are the fundamental units of nervous tissue. To distinguish them from their biological counterpart, sometimes the term \textit{Artificial neural networks (ANNs)} is used. 
 
 Neural network can be viewed as a composition of affine transformations and non-linear activation functions, which allows them to serve as universal approximators. This property is established in many theorems; several of which are mentioned by Goodfellow in \cite{goodfellow2016}. Their ability to capture complex patterns makes them widely applicable in areas such as computer vision, natural language processing, and predictive modeling. A detailed treatment of neural network applications and methodologies can be found in the comprehensive review by Abiodun et al. \cite{abiodun2019}.
 
@@ -20,13 +20,40 @@ Neural network can be viewed as a composition of affine transformations and non-
 
 \subsection{Network architectures}
 \label{sec:network-architectures}
-\textbf{Neuron} \\
-These networks are called \textit{neural} because their structure is loosely inspired by neuroscience. Basic computational unit of a neural network is the \textit{(artificial )neuron}. Formally, a neuron is a function 
-\[
-f_{\mathbf{w},b}: \mathbb{R}^n \to \mathbb{R}, \quad \mathbf{x} \mapsto f_{\mathbf{w},b}(\mathbf{x}) = f\Big(\mathbf{w}^\top \mathbf{x} + b\Big) = f\Big(\sum_{i=1}^{n} w_i x_i + b\Big),
-\]
-where $\mathbf{x} = (x_1, \dots, x_n)^\top \in \mathbb{R}^n$ is the input vector, $\mathbf{w} = (w_1, \dots, w_n)^\top \in \mathbb{R}^n$ is the vector of trainable weights, $b \in \mathbb{R}$ is the bias term, and $f: \mathbb{R} \to \mathbb{R}$ is a nonlinear activation function. The structure of a single neuron is illustrated in Figure~\ref{fig:neuron}.
+The architecture of a neural network defines how these neurons are structured and how information flows through the system. Different architectures are designed to capture specific types of patterns in data, such as spatial structure, temporal dependencies, or general nonlinear relationships.
 
+The architecture of a neural network describes how neurons and layers are organized, connected, and how they transform information. A network typically consists of an input layer that receives data, hidden layers that perform computations, and an output layer that produces predictions (see Figure \ref{fig:neural-network}).
+
+\textbf{Neuron in an Artificial Neural Network} \\
+Neuron is the fundamental computational unit of an Artificial Neural Network (ANN). It is defined as a parametric function that maps an input vector to a scalar output through a composition of a affine transformation and activation function. The structure of a single neuron is illustrated in Figure~\ref{fig:neuron}.
+
+Let $\mathbf{x} \in \mathbb{R}^d$ denote the input vector, where $d$ is the number of input features. A neuron is parameterized by weights $\mathbf{w} \in \mathbb{R}^d$ and bias $b \in \mathbb{R}$, which are collectively referred to as learnable parameters and often denoted by $\boldsymbol{\theta} = (\mathbf{w}, b)^{\top}$.
+
+First, the input undergoes an affine transformation to produce the \emph{pre-activation value}:
+\begin{equation}
+z = \mathbf{w}^\top \mathbf{x} + b = \sum_{i=1}^{d} w_i x_i + b,
+\end{equation}
+The scalar $z$ is then passed through a fixed, typically non-linear \emph{activation function} $\phi: \mathbb{R} \to \mathbb{R}$, producing the \emph{activation value}:
+\begin{equation}
+a = f_{\boldsymbol{\theta}}(\mathbf{x}) = \phi(z)\end{equation}
+
+A special case of an artificial neuron is the \emph{perceptron}, which acts as a linear binary classifier. It uses the step activation function:
+
+\begin{equation}
+\phi(z) =
+\begin{cases}
+1 & \text{if } z \geq 0, \\
+0 & \text{if } z < 0.
+\end{cases}
+\end{equation}
+
+This defines a decision boundary given by:
+
+\begin{equation}
+\sum_{i=1}^{n} w_i x_i + b = 0.
+\end{equation}
+
+which corresponds to a hyperplane in $\mathbb{R}^n$, provided that the data are linearly separable. 
 
 \textcolor{pink}{A Little Diagram}
 \begin{figure}[ht]
@@ -36,10 +63,9 @@ where $\mathbf{x} = (x_1, \dots, x_n)^\top \in \mathbb{R}^n$ is the input vector
     \label{fig:neuron}
 \end{figure}
 
-
-\textbf{Architecture of the network} \\
-The architecture of a neural network describes how neurons and layers are organized, connected, and how they transform information. A network typically consists of an input layer that receives data, hidden layers that perform computations, and an output layer that produces predictions (see Figure \ref{fig:neural-network}).
-
+\textbf{Multilayer Architectures} \\
+The perceptron model is limited to solving linearly separable problems. To overcome this limitation, neural networks are extended into multilayer architectures, where multiple neurons are organized into layers.
+A network typically consists of an input layer that receives data, hidden layers that perform computations, and an output layer that produces predictions (see Figure \ref{fig:neural-network}).
 
 
 \begin{figure}[ht]
@@ -52,6 +78,7 @@ The architecture of a neural network describes how neurons and layers are organi
 
 
 Neurons in hidden layer work the same way as a perceptrons, except that instead of receiving the input vector, they take the outputs of neurons from the previous layer. Because of this similarity those networks are also called \textit{multilayer perceptron}. When the information flows strictly in one direction - from input layer to output layer, we refer to the architecture as \textit{feedforward network}. On the contrary, it is common for all neurons in the hidden layers to share the same activation function, though this is not required; the choice of activation functions will be discussed in the \textcolor{green}{Subsection XXX}. Likewise, the hidden layers do not need to have the same number of neurons, as it is illustrated in Figure~\ref{fig:convolutional-neural-network}.
+
 
 
 The flow of signals in networks does not have to be strictly one-directional. In some cases, we want to process a sequence of inputs with respect to their order. For such sequential data \textit{recurrent networks} are used, in which neurons are able to store information from earlier signal passes and take it into account during future activations (see Figure~\ref{fig:reccurent-neural-network}).. It is implemented by creating loops between neurons to allow information to persist across time steps. These properties are essential for tasks such as time series modeling or human speech recognition.
@@ -81,56 +108,97 @@ The architecture of a network is therefore determined by the number of hidden la
 
 \textbf{Notation} \textcolor{orange}{introduce notation}
 
-\subsection{Notation}
-\label{sec:notation}
-The activation of the \(j\)-th neuron in the \(i\)-th layer is computed as a weighted sum of the inputs from the previous layer plus a bias, passed through an activation function:
+\section{Network notation}
+
+In this section, we introduce notation for individual neurons and their weights.  As an example, consider a fully connected feedforward network described with $L$ layers, and denote its parameters as follows:
+
+\begin{itemize}
+    \item $n^{(0)}, n^{(1)}, \dots, n^{(L)}$: number of neurons in each layer, where $d = n^{(0)}$ is the dimensionality of the input vector and $k = n^{(L)}$ is the number of neurons in the output layer,
+    \item $\mathbf{w}_{j}^{(i)}$: weight vector of the $j$-th neuron in the $i$-th layer
+    \item $b_{j}^{(i)}$: bias of the $j$-th neuron in the $i$-th layer,
+    \item $z_{j}^{(i)}$: pre-activation value of the $j$-th neuron in the $i$-th layer, i.e., the input to the activation function,
+    \item $a_{j}^{(i)}$: output of the $j$-th neuron in the $i$-th layer,
+    \item $f^{(i)}$: activation function of neurons in the $i$-th layer; for simplicity, we assume it is the same for all neurons within a given layer.
+\end{itemize}
+
+The output of an arbitrary $j$-th neuron in the $i$-th layer $o_{i,j}$ can then be written as:
+\begin{equation}
+a^{(i)}_j = f^{(i)}\!\left( \langle \mathbf{w}^{(i)}_j, \mathbf{a}^{(i-1)} \rangle + b^{(i)}_j \right).
+\end{equation}
+
+where we define the vector of activations of the $(i-1)$-th layer as
 \[
-a_j^{(i)} = 
-\sigma\Big( \sum_{k=1}^{n} w_{j,k}^{(i)} a_k^{(i-1)} + b_j^{(i)} \Big) = \sigma\Big( \mathbf{w}_j^{(i)} \cdot \mathbf{a}^{(i-1)} + b_j^{(i)} \Big),
+\mathbf{a}^{(i-1)} = \big(a^{(i-1)}_1, a^{(i-1)}_2, \dots, a^{(i-1)}_{n^{(i-1)}}\big)^{\top}.
 \]
-where \(\mathbf{w}_j^{(i)} = (w_{j,1}^{(i)}, w_{j,2}^{(i)}, \dots, w_{j,n}^{(i)})\) is the weight vector of the \(j\)-th neuron,\\ \(\mathbf{a}^{(i-1)} = (a_1^{(i-1)}, a_2^{(i-1)}, \dots, a_n^{(i-1)})^\top\) is the input vector from the previous layer, and \(b_j^{(i)}\) is the bias term in the \(i\)-th layer and in the \(j\)-th neuron.
 
 
-For the entire layer of \(m\) neurons, the activations can be written in vector form:
-\[
+From equation (2.3), we can rewrite the vector $\mathbf{a}^{(i)}$ as:
+\begin{equation}
+\mathbf{a}^{(i)} =
 \begin{pmatrix}
-a_1^{(i)}\\
-a_2^{(i)}\\
-\vdots\\
-a_m^{(i)}
+f^{(i)}\!\big( \langle \mathbf{w}^{(i)}_1, \mathbf{a}^{(i-1)} \rangle + b^{(i)}_1 \big) \\
+f^{(i)}\!\big( \langle \mathbf{w}^{(i)}_2, \mathbf{a}^{(i-1)} \rangle + b^{(i)}_2 \big) \\
+\vdots \\
+f^{(i)}\!\big( \langle \mathbf{w}^{(i)}_{n^{(i)}}, \mathbf{a}^{(i-1)} \rangle + b^{(i)}_{n^{(i)}} \big)
 \end{pmatrix}
 =
-\sigma\left(
-\begin{pmatrix}
-w_{1,1}^{(i)} & w_{1,2}^{(i)} & \dots & w_{1,n}^{(i)} \\
-w_{2,1}^{(i)} & w_{2,2}^{(i)} & \dots & w_{2,n}^{(i)} \\
-\vdots & \vdots & \ddots & \vdots \\
-w_{m,1}^{(i)} & w_{m,2}^{(i)} & \dots & w_{m,n}^{(i)}
-\end{pmatrix}
-\begin{pmatrix}
-a_1^{(i-1)}\\
-a_2^{(i-1)}\\
-\vdots\\
-a_n^{(i-1)}
-\end{pmatrix}
-+
-\begin{pmatrix}
-b_1^{(i)}\\
-b_2^{(i)}\\
-\vdots\\
-b_m^{(i)}
-\end{pmatrix}
+f^{(i)}\!\left(
+\begin{array}{c}
+\langle \mathbf{w}^{(i)}_1, \mathbf{a}^{(i-1)} \rangle + b^{(i)}_1 \\
+\langle \mathbf{w}^{(i)}_2, \mathbf{a}^{(i-1)} \rangle + b^{(i)}_2 \\
+\vdots \\
+\langle \mathbf{w}^{(i)}_{n^{(i)}}, \mathbf{a}^{(i-1)} \rangle + b^{(i)}_{n^{(i)}}
+\end{array}
 \right).
-\]
+\end{equation}
+where the function $f_i$ is applied element-wise.
 
-In compact vector-matrix notation, this can be written as:
-\[
-\mathbf{a}^{(i)} = \sigma\Big( \mathbf{W}^{(i)} \mathbf{a}^{(i-1)} + \mathbf{b}^{(i)} \Big),
-\]
-where \(\mathbf{W}^{(i)}\) is the weight matrix connecting layer \(i-1\) to layer \(i\), \(\mathbf{a}^{(i-1)}\) is the input vector, \(\mathbf{b}^{(i)}\) is the bias vector, and \(\mathbf{a}^{(i)}\) is the vector of activations in layer \(i\).
+The input vector can further be written as:
+\begin{equation}
+\mathbf{a}^{(i)} = f^{(i)}\!\left(\mathbf{W}^{(i)} \mathbf{a}^{(i-1)} + \mathbf{b}^{(i)} \right),
+\end{equation}
+
+where
+\begin{equation}
+\mathbf{W}^{(i)} =
+\begin{pmatrix}
+(\mathbf{w}^{(i)}_1)^\top \\
+(\mathbf{w}^{(i)}_2)^\top \\
+\vdots \\
+(\mathbf{w}^{(i)}_{n^{(i)}})^\top
+\end{pmatrix},
+\qquad
+\mathbf{b}^{(i)} =
+\begin{pmatrix}
+b^{(i)}_1 \\
+b^{(i)}_2 \\
+\vdots \\
+b^{(i)}_{n^{(i)}}
+\end{pmatrix}.
+\end{equation}
+
+Here, $\mathbf{W}^{(i)}$ is a matrix whose rows are formed by the weight vectors of individual neurons in the $i$-th layer, and $\mathbf{b}_i$ is the vector of their biases arranged as a column vector.
+
+Altogether, we obtain a concise recursive description of the output of the $i$-th layer of the neural network for $i \in \{2,3,\dots,L\}$, with the initial equation:
+\begin{equation}
+\mathbf{a}^{(1)} = f^{(1)}\!\left(\mathbf{W}^{(1)} \mathbf{x} + \mathbf{b}^{(1)} \right),
+\end{equation}
+where the vector $\mathbf{x} \in \mathbb{R}^d$ represents the input observations at the input layer. It should again be noted that the activation function $f_i$ is applied component-wise to a vector and does not represent a multivariate function in the usual sense.
+
+We denote the whole neural network model as $f(\mathbf{x})$ or $f_\theta(\mathbf{x})$, where $\theta$ represents all trainable parameters of the network. The model can be viewed as a composition of layer-wise functions:
+\begin{equation}
+f_\theta(\mathbf{x}) = f^{(L)} \circ f^{(L-1)} \circ \cdots \circ f^{(1)}(\mathbf{x}).
+\end{equation}
+
+The final output of the network $\mathbf{a}^{(L)}$ represents the predicted value of the real-valued output variable $\mathbf{y} \in \mathbb{R}^k$, where $k$ denotes the dimension of the output space (i.e., the number of output neurons). Thus, $\hat{\mathbf{y}} = \mathbf{a}^{(L)} = f(\mathbf{x})$.
 
 
-This illustrates that the operation of a neural network layer can be equivalently expressed in element-wise form, summation form, or vector-matrix form.
+In general, for an observation with index $i$, we may denote:
+\begin{equation}
+\hat{\mathbf{y}}_i = \mathbf{a}^{(L)}_i = f(\mathbf{x}_i).
+\end{equation}
+
+Evidently, in the special case $k = 1$, $\mathbf{y}_i$ reduces to a scalar $y_i \in \mathbb{R}$.
 
 \subsection{Brief History of Neural Networks}
 \label{sec:brief-notation}
