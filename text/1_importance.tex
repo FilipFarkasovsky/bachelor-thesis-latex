@@ -5,12 +5,6 @@
 \section{Overview of Neural Networks}
 \label{sec:overview-neural-networks}
 
-\textcolor{pink}{Do neural networks need feature selection?
-Does overparameterization reduce need for sparsity?
-What is the trade-off between predictive accuracy and interpretability?
-How does correlated input affect selection stability?
-Can feature selection harm representation learning?}
-
 Neural networks are one of the most popular algorithms of machine learning. They were loosely inspired by the structure and function of biological neurons, which are the fundamental units of nervous tissue. To distinguish them from their biological counterpart, sometimes the term \textit{Artificial neural networks (ANNs)} is used. 
 
 Neural network can be viewed as a composition of affine transformations and non-linear activation functions, which allows them to serve as universal approximators. This property is established in many theorems; several of which are mentioned by Goodfellow in \cite{goodfellow2016}. Their ability to capture complex patterns makes them widely applicable in areas such as computer vision, natural language processing, and predictive modeling. A detailed treatment of neural network applications and methodologies can be found in the comprehensive review by Abiodun et al. \cite{abiodun2019}.
@@ -24,7 +18,7 @@ The architecture of a neural network defines how these neurons are structured an
 
 The architecture of a neural network describes how neurons and layers are organized, connected, and how they transform information. A network typically consists of an input layer that receives data, hidden layers that perform computations, and an output layer that produces predictions (see Figure \ref{fig:neural-network}).
 
-\textbf{Neuron in an Artificial Neural Network} \\
+\textbf{\\Neuron in an Artificial Neural Network\\} 
 Neuron is the fundamental computational unit of an Artificial Neural Network (ANN). It is defined as a parametric function that maps an input vector to a scalar output through a composition of a affine transformation and activation function. The structure of a single neuron is illustrated in Figure~\ref{fig:neuron}.
 
 Let $\mathbf{x} \in \mathbb{R}^d$ denote the input vector, where $d$ is the number of input features. A neuron is parameterized by weights $\mathbf{w} \in \mathbb{R}^d$ and bias $b \in \mathbb{R}$, which are collectively referred to as learnable parameters and often denoted by $\boldsymbol{\theta} = (\mathbf{w}, b)^{\top}$.
@@ -63,7 +57,7 @@ which corresponds to a hyperplane in $\mathbb{R}^n$, provided that the data are 
     \label{fig:neuron}
 \end{figure}
 
-\textbf{Multilayer Architectures} \\
+\textbf{\\Multilayer Architectures} \\
 The perceptron model is limited to solving linearly separable problems. To overcome this limitation, neural networks are extended into multilayer architectures, where multiple neurons are organized into layers.
 A network typically consists of an input layer that receives data, hidden layers that perform computations, and an output layer that produces predictions (see Figure \ref{fig:neural-network}).
 
@@ -204,7 +198,7 @@ Evidently, in the special case $k = 1$, $\mathbf{y}_i$ reduces to a scalar $y_i 
 \label{sec:brief-notation}
 \textbf{Origins:} In 1949, Canadian psychologist Donald Hebb proposed that the connections (synapeses) between neurons strengthen when they are activated together \cite{hebb1949}. This is often summarized by the phrase attributed to him: “neurons that fire together, wire together”. So called \textit{Hebbian theory} provided a foundational idea, that networks could learn from experience.
 
-\textbf{Early models:} A year later, the \textit{Perceptron}, introduced by Frank Rosenblatt \cite{rosenblatt1958}, was the first type of neural network designed to learn from examples. It combined the concept of a computational neuron with a learning algorithm that automatically adjusted its weights to separate inputs into classes using a linear decision boundary. The Perceptron was a single-layer neural network that applied a Heaviside (binary step) activation function to an affine combination of the inputs, producing a binary output. As a linear classifier, its decision boundary is a hyperplane in the input space, which means it can only correctly classify linearly separable data. Though groundbreaking, this linearity limited its ability to solve more complex classification problems. \textcolor{pink}{Sidenote: Watching movies and documentaries is a valid research and you can cite them as well :) If you're lucky, some of these people even spoke about their research on TV, in public seminars, talks and such. I'd scout youtube for some which were uploaded publicly. }
+\textbf{Early models:} A year later, the \textit{Perceptron}, introduced by Frank Rosenblatt \cite{rosenblatt1958}, was the first type of neural network designed to learn from examples. It combined the concept of a computational neuron with a learning algorithm that automatically adjusted its weights to separate inputs into classes using a linear decision boundary. The Perceptron was a single-layer neural network that applied a Heaviside (binary step) activation function to an affine combination of the inputs, producing a binary output. As a linear classifier, its decision boundary is a hyperplane in the input space, which means it can only correctly classify linearly separable data. Though groundbreaking, this linearity limited its ability to solve more complex classification problems.
 
 \textbf{Setback:} The work of Minsky and Papert in \cite{minsky1969} demonstrated that single-layer linear networks could not solve problems such as the XOR function, which led to a temporary decline in research of neural networks \cite{lecture1_2017}. \textcolor{orange}{ Reference to paragraph in this thesis discussing limitations of perceptron capturing logic of XOR function in this thesis (maybe in similar way as it is showed by Goodfellow)}
 \textcolor{pink}{TODO: Plot the graph in latex}
@@ -216,46 +210,74 @@ Evidently, in the special case $k = 1$, $\mathbf{y}_i$ reduces to a scalar $y_i 
 
 \textbf{Developments up to 2026:} Breakthroughs such as AlexNet \cite{krizhevsky2012} and the \textit{transformer} architecture - built on the attention mechanism \cite{vaswani2017} - accelerated progress in image recognition and natural language processing. \textit{The attention mechanism} allows a neural network to focus on the most relevant parts of the input when making a prediction. Instead of treating all inputs equally, the model computes attention weights that measure how important each element (for example, each word in a sentence) is for the current step. This makes the model better at capturing long-range relationships and understanding context efficiently.
 
-\subsection{Activation functions in the hidden Layer}
+\subsection{Activation Functions in the Hidden Layers}
 \label{sec:activation-functions-hidden-layer}
-Activation function introduce non-linearity into model to learn complex data patterns. Without it, even a deep neural network would behave like a simple linear regression model.
-\textcolor{orange}{aproximation of general functions by neural networks}
+Activation function introduce non-linearity into model to learn complex data patterns. Without non-linear activation functions, a neural network would reduce to a linear model regardless of its depth, limiting its ability to approximate complex functions.
 
-The earliest neural networks relied on smooth, bounded activation functions such as the \textit{sigmoid} and \textit{hyperbolic tangent (tanh)}. The sigmoid function:
+A suitable activation function for hidden layers should satisfy several key properties that ensure effective learning and stable optimization:
+\begin{itemize}    
+    \item \textbf{Differentiability:} The activation function should be differentiable (at least almost everywhere) to ensure that gradient-based optimization methods, such as backpropagation, can be applied effectively for parameter estimation.
+    
+    \item \textbf{Computational efficiency:} The function should be computationally inexpensive to evaluate, as activation functions are applied repeatedly during both training and inference, particularly in large-scale neural networks.
+    
+    \item \textbf{Gradient stability:} The activation function should support stable gradient propagation, reducing the risk of vanishing or exploding gradients, \textcolor{green}{which will be discussed in Section X} and thereby facilitating efficient and reliable training of deep architectures.
+\end{itemize}
 
-\[
-\phi(x) = \frac{1}{1 + e^{-x}}
-\]
-
-compresses the input to the interval \((0,1)\) and has a simple derivative:  
-
-\[
-\phi'(x) = \phi(x)\bigl(1 - \phi(x)\bigr),
-\]
-
-which makes effective computation during \textit{backpropagation algorithm}, which is discussed in \textcolor{green}{Section xx}
-
-However, for very large positive or negative inputs, the sigmoid function approaches its asymptotes, causing its derivative to become very small. This can lead to extremely small gradients, contributing to the well-known \textit{vanishing gradient problem} \cite{goodfellow2016}. A similar issue arises with the $\tanh$ function 
-
-\[
-\phi(x) = \tanh(x) = \frac{1 + e^{-2x}}{1 - e^{-2x}}.
-\]
+In this chapter, several of the most commonly used activation functions are introduced and discussed, with a focus on their properties and role in hidden layers of neural networks.
 
 
-In contrast, the \textit{exploding gradient problem} occurs when gradients grow exponentially during \textit{backpropagation}, leading to unstable learning \cite{goodfellow2016}. Both gradient-related problems and the backpropagation algorithm \textcolor{green}{will be discussed in detail in Subsection~XX}.
+
+\textbf{\\Sigmoid Function\\}  
+\begin{equation}
+    \phi(z) = \sigma(z) = \frac{1}{1 + e^{-z}}
+\end{equation}
+
+The sigmoid function maps inputs to the interval $(0, 1)$. While historically popular, it is less frequently used in hidden layers due to the vanishing gradient problem for large positive or negative inputs \cite{goodfellow2016}. 
+
+\textbf{\\Tanh (Hyperbolic Tangent)\\}  
+Hyperbolic tangent is defined as:
+\begin{equation}
+    \phi(z) = \tanh(z) =\frac{e^{z} - e^{-z}}{e^{z} + e^{-z}}
+= \frac{1 - e^{-2z}}{1 + e^{-2z}}
+= 2\sigma(2z) - 1
+\end{equation}
+
+This function maps inputs to the interval $(-1, 1)$ and is zero-centered, which can improve convergence compared to the sigmoid function. However, it still suffers from vanishing gradients for very large positive or negative input values \cite{goodfellow2016}. 
+
+\textbf{\\Rectified Linear Unit (ReLU)\\}  
+The ReLU function is defined as:
+\begin{equation}
+    \phi(z) = \max(0, z)
+\end{equation}
+
+It is widely used due to its simplicity and effectiveness. ReLU allows sparse activation, where only a subset of neurons are active at a time. It is computationally more efficient than sigmoidal functions, avoids saturation for positive inputs, and converges faster in deep architectures \cite{aggarwal2018}. 
+
+Main problem with ReLU as activation function is that in learning process it is prone to creating so-called \textit{dead neurons}. This is a phenomenon, when its pre-activation value $\mathbf{w}^{\top}\mathbf{x} + b$ consistently falls into the non-positive region, causing its output to remain zero for given inputs during a training process. Since their gradient is always zero, their weights stop updating and they no longer contribute to learning.
 
 
- A major breakthrough came with the introduction of the \textit{ReLU (Rectified Linear Unit)} defined as
+\textbf{\\Leaky ReLU\\}
+To cope with such issue, several variants have been proposed. One common approach is the \textit{Leaky ReLU}, which introduces a small slope for negative inputs:
+\begin{equation}
+    \phi(z) =
+    \begin{cases}
+        z & \text{if } z > 0 \\
+        \alpha z & \text{otherwise}
+    \end{cases}
+\end{equation}
 
-\[
-\phi(x) = \max(\{0, x\}).
-\]
+where $\alpha$ is a small constant (e.g., $0.01$). This function addresses the ``dying ReLU'' problem by allowing a small, non-zero gradient for negative inputs.
 
-ReLU is computationally more efficient than sigmoidal functions, avoids saturation for positive inputs, and converges faster in deep architectures \cite{aggarwal2018}. 
+\textbf{\\Gaussian Error Linear Unit (GELU)\\}
+Another widely used alternative is the \textit{Gaussian Error Linear Unit (GELU)}. Its exact formulation is given by:
+\begin{equation}
+    \phi(z) = z \cdot \Phi(z)
+\end{equation}
+where \( \Phi(z) \) denotes the cumulative distribution function of the standard normal distribution. In practice, an efficient approximation is often used \cite{hendrycks2016}:
+\begin{equation}
+    \phi(z) \approx 0.5 z \left( 1 + \tanh\left( \sqrt{\frac{2}{\pi}} \left( z + 0.044715 z^3 \right) \right) \right)
+\end{equation}
 
-Main problem with ReLU as activation function is that in learning process it is prone to creating so-called \textit{dead neurons}. This is a phenomenon, when its pre-activation value $w^Tx + b$ consistently falls into the non-positive region, causing its output to remain zero for given inputs during a training process. Since their gradient is always zero, their weights stop updating and they no longer contribute to learning.
-
-To cope with such issue, several variants have been proposed. \textit{Leaky ReLU} uses small slope for negative inputs $\phi(x) = \max(\alpha x, x)$, where $\alpha$ is a small positive constant (typically 0.01), which prevents complete inactivity. Another widely used alternative is the \textit{Gaussian Error Linear Unit (GELU)}. Hendrycks and Gimpel in \cite{hendrycks2016} showed that its smooth, probabilistic, Gaussian-based formulation improves performance across a variety of tasks. GELU has become a standard choice in transformer-based architectures, including models such as 
+Hendrycks and Gimpel in \cite{hendrycks2016} showed that its smooth, probabilistic, Gaussian-based formulation improves performance across a variety of tasks. GELU has become a standard choice in transformer-based architectures, including models such as 
 \textit{Generative Pre-trained Transformer (GPT)} \cite{radford2019} and \textit{Bidirectional Encoder Representations from Transformers (BERT)} \cite{devlin2018}.
 
 \subsection{Activation Functions in Output Layer}
