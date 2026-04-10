@@ -26,22 +26,6 @@ For a fixed-size training dataset, reducing the number of features effectively r
 
 It was demonstrated by Liu and Motoda \cite{liu2007}, feature selection can significantly reduce the hypothesis space by eliminating irrelevant and redundant features, and a smaller hypothesis space makes it easier to identify plausible hypotheses. 
 
-\textcolor{orange}{Removal of the noise}
-
-\textcolor{red}{\cite{blum1997} Definition of relevant and irrelevant features}
-
-
-Feature selection is process of selecting the most relevant features. Key aspects of feature selection include the selection criterion of the method, evaluation approach, and in some cases search strategy (mainly wrapper methods), \textcolor{green}{ which are discussed in Section XXX}. Based on the selection criterion, most of the feature selection methods belong to one of these \footnote{\textcolor{yellow}{Some methods may not fit into these three categoreies.}}three categories:
-
-\begin{enumerate}
-    \item \textbf{Filter methods}: These methods perform feature selection independently of any predictive model. They rely on intrinsic properties of the features, such as correlation, $\chi^2$ tests, or ANOVA \textcolor{pink}{GLOSSARY} to rank the features. Their main advantage is computational speed; however, they do not account for more complex interactions between features, such as non-linear or higher-order dependencies, that might influence the target variable. \textcolor{green}{Section XXs}
-    \item \textbf{Wrapper methods}: These methods are a category of feature selection techniques that evaluate subsets of features by training a machine learning model and measuring its performance. They treat the model as a black box and use it to find the combination of features that leads to the best prediction performance. Their main drawback is high computational demand, since the model must be trained multiple times for different feature subsets. \textcolor{green}{Section XXs}
-    \textcolor{pink}{GLOSSARY}
-    \item \textbf{Embedded methods}: In these methods, feature selection is integrated directly into the model training process. Examples include regularized linear models (e.g., LASSO or Ridge) \textcolor{pink}{GLOSSARY} and tree-based models that provide measures of \textit{feature importance} such as the \textit{Gini coefficient} or \textit{entropy}. \textcolor{green}{Reference to book or chapter}) 
-\end{enumerate}
-
-
-\textcolor{orange}{feaute selection improves interpretability and significantly reduce training time..}
 
 \section{Feature Selection and Dimensionality Reduction}
 \url{https://ift6758.github.io/lectures/feature_selection.pdfx}
