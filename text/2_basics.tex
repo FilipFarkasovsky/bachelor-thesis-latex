@@ -4,9 +4,23 @@
 \section{Motivation for Feature Selection}
 \label{sec:motivation-feature-selection}
 % Feature selection method - page 19
-One of the fundamental motivations for feature selection is to deal with a \textit{curse of dimensionality}, which refers to problems that arise when analyzing high-dimensional data. As the number of features increases, the volume of the feature space grows exponentially, causing data points to become sparse and distances between them to lose their discriminative power. This sparsity reduces effectivity of many algorithms and increases computational cost.
+One of the fundamental motivations for feature selection is to deal with a \textit{curse of dimensionality}, which refers to a collection of phenomena that arise when analyzing data in high-dimensional spaces, where the number of features 
+$p$ is large. In such settings, the geometry of the space changes in a way that makes many standard statistical and machine learning methods less effective.
 
-As illustrated by the authors in  \cite{hastie2001}; consider the task of locating the nearest neighbor in \textit{p}-dimensional unit  hypercube. To capture a fixed fraction $r$ of all observations, one expands a hypercube centered at the target point so that its edge length becomes $e_p(r) = r^{1/p}$. As shown in Figure~\ref{fig:hypercube}, this neighborhood remains small in low dimensions but grows rapidly as $p$ increases. For example, in ten dimensions, capturing only $1\%$ or $10\%$ of the data already requires covering about $63\%$ and $80\%$ of each variable’s range. This shows, that two data points, which are close in a 2-dimensional space might be very distant in a 100-dimensional space. This phenomenon is referred to as \textit{sparse data}, when most of the space contains few or no observations, leaving many combinations of feature values unrepresented in large portion of space. In classification tasks, sparse data can make it more difficult to predict the class of unseen observations.
+As illustrated by the authors in  \cite{hastie2001}; the curse of dimensionality becomes particularly clear when analyzing how neighborhoods behave in high-dimensional spaces. Consider inputs uniformly distributed in a 
+$p$-dimensional unit hypercube $[0,1]^p$, as in Figure~\ref{fig:hypercube}. We define a local neighborhood as a smaller $p$-dimensional hypercube, such that it contains a fixed fraction $r \in (0,1)$ of the total volume of the space.
+
+To achieve this, the edge length of the neighborhood hypercube must satisfy
+\begin{equation}
+    \varepsilon_p(r) = r^{1/p}.
+\end{equation}
+
+This relationship has a counterintuitive implication: as the dimension $p$ increases, the required edge length grows rapidly. In particular, the side length $\varepsilon_p(r)$ approaches $1$ as $p \to \infty$, even for small values of $r$. This means that to capture a fixed proportion of the data, one must include a large fraction of each variable’s range.
+
+For example, in ten dimensions, retaining only $1\%$ of the total volume requires an edge length of $0.01^{1/10} \approx 0.63,$
+while retaining $10\%$ requires approximately $0.1^{1/10} \approx 0.80.$ 
+
+This phenomenon highlights a key issue in high-dimensional data analysis: points that are in low-dimensional settings may become effectively distant when embedded in higher-dimensional spaces. As a consequence, data becomes increasingly sparse, meaning that most regions of the space contain few or no observations. This sparsity makes local methods less reliable and significantly complicates tasks such as distance-based learning, clustering, and density estimation in high dimensions.
 
 \begin{figure}[ht]
     \centering
@@ -15,73 +29,55 @@ As illustrated by the authors in  \cite{hastie2001}; consider the task of locati
     \label{fig:hypercube}
 \end{figure}
 
-The number of features determines a \textit{hypothesis space}, the set of all functions a learning algorithm can choose to map inputs to outputs, and this space grows exponentially as the number of features increases \cite{mitchell1997, goodfellow2016}.
+\section{Feature Selection: Formal Definition and Feature Types}
 
-For instance, with $n$ binary features and a binary label, the size of the hypothesis space is $2^{2^n}$. For non-binary features, the size of the hypothesis space grows even more rapidly. For instance, if each feature can take $m$ values and the class has $l$ possible labels, the hypothesis space size becomes $l^{m^n}$, which further emphasizes the importance of feature selection.
-
-\textcolor{red}{ Hypothesis space of a linear regression }
-
-
-For a fixed-size training dataset, reducing the number of features effectively reduces the number of required training instances. For example, if the number of binary features is reduced from $n = 10$ to $n = 5$, and the total number of training instances $m$ is kept same, the ratio of training instances to possible input combinations, $m / 2^n$, increases exponentially, effectively increasing the coverage of the input space \cite{liu2007}. 
-
-It was demonstrated by Liu and Motoda \cite{liu2007}, feature selection can significantly reduce the hypothesis space by eliminating irrelevant and redundant features, and a smaller hypothesis space makes it easier to identify plausible hypotheses. 
-
-
-\section{Feature Selection and Dimensionality Reduction}
 \url{https://ift6758.github.io/lectures/feature_selection.pdfx}
 
-As discussed in the previous section, high-dimensional data leads to increased computational cost, and reduced performance of many learning algorithms. Feature selection addresses these issues by reducing the dimensionality of the input space.
+\emph{Feature selection} addresses these issues by reducing the dimensionality of the input space.
 
-Formally, let the original feature space be 
-\[
-X \subseteq \mathbb{R}^p,
-\]
-where $p$ is the number of features. Feature selection aims to identify a subset of indices
-\[
-S \subseteq \{1,2,\dots,p\}, \quad |S| = k \ll p,
-\]
-and construct a reduced feature space
-\[
-X_S \subseteq \mathbb{R}^k.
-\]
-The learning algorithm is then applied to $X_S$ instead of the full space.
 
-By reducing $p$, feature selection directly mitigates the curse of dimensionality. The volume of the feature space decreases, the density of observations increases, and distances regain their discriminative power. At the same time, the hypothesis space is reduced, which simplifies the learning problem.
+Let the input space be \( \mathcal{X} \subseteq \mathbb{R}^p \), where \( p \) denotes the total number of features. Let \( \mathbf{x} = (x_1, \ldots, x_p) \in \mathcal{X} \) be the feature vector and \( y \) the target variable.
 
-This leads to several practical benefits:
-\begin{itemize}
-    \item lower risk of overfitting and improved generalization ability,
-    \item reduced storage requirements and computational cost,
-    \item improved interpretability of the resulting model.
-\end{itemize}
+The goal of feature selection is to identify a subset of feature indices \( S \subseteq \{1,2,\ldots,p\} \), with \( |S| = k \ll p \), and construct a reduced feature vector \( \mathbf{x}_S \in \mathbb{R}^k \), defined as the projection of \( \mathbf{x} \) onto the coordinates in \( S \):
+\begin{equation}
+\mathbf{x}_S = (x_j)_{j \in S}.
+\end{equation}
 
-\section{Relevant, Redundant, and Irrelevant Features}
+The learning algorithm is then applied to \( \mathbf{x}_S \) instead of the full feature vector \( \mathbf{x} \).
 
 The goal of feature selection is to identify informative features and remove those that do not contribute to prediction.
 
-Let 
-\[
-X = (X_1, \dots, X_p)
-\]
-be the feature vector and $Y$ the target variable.
+Let \( (\mathbf{X}, Y) \sim \mathcal{D} \), where \( \mathcal{D} \) denotes the data-generating distribution, and let \( P \) denote the corresponding joint probability distribution.
 
-A feature $X_j$ is relevant if it provides information about $Y$, i.e.
-\[
-P(Y \mid X) \neq P(Y \mid X_{-j}),
-\]
-where $X_{-j}$ denotes all features except $X_j$.
+A feature \( X_j \) is said to be relevant if it provides additional information about \( Y \), i.e.
+\begin{equation}
+P(Y \mid \mathbf{X}) \neq P(Y \mid \mathbf{X}_{-j}),
+\end{equation}
+where \( \mathbf{X}_{-j} \) denotes the random vector with the \( j \)-th component removed.
 
-A feature $X_j$ is irrelevant if it does not affect the distribution of $Y$:
-\[
-P(Y \mid X) = P(Y \mid X_{-j}).
-\]
+A feature \( X_j \) is irrelevant if it does not affect the conditional distribution of \( Y \), i.e.
+\begin{equation}
+P(Y \mid \mathbf{X}) = P(Y \mid \mathbf{X}_{-j}).
+\end{equation}
 
-A feature $X_j$ is redundant if its information is already contained in a subset of other features $S \subseteq \{1,\dots,p\} \setminus \{j\}$, i.e.
-\[
-P(Y \mid X_j, X_S) = P(Y \mid X_S).
-\]
+A feature \( X_j \) is redundant if its information is fully contained in a subset of other features \( S \subseteq \{1, \ldots, p\} \setminus \{j\} \), i.e.
+\begin{equation}
+P(Y \mid X_j, \mathbf{X}_S) = P(Y \mid \mathbf{X}_S).
+\end{equation}
 
 Removing irrelevant features reduces noise, while removing redundant features eliminates unnecessary duplication of information. Both contribute to a more compact and efficient representation of the data.
+
+\section{REMOVE}
+Feature selection is a key approach to mitigating the curse of dimensionality, as it reduces the number of irrelevant or redundant variables and simplifies the learning problem. By lowering the number of features, the hypothesis space becomes significantly smaller, improving both computational efficiency and model performance \cite{mitchell1997, goodfellow2016}.
+
+For example, with $n$ binary features and a binary label, the size of the hypothesis space is  \[2^{2^n}\]. If each feature can take $m$ values and the class has $l$ labels, the hypothesis space grows even faster to \[l^{m^n}\]. This illustrates how rapidly complexity increases with dimensionality.
+
+Reducing the number of features also improves data coverage. For a fixed number of training instances $m$, decreasing $n$ increases the ratio $m / 2^n$, meaning that the input space is more densely populated. For instance, reducing from $n = 10$ to $n = 5$ leads to a substantial increase in coverage. This significantly improves the representativeness of the training data and allows learning algorithms to generalize more reliably \cite{liu2007}. 
+
+
+
+
+
 
 \section{Feature Selection vs.\ Feature Extraction}
 

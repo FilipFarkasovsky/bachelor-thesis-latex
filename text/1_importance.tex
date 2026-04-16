@@ -278,7 +278,7 @@ where \( \Phi(z) \) denotes the cumulative distribution function of the standard
     \phi(z) \approx 0.5 z \left( 1 + \tanh\left( \sqrt{\frac{2}{\pi}} \left( z + 0.044715 z^3 \right) \right) \right)
 \end{equation}
 
-Hendrycks and Gimpel in \cite{hendrycks2016} showed that its smooth, probabilistic, Gaussian-based formulation improves performance across a variety of tasks. GELU has become a standard choice in transformer-based architectures, including models such as 
+Hendrycks and Gimpel in \cite{hendrycks2016} showed that its smooth Gaussian-based formulation improves performance across a variety of tasks. GELU has become a standard choice in transformer-based architectures, including models such as 
 \textit{Generative Pre-trained Transformer (GPT)} \cite{radford2019} and \textit{Bidirectional Encoder Representations from Transformers (BERT)} \cite{devlin2018}.
 
 \subsection{Activation Functions in Output Layer}
@@ -713,7 +713,7 @@ The \emph{No Free Lunch theorem} states that, averaged over all possible data-ge
 
 For ANNs this means, that no architecture or training method is universally optimal. Learning depends on inductive bias (e.g., architectural choices, regularization techniques), within which chosen model implicitly encodes assumptions about the underlying data.
 
-\subsection{Hypothesis space and VC Dimension}
+\subsection{Hypothesis Space and VC Dimension}
 In statistical learning theory, the \emph{hypothesis space} is the set of all functions that a learning algorithm can select from when fitting a model to data. Formally, given an input space $\mathcal{X}$ and an output space $\mathcal{Y}$, a hypothesis space $\mathcal{H}$ is a collection of functions $h: \mathcal{X} \to \mathcal{Y}$.
 
 In the context of artificial neural networks (ANNs), the hypothesis space is determined by the architecture of the network, including the number of layers, the number of neurons per layer, the type of activation functions, and the connectivity pattern. For a fixed architecture, the hypothesis space consists of all functions that can be represented by varying the network parameters (weights and biases). Thus, training an ANN can be interpreted as searching within a high-dimensional hypothesis space to find a function that minimizes a given loss function.
@@ -770,15 +770,15 @@ A large generalization gap indicates overfitting, while a small gap suggests tha
 \textbf{\\Bias-variance trade-off\\}
 Important concept tightly linked to overfitting and underfitting is the \emph{bias-variance trade-off}. Let 
 \(\hat f(x)\) denote the estimator learned from data, and let \(f(x)\) be the true underlying function we are estimating. The \emph{expected prediction error} at a point \(x\) can be decomposed as
-\[
-\mathbb{E}\big[(\hat f(x) - f(x))^2\big]
-=
-\underbrace{\big(\mathbb{E}[\hat f(x)] - f(x)\big)^2}_{\text{bias}^2}
-+
-\underbrace{\mathbb{E}\big[(\hat f(x) - \mathbb{E}[\hat f(x)])^2\big]}_{\text{variance}}
-+
-\sigma^2,
-\]
+\begin{equation}
+    \mathbb{E}\big[(\hat f(x) - f(x))^2\big]
+    =
+    \underbrace{\big(\mathbb{E}[\hat f(x)] - f(x)\big)^2}_{\text{bias}^2}
+    +
+    \underbrace{\mathbb{E}\big[(\hat f(x) - \mathbb{E}[\hat f(x)])^2\big]}_{\text{variance}}
+    +
+    \sigma^2,
+\end{equation}
 where \(\sigma^2\) is the irreducible noise in the data.
 
 The bias term quantifies the error due to restrictive assumptions in the model. A model with high bias fails to approximate complex patterns and tends to underfit.
