@@ -623,15 +623,6 @@ Let $y_i$ denote the observed value of the dependent variable, $\hat{y}_i$ the p
     \text{MAE} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|
 \end{equation}
 
-\textbf{$\mathbf{R}^\mathbf{2}$} represents the proportion of variance in the dependent variable explained by the model. Typically, $R^2 \in [0,1]$, with higher values indicating a better fit.
- Although commonly used, it tends to increase as more predictors are added, even if they do not contribute meaningful information; however, adjusted versions of the metric can be used to account for model complexity. $\mathrm{R}^2$ is common in linear models but not in neural networks, where MSE or RMSE better evaluate prediction performance and are suitable as a loss function.
-
-\begin{equation}
-    R^2 = 1 - \frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2}
-\end{equation}
-
-In the context of neural networks, metrics such as MSE and RMSE are not only useful for evaluating overall prediction performance, but also guiding the training process. They are often used as a \emph{loss functions} during network optimization, helping adjust weights and biases to minimize prediction error.
-
 \section{Information Theory}
 \emph{Information theory} is a branch of applied mathematics focused on quantifying the amount of information contained in a signal or random variable. The main idea is that observing unlikely events provides more information than observing likely ones. This framework is useful for feature selection, since it allows measuring how informative a feature is with respect to a target variable.
 

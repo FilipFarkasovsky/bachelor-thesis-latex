@@ -209,6 +209,7 @@ ReliefF is a filter-based feature selection algorithm designed to estimate the i
 
 he algorithm works by repeatedly sampling an instance from the dataset and identifying its nearest neighbors: instances from the same class (nearest hits) and instances from different classes (nearest misses). For each attribute \(A\), ReliefF updates a weight according to how differently the attribute behaves between the sampled instance and its neighbors. Differences with nearest hits decrease the weight, while differences with nearest misses increase it. The contribution of misses is weighted by the class prior probabilities \(P(c)\), ensuring that their total influence is comparable to that of hits. A pseudocode description of the algorithm is provided by XXXXXMatheus Cezimbra Barbieri XXXXXXet al., and is presented in Algorithm~\ref{alg:relieff}.
 
+
 \begin{algorithm}[H]
 \caption{ReliefF Pseudo-code}
 \label{alg:relieff}
