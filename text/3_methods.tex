@@ -1,32 +1,65 @@
-\chapter{Feature Selection Methods}
+\chapter{Classical Methods}
 
-\textbf{Search strategies}
+\section{Kruskal Wallis Filter}
 
-A \textit{search strategy} defines the order in which the variable subsets are evaluated. These strategies are particularly important for wrapper methods. Few of the search strategies are proposed by Guyon et al.\cite{guyon2006}. Most common strategies are forward selection, backward elimination, floating search, branch-and-bound, and randomized search. \textit{Forward selection} starts with no features and adds them one by one, keeping those that improve the model the most. \textit{Backward elimination} starts with all features and removes them one by one, discarding those that contribute least.
+One-way analysis of variance (ANOVA) represents a class of statistical methods used to test whether multiple groups originate from the same distribution.The method is based on decomposing total variability into within-group and between-group components. Formally, the ANOVA test statistic can be expressed as the ratio of within-group to between-group variation.
 
-Both methods are considered exhaustive searches, as they evaluate all possible subsets of features up to a certain size. For datasets with many features, forward and backward selection can be computationally expensive. In forward selection, if the optimal number of features $k$ is unknown, one may need to evaluate all subsets of size $1$ to $k$, requiring $\binom{N}{1} + \binom{N}{2} + \dots + \binom{N}{k}$ combinations, which gives a time complexity of $O(2^N)$. 
+However, ANOVA relies on the assumption of normally distributed data. In cases where this assumption is violated, a nonparametric alternative is required. For this reason, we employ the Kruskal–Wallis H test, which does not assume normality and is based on rank statistics.
 
-For this reason, more efficient algorithms have been developed, such as sequential forward selection (SFS) and sequential backward selection (SBS). SFS starts with an empty feature set and iteratively adds the feature,that yields the greatest improvement in model performance, while previously selected features remain selected. SBS is similar to SFS, but it starts with the full feature set and iteratively removes the feature that contributes the least. Both SFS and SBS are heuristic, thus they do not guarantee the optimal subset. Research also shows that exhaustive search is more prone to overfitting, than sequential methods. \textcolor{red}{[add citation or reference]}
+The Kruskal--Wallis test statistic is given by:
+\[
+H = \frac{12}{n(n+1)} \sum_{i=1}^{k} \frac{R_i^2}{n_i} - 3(n+1),
+\]
+where \(k\) denotes the number of groups, \(n\) is the total number of observations, \(n_i\) is the number of observations in the \(i\)-th group, and \(R_i\) represents the sum of ranks for the \(i\)-th group.
 
-Floating methods are an extension of sequential selection methods that allow conditional backtracking: Sequential Forward Floating Selection (SFFS) can remove previously added features if they later become redundant, and Sequential Backward Floating Selection (SBFS) can re-add previously removed features, making the search more flexible and often more accurate than simple SFS or SBS.
+Each feature is evaluated independently with respect to the target variable, and features with higher test statistic values are considered more relevant. The application of this method to feature filtering in microarray data is documented in Grisci et al. (2019).
 
-\textit{Branch and bound strategies} are systematic search methods used to find the optimal subset of features without evaluating all possibilities. Branch and bound relies on monotonicity, but this assumption is rarely satisfied in deep neural networks, making it less effective than heuristic methods.
-\index{se}
-\index{še}
-\index{čeština v rejstříku}
-\lipsum[80-82]
+Since the test evaluates each feature separately, the method is univariate and does not account for potential dependencies or interactions between features. Kruskal Wallis test yields feature importance scores and is therefore classified as a weight-based feature selection approach.
 
-\section{Filter Methods}
+\section{Mutual Information Filter}
+Mutual Information, as introduced in Section XXXXX, is applied as a filter-based feature selection method. It allows measuring the relevance of each feature by quantifying how much information it provides about the target variable. Based on these values, features can be assigned importance weights. Similarly to other univariate filters, each feature is evaluated independently, without accounting for dependencies or interactions between variables.
 
-\lipsum[98-100]
+\section{The Minimum Redundancy Maximum Relevance}
+Minimal Redundancy Maximum Relevance (mRMR) XXXXXXXPeng, H., Long, F., Ding, C. (2005)XXXX. is a filter-based feature selection method that iteratively selects features by maximizing relevance to the target variable while minimizing redundancy with respect to the already selected subset. Relevance and redundancy are defined in Sections XXXXX and XXXXX, respectively. At each iteration, the method selects the feature \( x_j \in X \setminus S \) that maximizes:
 
-\subsection{Subsection}
+\[
+x_j = \arg\max_{x_j \in X \setminus S} \big[ I(x_j; c) - R(x_j, S) \big]
+\]
 
-\section{Wrapper Methods}
+where \( X \) is the full set of attributes, \( S \) is the set of already selected features, \( I \) is the mutual information function measuring relevance to the class label \( c \), and \( R \) is the redundancy function measuring dependence with respect to the selected subset.
 
-\section{Embedded Methods}
+The algorithm is stopped after selecting a fixed number K of features. This procedure results in a weighted ranking of the K-best features.
 
 
-\lipsum[140-141]
-% \shorthandon{-} 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{algorithm}[H]
+\caption{ReliefF Pseudo-code}
+\KwIn{$R$: set of all instances, $C$: set of classes, $k$: number of neighbors}
+\KwOut{$W$: vector of feature weights}
+
+$n \leftarrow |R|$\;
+$W \leftarrow \mathbf{0}$ of size $|A|$\;
+
+\For{$i = 1$ \KwTo $|R|$}{
+    $H \leftarrow k\_nearest\_hits(k, R_i, R)$\;
+
+    \ForEach{$c \in C \setminus class(R_i)$}{
+        $M_c \leftarrow k\_nearest\_misses(c, k, R_i, R)$\;
+    }
+
+    \For{$a = 1$ \KwTo $|A|$}{
+        \ForEach{$hit \in H$}{
+            $W[a] \leftarrow W[a] - \frac{diff(R_i, hit)}{n \cdot k}$\;
+        }
+
+        \ForEach{$c \in C \setminus class(R_i)$}{
+            \ForEach{$miss \in M_c$}{
+                $d \leftarrow \frac{P(c)}{1 - P(class(R_i))} \cdot \frac{diff(R_i, miss)}{n \cdot k}$\;
+                $W[a] \leftarrow W[a] + d$\;
+            }
+        }
+    }
+}
+
+\Return $W$\;
+\end{algorithm}

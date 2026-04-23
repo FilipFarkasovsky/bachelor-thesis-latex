@@ -45,7 +45,8 @@ The goal of feature selection is to identify a subset of feature indices $S \sub
 \]
 whose realization is denoted by $\mathbf{x}_S \in \mathbb{R}^k$, obtained by selecting the components of $\mathbf{x}$ indexed by $S$. The learning algorithm is then applied to \( \mathbf{x}_S \) instead of the full feature vector \( \mathbf{x} \).
 
-The goal of feature selection is to identify informative features and remove those that do not contribute to prediction.
+The goal of feature selection is to identify informative features and remove those
+that do not contribute to prediction.
 
 A feature \( X_j \) is said to be \emph{relevant} if it provides additional information about \( Y \), i.e.
 \begin{equation}
@@ -170,70 +171,4 @@ For this reason, more efficient algorithms have been developed, such as sequenti
 \emph{Floating search} extends forward or backward selection by allowing conditional inclusion or exclusion of features. \emph{Sequential Forward Floating Selection} (SFFS) can remove previously added features if they later become redundant, and \emph{Sequential Backward Floating Selection} (SBFS) can re-add previously removed features, making the search more flexible.
 
 \emph{Randomized search} explores the subset space probabilistically, using heuristics or metaheuristics such as genetic algorithms.
-
-
-\section{HILBERT SCHmidt}
-\section*{Hilbert-Schmidt Independence Criterion Lasso Based Feature Selection}
-
-For high-dimensional and small sample data (e.g., dimensionality $> 10^5$ and the number of samples $< 10^3$), the Hilbert-Schmidt Independence Criterion Lasso (HSIC Lasso) is useful.
-
-The HSIC Lasso optimization problem is given by:
-\[
-\mathrm{HSIC\text{-}Lasso}:\quad
-\min_{\mathbf{x}} \;
-\frac{1}{2} \sum_{k,l=1}^{n} x_k x_l \,\mathrm{HSIC}(f_k, f_l)
-- \sum_{k=1}^{n} x_k \,\mathrm{HSIC}(f_k, c)
-+ \lambda \|\mathbf{x}\|_1
-\]
-subject to
-\[
-x_1, \ldots, x_n \geq 0.
-\]
-
-Here,
-\[
-\mathrm{HSIC}(f_k, c) = \mathrm{tr}(\bar{\mathbf{K}}^{(k)} \bar{\mathbf{L}})
-\]
-is a kernel-based independence measure called the empirical Hilbert-Schmidt Independence Criterion (HSIC), where $\mathrm{tr}(\cdot)$ denotes the trace and $\lambda$ is the regularization parameter.
-
-The centered Gram matrices are defined as:
-\[
-\bar{\mathbf{K}}^{(k)} = \mathbf{\Gamma} \mathbf{K}^{(k)} \mathbf{\Gamma}, 
-\qquad
-\bar{\mathbf{L}} = \mathbf{\Gamma} \mathbf{L} \mathbf{\Gamma},
-\]
-where
-\[
-K^{(k)}_{i,j} = K(u_{k,i}, u_{k,j}), 
-\qquad
-L_{i,j} = L(c_i, c_j),
-\]
-and $K(\cdot,\cdot)$ and $L(\cdot,\cdot)$ are kernel functions.
-
-The centering matrix is given by:
-\[
-\mathbf{\Gamma} = \mathbf{I}_m - \frac{1}{m} \mathbf{1}_m \mathbf{1}_m^T,
-\]
-where $\mathbf{I}_m$ is the $m$-dimensional identity matrix, and $\mathbf{1}_m$ is the $m$-dimensional vector of ones.
-
-The $\ell_1$-norm is denoted by $\|\cdot\|_1$.
-
-HSIC always takes a non-negative value and is zero if and only if two random variables are statistically independent when a universal reproducing kernel such as the Gaussian kernel is used.
-
-The HSIC Lasso can equivalently be written as:
-\[
-\mathrm{HSIC\text{-}Lasso}:\quad
-\min_{\mathbf{x}} \;
-\frac{1}{2} \left\| \bar{\mathbf{L}} - \sum_{k=1}^{n} x_k \bar{\mathbf{K}}^{(k)} \right\|_F^2
-+ \lambda \|\mathbf{x}\|_1
-\]
-subject to
-\[
-x_1, \ldots, x_n \geq 0.
-\]
-
-Here, $\|\cdot\|_F$ denotes the Frobenius norm. The optimization problem is a Lasso problem and can be efficiently solved using modern optimization methods such as the dual augmented Lagrangian method.
-
-
-\section{Properties of Feature Selectors}
 
