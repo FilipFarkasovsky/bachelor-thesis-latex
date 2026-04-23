@@ -35,32 +35,30 @@ This phenomenon highlights a key issue in high-dimensional data analysis: points
 
 \emph{Feature selection} addresses these issues by reducing the dimensionality of the input space.
 
+Let $(\mathbf{X}, Y) \sim P$, where $\mathbf{X} \in \mathbb{R}^p$ is a random vector of features and $Y$ is the target variable. Let $P$ denote their joint probability distribution.
 
-Let the input space be \( \mathcal{X} \subseteq \mathbb{R}^p \), where \( p \) denotes the total number of features. Let \( \mathbf{x} = (x_1, \ldots, x_p) \in \mathcal{X} \) be the feature vector and \( y \) the target variable.
+Realizations of $\mathbf{X}$ and $Y$ are denoted by $\mathbf{x} = (x_1, \dots, x_p) \in \mathbb{R}^p$ and $y$, respectively.
 
-The goal of feature selection is to identify a subset of feature indices \( S \subseteq \{1,2,\ldots,p\} \), with \( |S| = k \ll p \), and construct a reduced feature vector \( \mathbf{x}_S \in \mathbb{R}^k \), defined as the projection of \( \mathbf{x} \) onto the coordinates in \( S \):
-\begin{equation}
-\mathbf{x}_S = (x_j)_{j \in S}.
-\end{equation}
-
-The learning algorithm is then applied to \( \mathbf{x}_S \) instead of the full feature vector \( \mathbf{x} \).
+The goal of feature selection is to identify a subset of feature indices $S \subseteq \{1, \dots, p\}$ such that $|S| = k \ll p$. For a given subset $S$, define the reduced random feature vector
+\[
+\mathbf{X}_S = (X_j)_{j \in S},
+\]
+whose realization is denoted by $\mathbf{x}_S \in \mathbb{R}^k$, obtained by selecting the components of $\mathbf{x}$ indexed by $S$. The learning algorithm is then applied to \( \mathbf{x}_S \) instead of the full feature vector \( \mathbf{x} \).
 
 The goal of feature selection is to identify informative features and remove those that do not contribute to prediction.
 
-Let \( (\mathbf{X}, Y) \sim \mathcal{D} \), where \( \mathcal{D} \) denotes the data-generating distribution, and let \( P \) denote the corresponding joint probability distribution.
-
-A feature \( X_j \) is said to be relevant if it provides additional information about \( Y \), i.e.
+A feature \( X_j \) is said to be \emph{relevant} if it provides additional information about \( Y \), i.e.
 \begin{equation}
 P(Y \mid \mathbf{X}) \neq P(Y \mid \mathbf{X}_{-j}),
 \end{equation}
 where \( \mathbf{X}_{-j} \) denotes the random vector with the \( j \)-th component removed.
 
-A feature \( X_j \) is irrelevant if it does not affect the conditional distribution of \( Y \), i.e.
+A feature \( X_j \) is \emph{irrelevant} if it does not affect the conditional distribution of \( Y \), i.e.
 \begin{equation}
 P(Y \mid \mathbf{X}) = P(Y \mid \mathbf{X}_{-j}).
 \end{equation}
 
-A feature \( X_j \) is redundant if its information is fully contained in a subset of other features \( S \subseteq \{1, \ldots, p\} \setminus \{j\} \), i.e.
+A feature \( X_j \) is \emph{redundant} if its information is fully contained in a subset of other features \( S \subseteq \{1, \ldots, p\} \setminus \{j\} \), i.e.
 \begin{equation}
 P(Y \mid X_j, \mathbf{X}_S) = P(Y \mid \mathbf{X}_S).
 \end{equation}
