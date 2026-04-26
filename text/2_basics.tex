@@ -258,3 +258,36 @@ The optimization problem is typically expressed as:
 \]
 
 where \( w \) is the weight vector normal to the hyperplane, \( b \) is the bias (offset), \( n \) is the number of observations, \( x_i \) is the feature vector of the \( i \)-th observation, and \( y_i \in \{-1,1\} \) denotes its class label. The first term corresponds to the hinge loss, while the second term is an \( L_2 \) regularization penalty controlled by \( \lambda \). In embedded feature selection settings, SVM can provide feature importance by analyzing the learned weight vector in linear models, where features with larger absolute coefficients contribute more to the decision boundary.
+
+\subsection{LassoNet}
+While feature selection methods have been extensively studied in the context of linear models, particularly Lasso regression, identifying relevant features in neural networks remains a challenging problem. LassoNet addresses this challenge by extending Lasso-style sparsity to feedforward neural networks.
+
+The key idea of LassoNet is to combine an $L_1$-penalized skip-layer (residual) connection from the input directly to the output with a hierarchical constraint, which enforces that a feature can influence the nonlinear component of the network only if its corresponding weight in the residual connection is non-zero. Residual architectures, popularized by Kaiming He, are known to be easier to train and exhibit strong approximation capabilitiesXXXXXXXX. The general architecture of LassoNet is illustrated in XXXXXX.
+
+In this work, we apply LassoNet to supervised learning tasks, although it can also be extended to unsupervised tasks, as discussed in the literature. We consider data in a $d$-dimensional space, where $x \in \mathbb{R}^d$ denotes the covariate vector and $y$ the corresponding response variable. The model function is defined as:
+\[
+f_{\boldsymbol{\theta}, W}(\mathbf{x}) = \boldsymbol{\theta}^\top \mathbf{x} + g_W(\mathbf{x}),
+\]
+where $g_W(\mathbf{x})$ denotes a arbitrary feedforward neural network with parameters $W$, and $\boldsymbol{\theta} \in \mathbb{R}^d$ represents the weights of the skip-layer connection. 
+
+Let $n$ denote the number of training observations and $d$ the input dimension. The function $g_W$ is assumed to be fully connected, and we denote by $K$ the number of units in the first hidden layer. For notational convenience, let $W^{(1)} \in \mathbb{R}^{d \times K}$ represent the weights of the first hidden layer. The empirical loss function is denoted by $L(\boldsymbol{\theta}, W)$, viewed as a function of the model parameters.
+
+The LassoNet objective is defined as
+\begin{equation}
+\min_{\boldsymbol{\theta}, \mathbf{W}} \; \mathcal{L}(\boldsymbol{\theta}, \mathbf{W}) + \lambda \|\boldsymbol{\theta}\|_1
+\end{equation}
+subject to hierarchical constraint:
+\begin{equation}
+\|\mathbf{W}^{(1)}_j\|_{\infty} \leq M |\boldsymbol{\theta}_j|, \quad j = 1, \dots, d,
+\end{equation}
+where $\mathcal{L}(\boldsymbol{\theta}, \mathbf{W})$ is the empirical loss function and $\mathbf{W}^{(1)}_j$ denotes the weights associated with feature $j$ in the first hidden layer.
+
+The constraint
+\begin{equation}
+|\mathbf{W}^{(1)}_{jk}| \leq M |\boldsymbol{\theta}_j|, \quad k = 1, \dots, K,
+\end{equation}
+links the linear (skip-layer) and nonlinear components of the model. It enforces that the contribution of feature $j$ in the hidden layers is controlled by its corresponding coefficient $\boldsymbol{\theta}_j$. In particular, if $\boldsymbol{\theta}_j = 0$, then $\mathbf{W}^{(1)}_j = \mathbf{0}$, and the feature is completely excluded from the network. Thus, sparsity in $\boldsymbol{\theta}$, induced by the $\ell_1$-penalty, directly determines feature selection in the entire model.
+
+The parameter $M$ controls the strength of this hierarchy. For $M = 0$, the nonlinear component vanishes and the model reduces to Lasso regression. As $M \to \infty$, the constraint becomes inactive and the model approaches a standard feedforward neural network.
+
+Training proceeds by alternating between a gradient descent step on $(\boldsymbol{\theta}, \mathbf{W})$ and a hierarchical proximal update applied to $(\boldsymbol{\theta}, \mathbf{W}^{(1)})$. This makes the method easy to implement and computationally efficient, with the full regularization path obtainable at a cost comparable to training a single model.
