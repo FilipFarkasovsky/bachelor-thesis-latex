@@ -66,16 +66,6 @@ P(Y \mid X_j, \mathbf{X}_S) = P(Y \mid \mathbf{X}_S).
 
 Removing irrelevant features reduces noise, while removing redundant features eliminates unnecessary duplication of information. Both contribute to a more compact and efficient representation of the data.
 
-\section{REMOVE}
-Feature selection is a key approach to mitigating the curse of dimensionality, as it reduces the number of irrelevant or redundant variables and simplifies the learning problem. By lowering the number of features, the hypothesis space becomes significantly smaller, improving both computational efficiency and model performance \cite{mitchell1997, goodfellow2016}.
-
-For example, with $n$ binary features and a binary label, the size of the hypothesis space is  \[2^{2^n}\]. If each feature can take $m$ values and the class has $l$ labels, the hypothesis space grows even faster to \[l^{m^n}\]. This illustrates how rapidly complexity increases with dimensionality.
-
-Reducing the number of features also improves data coverage. For a fixed number of training instances $m$, decreasing $n$ increases the ratio $m / 2^n$, meaning that the input space is more densely populated. For instance, reducing from $n = 10$ to $n = 5$ leads to a substantial increase in coverage. This significantly improves the representativeness of the training data and allows learning algorithms to generalize more reliably \cite{liu2007}. 
-
-
-
-
 
 
 \section{Feature Selection vs.\ Feature Extraction}
@@ -83,11 +73,11 @@ Reducing the number of features also improves data coverage. For a fixed number 
 Feature selection and feature extraction are two approaches to dimensionality reduction.
 
 \subsection*{Common properties}
-
+XXXXXXXXXXXXXX
 Both feature selection and feature extraction aim to reduce the dimensionality of the data, which decreases storage and computational requirements. By simplifying the input space, they can improve the performance of learning algorithms, particularly in high-dimensional settings. Additionally, both approaches support the construction of models that generalize better to unseen data.
-
+XXXXXXXXXXXXXXXX
 Common feature selection methods include filter approaches such as mutual information and correlation-based selection, wrapper methods that evaluate subsets of features using predictive models, and embedded methods like Least Absolute Shrinkage and Selection Operator (LASSO) or decision tree–based selection. These approaches will be discussed in more detail in \textcolor{blue}{Section 2.4}. 
-
+XXXXXXXXXXX
 Common feature extraction methods include principal component analysis (PCA), independent component analysis (ICA), linear discriminant analysis (LDA), and autoencoders. While the underlying approaches differ, both families of methods aim to capture the most relevant information in a smaller representation of the data.
 
 \subsection*{Differences}
@@ -291,3 +281,25 @@ links the linear (skip-layer) and nonlinear components of the model. It enforces
 The parameter $M$ controls the strength of this hierarchy. For $M = 0$, the nonlinear component vanishes and the model reduces to Lasso regression. As $M \to \infty$, the constraint becomes inactive and the model approaches a standard feedforward neural network.
 
 Training proceeds by alternating between a gradient descent step on $(\boldsymbol{\theta}, \mathbf{W})$ and a hierarchical proximal update applied to $(\boldsymbol{\theta}, \mathbf{W}^{(1)})$. This makes the method easy to implement and computationally efficient, with the full regularization path obtainable at a cost comparable to training a single model.
+
+
+Training proceeds by alternating between a gradient descent step on $(\boldsymbol{\theta}, \mathbf{W})$ and a structured proximal update applied to $(\boldsymbol{\theta}, \mathbf{W}^{(1)})$. A proximal operator is an optimization step that solves a local regularized minimization problem, typically combining a quadratic term (which keeps the solution close to the current estimate) and a penalty term that enforces structure such as sparsity. The proximal update is applied separately for each feature $j$, where the pair $(\theta_j, \mathbf{W}^{(1)}_j)$ is updated jointly as a small block optimization problem.
+
+In LassoNet, the proximal step is defined, for each $j = 1, \dots, d$, as the solution of
+\begin{equation}
+\min_{\theta_j \in \mathbb{R}, \; \mathbf{W}^{(1)}_j \in \mathbb{R}^K}
+\; \frac{1}{2} (\tilde{\theta}_j - \theta_j)^2
++ \frac{1}{2} \|\tilde{\mathbf{W}}^{(1)}_j - \mathbf{W}^{(1)}_j\|_2^2
++ \lambda |\theta_j|
+\end{equation}
+subject to
+\begin{equation}
+\|\mathbf{W}^{(1)}_j\|_{\infty} \leq M |\theta_j|,
+\end{equation}
+where $\tilde{\theta}_j$ and $\tilde{\mathbf{W}}^{(1)}_j$ denote the intermediate values obtained after the gradient descent step. 
+
+LassoNet produces a sequence of models along a regularization path indexed by the parameter $\lambda$, which controls the level of sparsity. Two strategies can be used to compute this path: dense-to-sparse and sparse-to-dense. In the dense-to-sparse approach, training starts with a small value of $\lambda$, where the model is dense, and $\lambda$ is gradually increased, leading to progressively sparser solutions. In contrast, the sparse-to-dense approach starts with a large $\lambda$, where most features are inactive, and gradually decreases it.
+
+In practice, the dense-to-sparse path is preferred, as it tends to provide more stable solutions and better generalization performance. This is because the model begins in a well-trained dense regime and gradually removes less relevant features, rather than attempting to introduce them later.
+
+Feature importance is derived from the evolution of parameters along the regularization path. Since the hierarchical constraint ensures that a feature is active in the network only if $\theta_j \neq 0$, feature selection is fully determined by the skip-layer weights. A common approach is to define the importance of feature $j$ as the largest value of $\lambda$ for which $\theta_j \neq 0$, i.e., the point along the path where the feature is removed from the model. Thus, features that remain active for larger values of $\lambda$ are considered more important. This provides a natural ranking of features, analogous to coefficient paths in Lasso regression.

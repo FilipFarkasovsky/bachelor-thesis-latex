@@ -44,10 +44,10 @@ A special case of an artificial neuron is the \emph{perceptron}, which acts as a
 This defines a decision boundary given by:
 
 \begin{equation}
-\sum_{i=1}^{n} w_i x_i + b = 0.
+\sum_{i=1}^{d} w_i x_i + b = 0.
 \end{equation}
 
-which corresponds to a hyperplane in $\mathbb{R}^n$, provided that the data are linearly separable. 
+which corresponds to a hyperplane in $\mathbb{R}^d$, provided that the data are linearly separable. 
 
 \begin{figure}[ht]
     \centering
@@ -69,11 +69,11 @@ A network typically consists of an \emph{input layer} that receives data, \emph{
 
 
 
-Neurons in hidden layer work the same way as a perceptrons, except that instead of receiving the input vector, they take the outputs of neurons from the previous layer. Because of this similarity those networks are also called \textit{multilayer perceptron}, which are fully connected feedforward neural networks. \textit{Feedforward network} refer to the architecture, where the information flows strictly in one direction - from input layer to output layer. In ANNs is common for all neurons in the hidden layers to share the same activation function, though this is not required; the choice of activation functions will be discussed in the \textcolor{green}{Subsection XXX}. Likewise, the hidden layers do not need to have the same number of neurons, as it is illustrated in Figure~\ref{fig:convolutional-neural-network}.
+Neurons in hidden layer work the same way as a perceptrons; however instead of receiving the input vector, they take the outputs of neurons from the previous layer. Because of this similarity those networks are referred to as \textit{multilayer perceptrons (MLPs)}, which are fully connected feedforward neural networks. The term \textit{feedforward network} refers to an architecture, where the information flows strictly in one direction - from the input layer to the output layer.
 
+In artificial neural networks, it is common for all neurons in the hidden layers to share the same activation function, though this is not required; the choice of activation functions will be discussed in the XXXXXSubsection XXXX. Likewise, the hidden layers do not need to have the same number of neurons, as illustrated in Figure~\ref{fig:convolutional-neural-network}.
 
-
-The flow of signals in networks does not have to be strictly one-directional. In some cases, we want to process a sequence of inputs with respect to their order. For such sequential data \textit{recurrent networks} are used, in which neurons are able to store information from earlier signal passes and take it into account during future activations (see Figure~\ref{fig:reccurent-neural-network}).. It is implemented by creating loops between neurons to allow information to persist across time steps. These properties are essential for tasks such as time series modeling or human speech recognition.
+The flow of signals in neural networks does not have to be strictly one-directional. In tasks involving sequential data, where the order of inputs matters, \textit{recurrent neural networks (RNNs)} are used, in which neurons are able to store information from earlier signal passes and take it into account during future activations (see Figure~\ref{fig:reccurent-neural-network}). This is achieved through feedback connections (loops), which allow information to persist over time. Such properties are essential for applications like time series analysis and speech recognition \cite{graves2013speech}.
 
 \begin{figure}[ht]
     \centering
@@ -82,7 +82,7 @@ The flow of signals in networks does not have to be strictly one-directional. In
     \label{fig:reccurent-neural-network}
 \end{figure}
 
-It is also not necessary for neural networks to use a fully connected architecture. A partially connected structure is used in \textit{convolutional networks} (see Figure~\ref{fig:convolutional-neural-network}), mainly applied to image and character recognition. Their idea is to alternate \textit{convolutional and pooling layers}: the input is broken into small patches, which are processed through repeated layers. Early layers detect simple patterns like edges, while later ones combine them into more complex shapes. Because the connections are sparse, training is faster, and with the right design, convolutional networks can achieve very strong performance in image recognition \cite{lecun2015}.
+Neural networks also do not need to be fully connected. Partially connected architectures are used in \textit{convolutional neural networks (CNNs)} (see Figure~\ref{fig:convolutional-neural-network}), which are primarily applied to visual recognition tasks. These networks alternate between \textit{convolutional and pooling layers}: the input is broken into small patches, which are processed through repeated layers. Early layers detect simple patterns like edges, while later ones combine them into more complex patterns. Due to sparse connectivity, training is more efficient, and CNNs achieve strong performance in visual recognition tasks when properly designed \cite{lecun1998}.
 
 % DEEP CONVOLUTIONAL NEURAL NETWORK
 \begin{figure}[ht]
@@ -94,9 +94,7 @@ It is also not necessary for neural networks to use a fully connected architectu
 
 
 
-The architecture of a network is therefore determined by the number of hidden layers, their width (the number of neurons in each layer), the way the neurons are connected, and the manner in which the signal flows.
-
-\textbf{Notation} \textcolor{orange}{introduce notation}
+The architecture of a neural network is therefore determined by several design choices, including the depth (number of hidden layers), their width (number of neurons per layer), the pattern of connectivity between neurons, the direction of information flow, the choice of layer types and activation functions, as well as other architectural components. Such choices are referred to as \emph{hyperparameters} of the network.
 
 \section{Network notation}
 
@@ -141,7 +139,7 @@ f^{(i)}\!\left(
 \end{array}
 \right).
 \end{equation}
-where the function $f_i$ is applied element-wise.
+where the function $f^{(i)}$ is applied element-wise.
 
 The input vector can further be written as:
 \begin{equation}
@@ -197,125 +195,137 @@ Evidently, in the special case $k = 1$, $\mathbf{y}_i$ reduces to a scalar $y_i 
 
 \subsection{Brief History of Neural Networks}
 \label{sec:brief-notation}
-\textbf{Origins:} In 1949, Canadian psychologist Donald Hebb proposed that the connections (synapeses) between neurons strengthen when they are activated together \cite{hebb1949}. This is often summarized by the phrase attributed to him: “neurons that fire together, wire together”. So called \textit{Hebbian theory} provided a foundational idea, that networks could learn from experience.
+Canadian psychologist Donald Hebb proposed that the connections (synapses) between neurons strengthen when they are activated together \cite{hebb1949}. This idea is often summarized by the phrase: “neurons that fire together, wire together”. \textit{Hebbian theory} provided a foundational idea, that networks could learn from experience.
 
-\textbf{Early models:} A year later, the \textit{Perceptron}, introduced by Frank Rosenblatt \cite{rosenblatt1958}, was the first type of neural network designed to learn from examples. It combined the concept of a computational neuron with a learning algorithm that automatically adjusted its weights to separate inputs into classes using a linear decision boundary. The Perceptron was a single-layer neural network that applied a Heaviside (binary step) activation function to an affine combination of the inputs, producing a binary output. As a linear classifier, its decision boundary is a hyperplane in the input space, which means it can only correctly classify linearly separable data. Though groundbreaking, this linearity limited its ability to solve more complex classification problems.
+In 1958, Frank Rosenblatt proposed the \textit{Perceptron} \cite{rosenblatt1958}, one of the first learning algorithms for neural networks. The perceptron was capable of supervised learning and classification tasks, which generated a lot of optimism about artificial neurons. 
 
-\textbf{Setback:} The work of Minsky and Papert in \cite{minsky1969} demonstrated that single-layer linear networks could not solve problems such as the XOR function, which led to a temporary decline in research of neural networks \cite{lecture1_2017}. \textcolor{orange}{ Reference to paragraph in this thesis discussing limitations of perceptron capturing logic of XOR function in this thesis (maybe in similar way as it is showed by Goodfellow)}
-\textcolor{pink}{TODO: Plot the graph in latex}
+However, this progress was later reduced by theoretical limitations identified by Minsky and Papert, who proved that single-layer linear networks could not solve problems such as the XOR function \cite{minsky1969}. This critique contributed to a decline in research activity ANNs, often referred to as the “AI winter.” 
 
-\textbf{Revival:} Neural networks regained attention with the development of multi-layer networks trained using backpropagation \cite{rumelhart1986}, \textcolor{green}{which will be discussed in Section X}.. This allowed networks to learn more complex patterns and revived research in deep learning.
+A key milestone in neural network research in the 1980s was the introduction of the \emph{backpropagation algorithm} \cite{rumelhart1986}, popularized by Geoffrey Hinton, David Rumelhart, and Ronald Williams. Backpropagation enabled efficient training of multi-layer neural networks by computing gradients of the \emph{loss function}. This algorithm helped to overcome the limitations of single-layer models \cite{lecun2015} and enabled the transition toward more complex architectures.
 
-\textbf{Specialised networks:} In the 1990s researchers introduced specialized architectures for different types of data. The development of \textit{convolutional neural networks}, as presented by LeCun, Bottou, Bengio, and Haffner in \cite{lecun1998}, for image processing, together with the use of \textit{recurrent neural networks} for sequential data, enabled neural networks to tackle a wider variety of problems. This led to strong improvements in vision, speech, and language applications \cite{lecun2015}.
+Another important factor was the increase in computational power, particularly the development of \emph{graphical processing units (GPUs)}, which enabled further advances in artificial neural networks.
 
-
-\textbf{Developments up to 2026:} Breakthroughs such as AlexNet \cite{krizhevsky2012} and the \textit{transformer} architecture - built on the attention mechanism \cite{vaswani2017} - accelerated progress in image recognition and natural language processing. \textit{The attention mechanism} allows a neural network to focus on the most relevant parts of the input when making a prediction. Instead of treating all inputs equally, the model computes attention weights that measure how important each element (for example, each word in a sentence) is for the current step. This makes the model better at capturing long-range relationships and understanding context efficiently.
+During the 1990s, specialized neural network architectures were developed to address different types of tasks. \textit{Convolutional neural networks}, formalized by LeCun et al. \cite{lecun1998}, proved highly effective for image processing. \textit{Recurrent neural networks} were designed to model sequential data. These architectures enabled neural networks to tackle a broader range of problems, leading to significant improvements in vision, speech, and language applications \cite{lecun2015}.
 
 \subsection{Activation Functions in the Hidden Layers}
 \label{sec:activation-functions-hidden-layer}
-\emph{Activation functions} introduce non-linearity into model to learn complex data patterns. Without non-linear activation functions, a neural network would reduce to a linear model regardless of its depth, limiting its ability to approximate complex functions.
+\emph{Activation functions} introduce non-linearity into neural networks, enabling them to approximate complex, non-linear functions. Without non-linear activation functions, a feedforward neural network reduces to a composition of affine transformations, which is itself an affine transformation, regardless of depth. Consequently, such a model would be equivalent to a single linear model.
 
-A suitable activation function for hidden layers should satisfy several key properties that ensure effective learning and stable optimization:
-\begin{itemize}    
-    \item \textbf{Differentiability:} The activation function should be differentiable (at least almost everywhere) to ensure that gradient-based optimization methods, such as backpropagation, can be applied effectively for parameter estimation.
+A suitable activation function for hidden layers should satisfy the following properties:\begin{itemize}    
+    \item \textbf{Differentiability:} The activation function should be differentiable almost everywhere to ensure that gradient-based optimization methods, such as \emph{backpropagation}, can be applied. (XXXXXXdiscussed XXXXX)
     
-    \item \textbf{Computational efficiency:} The function should be computationally inexpensive to evaluate, as activation functions are applied repeatedly during both training and inference, particularly in large-scale neural networks.
+    \item \textbf{Computational efficiency:} The function should be computationally inexpensive to evaluate, as activation functions are applied repeatedly during both training and inference.
     
-    \item \textbf{Gradient stability:} The activation function should support stable gradient propagation, reducing the risk of vanishing or exploding gradients, \textcolor{green}{which will be discussed in Section X} and thereby facilitating efficient and reliable training of deep architectures.
+    \item \textbf{Gradient stability:} The function should mitigate \emph{vanishing} or \emph{exploding gradients}, ensuring stable signal propagation in deep architectures. These phenomena are discussed in Section XXXXXXXX.
 \end{itemize}
-
-In this chapter, several of the most commonly used activation functions are introduced and discussed, with a focus on their properties and role in hidden layers of neural networks.
-
 
 
 \textbf{\\Sigmoid Function\\}  
+The \emph{sigmoid function} is defined as:
 \begin{equation}
-    \phi(z) = \sigma(z) = \frac{1}{1 + e^{-z}}
+    \phi(z) := \sigma(z) = \frac{1}{1 + e^{-z}}.
 \end{equation}
 
-The \emph{sigmoid function} maps inputs to the interval $(0, 1)$. While historically popular, it is less frequently used in hidden layers due to the \emph{vanishing gradient problem} (see Chapter XXXX) for large positive or negative inputs \cite{goodfellow2016}. 
+However, for large values of $|z|$, the derivative $\sigma'(z) = \sigma(z)\bigl(1 - \sigma(z)\bigr)$ approaches zero, which leads to the \emph{vanishing gradient problem} (see Chapter XXXXXX) \cite{goodfellow2016}. Consequently, the sigmoid activation is rarely used in hidden layers of neural networks.
 
 \textbf{\\Hyperbolic Tangent(Tanh)\\}  
-\emph{Hyperbolic tangent} is defined as:
+The \emph{hyperbolic tangent function}, denoted as $\tanh(z)$, is a popular activation function in neural networks. It is mathematically defined as the ratio of the hyperbolic sine and hyperbolic cosine functions:
+
 \begin{equation}
-    \phi(z) = \tanh(z) =\frac{e^{z} - e^{-z}}{e^{z} + e^{-z}}
-= \frac{1 - e^{-2z}}{1 + e^{-2z}}
-= 2\sigma(2z) - 1
+\phi(z) := \tanh(z) = \frac{e^{z} - e^{-z}}{e^{z} + e^{-z}}
 \end{equation}
 
-This function maps inputs to the interval $(-1, 1)$ and is zero-centered, which can improve convergence compared to the sigmoid function. However, it still suffers from vanishing gradients for very large positive or negative input values \cite{goodfellow2016}. 
+To express it in terms of the sigmoid function $\sigma(z)$, it can be rearranged as:
+
+\begin{equation}
+\tanh(z) = \frac{1 - e^{-2z}}{1 + e^{-2z}} = 2\sigma(2z) - 1
+\end{equation}
+
+The function maps $\mathbb{R}$ to $(-1,1)$ and is zero-centered, which improves optimization dynamics compared to the sigmoid function by reducing bias shift in activations \cite{goodfellow2016}.
+
+Despite this advantage, $\tanh$ still suffers from vanishing gradients for large $|z|$, since its derivative also saturates in the tails. 
 
 \textbf{\\Rectified Linear Unit (ReLU)\\}  
-The ReLU function is defined as:
+The \emph{ReLU function} is defined as:
 \begin{equation}
-    \phi(z) = \max(0, z)
+    \phi(z) := \max(0, z)
 \end{equation}
 
 It is widely used due to its simplicity and effectiveness. ReLU allows sparse activation, where only a subset of neurons are active at a time. It is computationally more efficient than sigmoidal functions, avoids saturation for positive inputs, and converges faster in deep architectures \cite{aggarwal2018}. 
 
-Main problem with ReLU as activation function is that in learning process it is prone to creating so-called \textit{dead neurons}. This is a phenomenon, when its pre-activation value $\mathbf{w}^{\top}\mathbf{x} + b$ consistently falls into the non-positive region, causing its output to remain zero for given inputs during a training process. Since their gradient is always zero, their weights stop updating and they no longer contribute to learning.
+A known drawback of the ReLU function is the so-called \emph{dying ReLU problem}. Consider a neuron with pre-activation $z = \mathbf{w}^\top \mathbf{x} + b$. If during training $z \leq 0$ for all inputs in the data distribution, then the output is identically zero. Since the gradient of the ReLU function is also zero for $z < 0$, i.e.,
+\begin{equation}
+\frac{d}{dz} \max(0, z) = 0 \quad \text{for } z < 0,
+\end{equation}
+the corresponding parameters receive no gradient updates, effectively preventing further learning in that neuron.
 
 
 \textbf{\\Leaky ReLU\\}
-To cope with such issue, several variants have been proposed. One common approach is the \textit{Leaky ReLU}, which introduces a small slope for negative inputs:
+To address the dying ReLU problem, the \textit{Leaky ReLU}, introduces a small non-zero slope for negative inputs:
 \begin{equation}
-    \phi(z) =
+    \phi(z) :=
     \begin{cases}
         z & \text{if } z > 0 \\
         \alpha z & \text{otherwise}
     \end{cases}
 \end{equation}
 
-where $\alpha$ is a small constant (e.g., $0.01$). This function addresses the ``dying ReLU'' problem by allowing a small, non-zero gradient for negative inputs.
+where $\alpha$ is a small constant (e.g., $0.01$). This function addresses the ``dying ReLU'' problem by allowing a small, non-zero gradient for $z < 0$.
 
 \textbf{\\Gaussian Error Linear Unit (GELU)\\}
-Another widely used alternative is the \textit{Gaussian Error Linear Unit (GELU)}. Its exact formulation is given by:
+Another widely used alternative is the \textit{Gaussian Error Linear Unit (GELU)} \cite{hendrycks2016}. Its exact formulation is given by:
 \begin{equation}
-    \phi(z) = z \cdot \Phi(z)
+    \phi(z) := z \cdot \Phi(z)
 \end{equation}
-where \( \Phi(z) \) denotes the cumulative distribution function of the standard normal distribution. In practice, an efficient approximation is often used \cite{hendrycks2016}:
+where \( \Phi(z) \) denotes the cumulative distribution function of the standard normal distribution. In practice, an efficient approximation is often used:
 \begin{equation}
     \phi(z) \approx 0.5 z \left( 1 + \tanh\left( \sqrt{\frac{2}{\pi}} \left( z + 0.044715 z^3 \right) \right) \right)
 \end{equation}
 
-Hendrycks and Gimpel in \cite{hendrycks2016} showed that its smooth Gaussian-based formulation improves performance across a variety of tasks. GELU has become a standard choice in transformer-based architectures, including models such as 
-\textit{Generative Pre-trained Transformer (GPT)} \cite{radford2019} and \textit{Bidirectional Encoder Representations from Transformers (BERT)} \cite{devlin2018}.
+GELU can be interpreted as a smooth gating mechanism, where inputs are weighted by the probability that a standard Gaussian variable is less than the input value. This probabilistic interpretation leads to smoother activation behavior compared to ReLU. 
+
+Empirically, GELU has been shown to improve performance in deep architectures, particularly in transformer-based models such as \textit{Generative Pre-trained Transformer (GPT)} \cite{radford2019} and \textit{Bidirectional Encoder Representations from Transformers (BERT)} \cite{devlin2018}.
 
 \subsection{Activation Functions in Output Layer}
 \label{sec:activation-functions-ouput-layer}
 
-The choice of activation function in the output layer of a neural network depends on the type of task and the desired output representation. For regression tasks, where the network predicts continous values, the \textit{identity function} $\phi(x) = x$ is commonly used. 
-
-For binary classification, the sigmoid function is frequently used. Its output lies in the interval $(0,1)$, which can be interpreted as the probability of belonging to a positive class. Its simple derivative enables efficient gradient-based learning.
-
-For multiclass classification, the \textit{softmax function} is commonly used. Given an input vector 
-\(\mathbf{x} = (x_1, x_2, \dots, x_k)^\top \in \mathbb{R}^k\), softmax function can be defined as:
-
+The choice of activation function in the output layer of a neural network depends on the type of task and the desired output representation. For regression tasks, where the goal is to predict real-valued outputs, the identity function
 \begin{equation}
-    \mathrm{softmax}(x_i) = \frac{e^{x_i}}{\sum_{j=1}^{k} e^{x_j}}, \quad i = 1,2, \dots, k.
+\phi(z) := z
+\end{equation}
+is typically used.
+
+For binary classification, the sigmoid function is commonly applied:
+\begin{equation}
+\sigma(z) = \frac{1}{1 + e^{-z}}.
 \end{equation}
 
-This transformation has two key properties. Positivity follows from the exponential function, ensuring that $\text{softmax}(x_i) > 0 \ \forall i$. Normalization is guaranteed by the denominator, which ensures that $\sum_{i=1}^{k} \text{softmax}(x_i) = 1$. Together, these properties ensure that the softmax output forms a valid probability distribution over the $k$ classes. Each component can therefore be interpreted as the model’s estimated probability that the input belongs to the corresponding class. 
+Its output lies in the interval $(0,1)$, allowing interpretation as a conditional probability $P(y=1 \mid z)$ under a Bernoulli model.
 
-Note that for this transformation to work, the last hidden layer must have the same number of neurons as the output layer.
+For multiclass classification with $k$ classes, the softmax function is used. Given a vector of logits $\mathbf{z} = (z_1, z_2, \dots, z_k)^\top \in \mathbb{R}^k$, it is defined as
+\begin{equation}
+\mathrm{softmax}(z_i) = \frac{e^{z_i}}{\sum_{j=1}^{k} e^{z_j}}, \quad i = 1, \dots, k.
+\end{equation}
+
+This mapping transforms $\mathbb{R}^k$ into the probability simplex. It satisfies two fundamental properties: positivity $\mathrm{softmax}(z_i) > 0$ and normalization $\sum_{i=1}^{k} \mathrm{softmax}(z_i) = 1$. Therefore, the output can be interpreted as a categorical probability distribution over $k$ classes.
+
+In practice, softmax is applied to the output of the final linear transformation (logits). The dimensionality of this layer must equal $k$, since each component corresponds to one class probability.
 
 \subsection{Loss Functions}
 \label{sec:loss-functions}
-\emph{Loss function} quantifies the difference between a neural network's prediction $\hat{y}$ and target value $y$. It can be used to both evaluate performance of the model, and for guidence in gradient-based learning, as it will be illustrated in the following subsection.
+A \emph{Loss function} quantifies the discrepancy between a model prediction $\hat{y}$ and the corresponding target value $y$. It serves two main purposes: (i) it provides a quantitative measure of model performance, and (ii) it defines the objective function used in gradient-based optimization methods.
 
-Given a dataset of $n$ observations, the \emph{empirical risk (average loss)} is defined as:
-
+Given a dataset of $n$ observations $\{(\mathbf{x}_i, y_i)\}_{i=1}^{n}$, the \emph{empirical risk (average loss)} associated with a model parameterized by $\boldsymbol{\theta}$ is defined as
 \begin{equation}
-    \mathcal{L} = \frac{1}{n} \sum_{i=1}^{n} l(y_i, \hat{y}_i)
+\mathcal{L}(\boldsymbol{\theta}) = \frac{1}{n} \sum_{i=1}^{n} \ell\bigl(y_i, f_{\boldsymbol{\theta}}(\mathbf{x}_i)\bigr).
 \end{equation}
 
-The objective of model estimation is to find parameters that minimize this empirical risk:
+Here, $f_{\boldsymbol{\theta}}(\mathbf{x}_i)$ denotes the model prediction for input $\mathbf{x}_i$, and $\ell(\cdot,\cdot)$ is a \emph{sample loss function} measuring the discrepancy between prediction and target.
 
+The objective of model training is to find optimal parameters that minimize the empirical risk:
 \begin{equation}
-    \boldsymbol{\theta}^* = \arg \min_{\boldsymbol{\theta}} \frac{1}{n} \sum_{i=1}^{n} l\big(y_i, f(\mathbf{x}_i; \boldsymbol{\theta})\big)
+\boldsymbol{\theta}^* = \arg\min_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}).
 \end{equation}
-
-where $\mathbf{x}_i$ denotes the input features, $f(\mathbf{x}_i; \boldsymbol{\theta})$ is the model prediction, $\theta$ represents the model parameters, and $l(\cdot,\cdot)$ is the sample loss function.
 
 The choice of loss function depends on the type of task. For regression tasks, the \textit{squared error loss} is commonly used:
 
@@ -323,92 +333,81 @@ The choice of loss function depends on the type of task. For regression tasks, t
     l(y_i, \hat{y}_i) = {\left(y_i - \hat{y}_i\right)^2}
 \end{equation}
 
-Minimizing the squared error leads to the \emph{ordinary least squares (OLS)} estimator in linear regression. This loss function penalizes larger errors more heavily due to the quadratic term, which makes it sensitive to outliers.
+Minimizing the squared error loss corresponds to the \emph{ordinary least squares (OLS)} under standard assumptions, i.e., a linear model with additive noise. This loss function penalizes larger errors more heavily due to the quadratic term, which makes it sensitive to outliers.
 
-For binary classification, the \textit{binary cross-entropy} loss is used, which is the the negative log-likelihood of Bernoulli distribution:
+For binary classification, the \textit{binary cross-entropy} loss is used, which is the the negative log-likelihood of a Bernoulli distribution:
 
 \begin{equation}
     l(y_i, \hat{y}_i) = - \Big[ y_i \log \hat{y}_i + (1 - y_i) \log (1 - \hat{y}_i) \Big],
 \end{equation}
 
-where \(\hat{y}_i\) represents the predicted probability of the positive class.
+Here, \(\hat{y}_i \in (0,1)\) represents the predicted probability of the positive class.
 
-For multiclass classification, the \textit{categorical cross-entropy loss} is used in combination with the softmax activation:
+For multiclass classification with $k$ classes, the \textit{categorical cross-entropy loss} is used in combination with the softmax activation:
 
 \begin{equation}
-    l(y_i, \hat{y}_i) = - \sum_{k=1}^{k} y_{i,k} \log \hat{y}_{i,k},
+    l(y_i, \hat{y}_i) = - \sum_{j=1}^{k} y_{j,k} \log \hat{y}_{j,k},
 \end{equation}
 
-where 
+where the target vector is typically represented in one-hot encoding:
 
 \begin{equation}
     y_{i,k} = 
     \begin{cases} 
-        1 & \text{if sample $i$ belongs to class $k$,} \\
+        1 & \text{if sample $i$ belongs to class $j$,} \\
         0 & \text{otherwise,} 
     \end{cases}
 \end{equation}
 
-and \(\hat{y}_{i,k}\) is the predicted probability for class $k$  of sample $i$ .
+and \(\hat{y}_{i,j}\) is the predicted probability for class $j$  of sample $i$ .
 
 In classification tasks solved by neural networks, the model typically ouputs a vector of predicted probabilities obtained through the softmax or sigmoid activation function. To transform these probability scores into one class decision, a \emph{decision threshold}, or also called \textit{cut-off} point must be specified. In binary classification, a default threshold is 0.5, but by adjusting this value, we can better suit the model to the requirements of a specific application. In multinomial classification usually an observation is assigned with the class with highest predicted probability.
 
 \subsection{Gradient Descent}
 \label{sec:gradient-descent}
-\emph{Gradient descent} is an optimization algorithm used to train neural networks by minimizing loss function. Its main idea is iteratively adjusting the parameters of the model in the the direction that reduces loss the most. Formally, for a set of parameters $\boldsymbol{\theta}$ and a differentiable loss function $\mathcal{L}(\boldsymbol{\theta})$, the update rule naturally is:
+\emph{Gradient descent} is an optimization algorithm used to minimize a loss function in machine learning models, including neural networks. Its main idea is to iteratively update the model parameters in the direction of the negative gradient, which locally indicates the steepest decrease of the objective function. 
+
+Formally, for a set of parameters $\boldsymbol{\theta}$ and a differentiable loss function $\mathcal{L}(\boldsymbol{\theta})$, the update rule is given by:
 
 
 \begin{equation}
     \boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t - \eta \, \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\boldsymbol{\theta}}_t),
 \end{equation}
 
-where $\eta \in \mathbb{R}_{>0}$ is a hyperparameter called \textit{learning rate}, which controls step size, and $\nabla_{\boldsymbol{\theta}}\mathcal{L}(\boldsymbol{\theta_t})$ is the gradient of loss function with respect to all parameters at iteration $t$.
+where $\eta >0$ is the \textit{learning rate} controlling the step size, and $\nabla_{\boldsymbol{\theta}}\mathcal{L}(\boldsymbol{\theta_t})$ is the gradient of loss function with respect to all parameters at iteration $t$.
 
-Under conditions such as convexity and Lipshitz-continuity of gradients, convergence to the global minimum is guaranteed. However, these conditions are rarely satisfied in practice; consequently the algorithm may converge to a local minimum, diverge or oscillate.
+Under conditions such as convexity of $\mathcal{L}_{\boldsymbol{\theta_t}}$ and Lipshitz-continuity of its gradients, convergence to the global minimum is guaranteed. However, these conditions are rarely satisfied in practice; consequently the algorithm may converge to a local minimum, or saddle points, or exhibit oscillatory behavior depending on the choice of the learning rate.
 
-There are multiple ways in which the parameters can be updated at each step, depending on the choice of \textit{batch} - subset of training data used to estimate the gradient. In \textit{batch gradient descent}, the gradient is computed over the entire dataset:
+In practice, different variants of gradient descent are used depending on how the gradient is estimated from data.
 
+In \emph{batch gradient descent}, the gradient is computed over the entire dataset:
 \begin{equation}
-\nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}) 
-= \frac{1}{n} \sum_{i=1}^{n} \nabla_{\boldsymbol{\theta}} \, l\!\left(y_i, \hat{y}_i\right)
+\nabla_{\boldsymbol{\theta}} L(\boldsymbol{\theta}) = \frac{1}{n} \sum_{i=1}^{n} \nabla_{\boldsymbol{\theta}} \ell\bigl(y_i, f_{\boldsymbol{\theta}}(\mathbf{x}_i)\bigr).
 \end{equation}
 
+This provides an exact estimate of the true gradient but can be computationally expensive for large datasets.
 
-
-where \(n\) is the total number of training samples and \( l(y_i, \hat{y}_i) \) is the loss for a single sample. This provides an accurate update but can be computationally expensive for large datasets.
-
-
-In \textit{stochastic gradient descent (SGD)}, at each iteration the parameters are updated using a single randomly selected training sample:
-
+In \emph{stochastic gradient descent (SGD)}, the parameters are updated using a single randomly selected sample:
 \begin{equation}
-\boldsymbol{\theta}_{t+1}
-= \boldsymbol{\theta}_t
-- \eta \, \nabla_{\boldsymbol{\theta}} \, l\!\left(y_i, \hat{y}_i\right),
+\boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t - \eta \nabla_{\boldsymbol{\theta}} \ell\bigl(y_i, f_{\boldsymbol{\theta}}(\mathbf{x}_i)\bigr).
 \end{equation}
 
-which introduces stochasticity, potentially helping the optimizer escape shallow local minima, but may lead to unstable convergence.
+This introduces stochastiity into the optimization process, which may help escape shallow local minima, but can lead to high variance in parameter updates.
 
-\textit{Mini-batch gradient descent} updates the parameters using a randomly selected subset 
-\( B \subset \{1, \dots, n\} \) of size \( m \), where \( 1 < m < n \).
-
-
+\emph{Mini-batch gradient descent} combines both approaches by using a randomly sampled subset $B \subset \{1,\dots,n\}$ of size $m$, where $1 < m < n$:
 \begin{equation}
-\boldsymbol{\theta}_{t+1}
-= \boldsymbol{\theta}_t
-- \eta \, \frac{1}{m} \sum_{i \in B}
-\nabla_{\boldsymbol{\theta}} \, l\!\left(y_i, \hat{y}_i\right),
+\boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t - \eta \frac{1}{m} \sum_{i \in B} \nabla_{\boldsymbol{\theta}} \ell\bigl(y_i, f_{\boldsymbol{\theta}}(\mathbf{x}_i)\bigr).
 \end{equation}
 
-
-This approach is the most commonly used in practice, because of its computational efficiency and smoother convergence \cite{gfg2025}.
+This approach is widely used in practice due to its computational efficiency and more stable convergence behavior compared to pure SGD \cite{gfg2025}.
 
 \subsection{Backpropagation Algorithm}
-A neural network can be represented as a composition of layer functions:
+A neural network can be represented as a composition of layer-wise functions:
 \begin{equation}
     f(\mathbf{x}) = f^{(L)} \circ f^{(L-1)} \circ \cdots \circ f^{(1)}(\mathbf{x}).
 \end{equation}
 
-Since these functions are vector-valued, derivatives are understood in the multivariate sense, i.e., as \emph{Jacobian matrices}. Applying the multivariate chain rule yields:
+Each layer function is vector-valued, and thus its derivatives are understood in terms of Jacobian matrices. Applying the multivariate chain rule yields:
 \begin{equation}
 \frac{\partial f}{\partial \mathbf{x}}
 =
@@ -434,7 +433,7 @@ Consider a feedforward neural network with \( L \) layers. For layer \( i \), th
 \mathbf{a}^{(i)} = \phi\!\left(\mathbf{z}^{(i)}\right)
 \end{equation}
 
-The final output is \( \hat{\mathbf{y}} = \mathbf{a}^{(L)} \)  is compared to the target \( \mathbf{y} \) using a loss function \( \mathcal{L}(\hat{\mathbf{y}}, \mathbf{y}) \), such as \emph{mean squared error} or \emph{cross-entropy}.
+The final output is \( \hat{\mathbf{y}} = \mathbf{a}^{(L)} \)  is compared to the target \( \mathbf{y} \) using a loss function \( \mathcal{L}(\boldsymbol{\theta}) \).
 
 \textbf{\\Backpropagation\\}
 \emph{Backpropagation} applies the chain rule of calculus to compute gradients efficiently by propagating \emph{error signals} from the output layer back to the input layer.
@@ -454,15 +453,13 @@ For the final layer \( L \), the error is computed as:
 
 where \( \odot \) denotes element-wise multiplication.
 
-For hidden layers, the error is propagated backward as:
+For hidden layers, the error is propagated recursively:
 
 \begin{equation}
 \boldsymbol{\delta}^{(l)} =
 \left(\mathbf{W}^{(l+1)}\right)^{\top} \boldsymbol{\delta}^{(l+1)}
 \odot \phi'\!\left(\mathbf{z}^{(l)}\right)
 \end{equation}
-
-This recursive relationship allows gradients to be computed layer by layer starting from the output.
 
 Once \( \boldsymbol{\delta}^{(l)} \) is known, gradients with respect to parameters are given by:
 
@@ -476,47 +473,50 @@ Once \( \boldsymbol{\delta}^{(l)} \) is known, gradients with respect to paramet
 \boldsymbol{\delta}^{(l)}
 \end{equation}
 
-These expressions are computationally efficient and \emph{backpropagation} thus reduces the computational complexity of gradient computation from exponential to linear in the number of layers by reusing intermediate derivatives through the chain rule \cite{goodfellow2016}.
+Backpropagation avoids redundant computation of intermediate derivatives by reusing previously computed gradients. As a result, the complexity of gradient computation is linear in the number of network parameters. \cite{goodfellow2016}.
 
 \subsection{Vanishing and Exploding Gradients}
-The \emph{vanishing gradient problem} occurs when gradients become extremely small as they are propagated backward through layers. As a result, the weights in earlier layers are updated very slowly or not at all.
+The \emph{vanishing gradient problem} occurs when gradients decrease exponentially as they are propagated backward through a deep neural network. As a result, parameter updates in earlier layers become extremely small, effectively slowing or stopping learning in these layers.
 
-This issue is particularly common when using activation functions such as the sigmoid or hyperbolic tangent. For example, the derivative of the sigmoid function is given by:
-
+This issue is particularly common when using activation functions such as the sigmoid or hyperbolic tangent. For the sigmoid function, the derivative is given by
 \begin{equation}
-\phi'(z) = \phi(z)\left(1 - \phi(z)\right)
+\phi'(z) = \phi(z)\bigl(1 - \phi(z)\bigr).
 \end{equation}
 
-Since \(\phi(z) \in (0,1)\), the derivative satisfies:
+Since $\phi(z) \in (0,1)$, the derivative is bounded by
 \begin{equation}
-    \phi'(z) < 0.25
+0 < \phi'(z) \leq \frac{1}{4}, \quad \text{with the maximum attained at } z = 0.
 \end{equation}
 
 Repeated multiplication of such small values across many layers leads to gradients approaching zero.
 
-The exploding gradient problem arises when gradients grow exponentially during backpropagation. This typically happens when derivatives are consistently greater than 1, or when weights are poorly initialized.
+The \emph{exploding gradient problem} arises when gradients grow exponentially during backpropagation. This typically happens when derivatives are consistently greater than 1, or when weights are poorly initialized.
 
-Activation functions play a central role in these issues. In particular, activation functions such as ReLU have derivatives equal to 1 for positive inputs, which helps maintain gradient magnitude across layers. However, improper weight initialization can still lead to exploding gradients.
+Activation functions play a central role in these issues. In particular, activation functions such as ReLU have derivatives equal to 1 for positive inputs, which helps to alleviate vanishing gradients in deep networks. However, improper weight initialization can still lead to exploding gradients or \emph{dying neurons}.
 
 \subsection{Learning Rate}
 
-For effective learning, it is crucial to choose appropriate \emph{learning rate}. Learning rate controls magnitude of each step in a \emph{gradient-descent}. A small learning rate can cause slow convergence. Conversely, a too large learning rate can cause divergence, or oscillatory behavior. Thus, selecting a fixed learning rate can cause instability or excessively slow convergence during training. Several modifications of learning rate are proposed. One of the most simple  is an \textit{exponential decay}:
+For effective learning, it is crucial to choose appropriate \emph{learning rate}. Learning rate controls magnitude of parameter updates in a gradient-descent. A small learning rate may lead to slow convergence, while a too large learning rate may cause divergence or oscillatory behavior. Thus, using a fixed learning rate can cause instability or excessively slow convergence during training. 
+
+Several strategies have been proposed to address this issue. One of the simplest approaches is \textit{exponential decay}, defined as:
 
 % n overview of gradient descent optimization algorithms
 \begin{equation}
     \eta_t = \eta_0 e^{-\gamma t},
 \end{equation}
-where $\eta_0$ denotes the initial learning rate, $\gamma>0$ is the decay coefficient, and $t$ is an iteration index. 
+where $\eta_0$ denotes the initial learning rate, $\gamma>0$ is the decay rate, and $t$ is an iteration index. 
 
-Exponential decay has some limitations, as it reduces the learning rate uniformly without considering the specific behavior of individual parameters. The most effective method are so called \emph{adaptive algorithms}, such as \textit{Adam}, \textit{RMSProp}, and \textit{Adagrad}~\cite{ruder2016overview, duchi2011adaptive, kingma2015adam}. \textcolor{pink}{GLOSSARY} These methods automatically adjust the step size for each parameter based on the history of gradients - this makes them useful when the gradients of some parameters are steep while others are shallow ~\cite{ruder2016overview}. Among them, Adam has become the most widely used optimizer due to its strong empirical performance, robustness across a variety of architectures, and relatively low sensitivity to the choice of the initial learning rate~\cite{kingma2015adam}.
+However, exponential decay does not adapt to the geometry of the optimization landscape. More advanced methods, known as adaptive optimization algorithms, adjust the learning rate individually for each parameter based on the history of gradients. The most effective method are so called \emph{adaptive algorithms}, such as \textit{Adam}, \textit{RMSProp}, and \textit{Adagrad}~\cite{ruder2016overview, duchi2011adaptive, kingma2015adam}. These methods typically use running estimates of first and/or second moments of the gradients to scale parameter updates, which improves performance in settings where different parameters exhibit gradients of varying magnitude. ~\cite{ruder2016overview}. 
+
+ Among these methods, Adam is one of the most widely used optimizers due to its strong empirical performance, robustness across a wide range of architectures, and relatively low sensitivity to the initial learning rate choice ~\cite{kingma2015adam}.
 
 \section{Evaluation of Model Performance}
 \label{sec:evaluation-model-performance}
 
 In this section, we introduce commonly used metrics for evaluating the performance of machine learning models.
 
-\subsection{Criterias for classification tasks}
-\label{sec:criteria-cassification-tasks}
+\subsection{Criteria for classification tasks}
+\label{sec:criteria-classification-tasks}
 
 In classification, the goal is to assign observations to predefined classes. Model performance is evaluated by comparing predicted labels with true labels.
 
@@ -556,7 +556,7 @@ The results are typicaly summarized using a \textit{confusion matrix}, as shown 
 
 From the confusion matrix, several performance measures can be derived: \\
 
-\textbf{Accuracy}, sometimes reffered to as \emph{rand index}, or \emph{rand accuracy} is defined as the proportion of correctly classified observations among all observations, as shown in Equation~\ref{eq:accuracy}. 
+\textbf{Accuracy} is defined as the proportion of correctly classified observations:~\ref{eq:accuracy}. 
 
 \begin{equation}
     \text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
@@ -602,26 +602,30 @@ In some applications, only a specific part of the \emph{ROC curve} is relevant. 
 
 \subsection{Criteria for Regression Tasks}
 \label{sec:criteria-regression-tasks}
-In regression tasks, we are supposed to predict the target variable that takes continous values. To assess prediction performance, several commonly used metrics can be used.
-Let $y_i$ denote the observed value of the dependent variable, $\hat{y}_i$ the predicted value, and $n$ the number of observations.
+In regression tasks, the goal is to predict a continuous target variable. Let $\{(\mathbf{x}_i, y_i)\}_{i=1}^{n}$ denote a dataset of input-output pairs, where $\mathbf{x}_i \in \mathbb{R}^d$ is the input vector and $y_i \in \mathbb{R}$ is the corresponding target value. The predicted value is denoted by $\hat{y}_i = f_{\boldsymbol{\theta}}(\mathbf{x}_i)$, where $f_{\boldsymbol{\theta}}$ is a model parameterized by $\boldsymbol{\theta}$.
 
-\textbf{Mean Squared Error (MSE)} measures the average squared difference between observed and predicted values. Because the errors are squared, it penalizes larger errors more strongly than the smaller ones. For this reason, MSE is widely used as a training loss function.
+The most commonly used regression metrics are defined as follows.
 
+\textbf{Mean Squared Error (MSE):}
 \begin{equation}
-    \text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+\text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2.
 \end{equation}
 
-\textbf{Root Mean Squared Error (RMSE)} is the square root of MSE. It is expressed in the same units as predicted variable, which makes interpretation more intuitive. It, however, remains sensitive to outliers.
+MSE measures the average squared deviation and is widely used as a loss function due to its differentiability and strong penalization of large errors.
 
+\textbf{Root Mean Squared Error (RMSE):}
 \begin{equation}
-    \text{RMSE} = \sqrt{ \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 }
+\text{RMSE} = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}.
 \end{equation}
 
-\textbf{Mean Absolute Error (MAE)} calculates the average absolute difference between observed and predicted values. Unlike MSE, it is less affected by extreme observations and provides a more robust measure of typical error size.
+RMSE is a monotonic transformation of MSE and is expressed in the same units as the target variable, which facilitates interpretation.
 
+\textbf{Mean Absolute Error (MAE):}
 \begin{equation}
-    \text{MAE} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|
+\text{MAE} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|.
 \end{equation}
+
+MAE measures the average absolute deviation and is less sensitive to outliers compared to MSE. It is sometimes used as a loss function, although its non-differentiability at zero may complicate optimization.
 
 \section{Information Theory}
 \emph{Information theory} is a branch of applied mathematics focused on quantifying the amount of information contained in a signal or random variable. The main idea is that observing unlikely events provides more information than observing likely ones. This framework is useful for feature selection, since it allows measuring how informative a feature is with respect to a target variable.
