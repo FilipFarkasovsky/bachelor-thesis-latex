@@ -117,21 +117,29 @@ Feature selection methods can also be classified as univariate or multivariate (
 From the perspective of selection strategy, feature selection algorithms can be categorized into wrapper, filter, and embedded methods, with additional approaches including hybrid and ensemble methods ([1]).
 
 \subsection{Wrapper methods} 
-Wrapper methods perform a search over the space of possible feature subsets to find the one that optimizes a predictive model’s performance. Formally, each candidate subset \(S \subseteq \{1, \dots, p\}\) is assessed using a cost function \(\mathcal{L}(S)\), which typically represents a measure of prediction error. Common choices include misclassification error \textcolor{red}{need to be established}need to be established), mean squared error, or cross-validated risk. For example, in a general setting the cost function can be written as
+Wrapper methods perform a search over the space of possible feature subsets to find the one that optimizes a predictive model’s performance. Formally, each candidate subset \(S \subseteq \{1, \dots, d\}\) is assessed using a cost function \(\mathcal{L}(S)\), , which represents an empirical estimate of the prediction error of a model trained using only the features in $S$.
 
-\[
-\mathcal{L}(S) = \frac{1}{n} \sum_{i=1}^{n} \ell\big(y_i, f_S(x_i)\big),
-\]
-where \(\ell(\cdot, \cdot)\) is a loss function, \(x_i\) denotes the feature vector restricted to the subset \(S\), and \(f_S\) is the model trained using only the features in \(S\).
+Let $\mathbf{x}_i^{(S)}$ denote the feature vector of the $i$-th observation restricted to the indices in $S$. For a fixed model $f_S$, the empirical risk can be written as
+\begin{equation}
+\mathcal{L}(S) = \frac{1}{n} \sum_{i=1}^{n} \ell\bigl(y_i, f_S(\mathbf{x}_i^{(S)})\bigr),
+\end{equation}
 
-Here, \(f_S\) is trained on the features in \(S\). The objective of the wrapper method is then to find the subset that minimizes this cost function:
-\[
-S^* = \min_{S \subseteq \{1, \dots, p\}} \mathcal{L}(S).
-\]
+where $\ell(\cdot,\cdot)$ is a task-dependent loss function, $y_i$ is the observed target value, and $f_S$ is a model trained using only the subset of features $S$.
 
-These methods evaluate subsets according to a search strategy, which determines the order and selection of candidate subsets. These methods proceed iteratively: in each step, a candidate subset is evaluated, and the search is updated accordingly. Iterations continue until a stopping criterion is satisfied, such as a maximum number of iterations or a minimal improvement in model performance. Search strategies vary, and some of them will be discussed in the next section.
+In practice, $\mathcal{L}(S)$ is often computed using cross-validation in order to obtain a more reliable estimate of the generalization error, especially when the dataset is small or the model has high variance. Typical choices of the loss function $\ell$ depend on the learning task, such as misclassification error for classification problems or mean squared error for regression problems.
 
- Wrappers can be applied to any model but are computationally expensive. The main drawback of wrappers is that each subset evaluation requires training and predicting at least one model, which significantly increases computational cost \cite{ang2015}. In this thesis, we examine SVM Recursive Feature Elimination (SVM-RFE) as an example of a wrapper method. 
+The objective of the wrapper approach is then to solve
+\begin{equation}
+S^* = \arg\min_{S \subset \{1,\dots,d\}} \mathcal{L}(S).
+\end{equation}
+
+These methods evaluate subsets according to a search strategy, which determines the order and selection of candidate subsets. These methods proceed iteratively: in each step, a candidate subset is evaluated, and the search is updated accordingly. 
+
+The iterations continue until a stopping criterion is satisfied, such as a fixed number of iterations, a maximum number of selected features, or convergence in the improvement of the objective function.
+
+Different search strategies exist, ranging from \emph{forward or backward selection} to more sophisticated heuristic or metaheuristic approaches. These will be discussed in the XXXXXXXX.
+
+Wrapper methods are model-agnostic, meaning they can be applied to any predictive model. However, they are computationally expensive, since each evaluation of a feature subset requires training and validating at least one model. This leads to a significantly higher computational cost compared to filter-based methods \cite{guyon2006}. In this thesis, we examine \emph{Support Vector Machine Recursive Feature Elimination (SVM-RFE)} as an example of a wrapper method. 
 
 \subsection{Filter methods}
 Filter methods are independent of any learning algorithm and rely on intrinsic properties of the data. They usually rank or score features using statistical or information-theoretic criteria such as correlation, chi-squared statistics, mutual information, or information gain. Filter methods are computationally efficient and often serve as a preprocessing step.
@@ -154,9 +162,9 @@ A \textit{search strategy} defines the order in which the variable subsets are e
 
 \textit{Forward selection} starts with an empty feature set and adds features one at a time, keeping those that improve the model's performance. \textit{Backward elimination} starts with all features and removes them iteratively, discarding those that contribute least to the predictive power.
 
-Both methods are considered exhaustive searches, as they evaluate all possible subsets of features up to a certain size. For datasets with many features, forward and backward selection can be computationally expensive. In forward selection, if the optimal number of features $k$ is unknown, one may need to evaluate all subsets of size $1$ to $k$, requiring $\binom{N}{1} + \binom{N}{2} + \dots + \binom{N}{k}$ combinations, which gives a time complexity of $O(2^N)$. 
+Both methods are considered \cite{exhaustive searches}, as they evaluate all possible subsets of features up to a certain size. For datasets with many features, forward and backward selection can be computationally expensive. In forward selection, if the optimal number of features $k$ is unknown, one may need to evaluate all subsets of size $1$ to $k$, requiring $\binom{N}{1} + \binom{N}{2} + \dots + \binom{N}{k}$ combinations, which gives a time complexity of $O(2^N)$. 
 
-For this reason, more efficient algorithms have been developed, such as sequential forward selection (SFS) and sequential backward selection (SBS). SFS starts with an empty feature set and iteratively adds the feature, that yields the greatest improvement in model performance, while previously selected features remain selected. SBS is similar to SFS, but it starts with the full feature set and iteratively removes the feature that contributes the least. Both SFS and SBS are heuristic, thus they do not guarantee the optimal subset. Research also shows that exhaustive search is more prone to overfitting, than sequential methods. \textcolor{red}{[add citation or reference]}
+For this reason, more efficient algorithms have been developed, such as \emph{sequential forward selection (SFS)} and \emph{sequential backward selection (SBS)}. SFS starts with an empty feature set and iteratively adds the feature, that yields the greatest improvement in model performance, while previously selected features remain selected. SBS is similar to SFS, but it starts with the full feature set and iteratively removes the feature that contributes the least. Both SFS and SBS are heuristic, thus they do not guarantee the optimal subset. Research also shows that exhaustive search is more prone to overfitting, than sequential methods. \cite{guyon2006}
 
 \emph{Floating search} extends forward or backward selection by allowing conditional inclusion or exclusion of features. \emph{Sequential Forward Floating Selection} (SFFS) can remove previously added features if they later become redundant, and \emph{Sequential Backward Floating Selection} (SBFS) can re-add previously removed features, making the search more flexible.
 
@@ -176,7 +184,7 @@ H = \frac{12}{n(n+1)} \sum_{i=1}^{k} \frac{R_i^2}{n_i} - 3(n+1),
 \]
 where \(k\) denotes the number of groups, \(n\) is the total number of observations, \(n_i\) is the number of observations in the \(i\)-th group, and \(R_i\) represents the sum of ranks for the \(i\)-th group.
 
-Each feature is evaluated independently with respect to the target variable, and features with higher test statistic values are considered more relevant. The application of this method to feature filtering in microarray data is documented in Grisci et al. (2019).
+Each feature is evaluated independently with respect to the target variable, and features with higher test statistic values are considered more relevant. The application of this method to feature filtering in microarray data is documented in \cite{grisci2019}.
 
 Since the test evaluates each feature separately, the method is univariate and does not account for potential dependencies or interactions between features. Kruskal Wallis test yields feature importance scores and is therefore classified as a weight-based feature selection approach.
 
@@ -184,20 +192,19 @@ Since the test evaluates each feature separately, the method is univariate and d
 Mutual Information, as introduced in Section XXXXX, is applied as a filter-based feature selection method. It allows measuring the relevance of each feature by quantifying how much information it provides about the target variable. Based on these values, features can be assigned importance weights. Similarly to other univariate filters, each feature is evaluated independently, without accounting for dependencies or interactions between variables.
 
 \subsection{The Minimum Redundancy Maximum Relevance}
-Minimal Redundancy Maximum Relevance (mRMR) XXXXXXXPeng, H., Long, F., Ding, C. (2005)XXXX. is a filter-based feature selection method that iteratively selects features by maximizing relevance to the target variable while minimizing redundancy with respect to the already selected subset. Relevance and redundancy are defined in Sections XXXXX and XXXXX, respectively. At each iteration, the method selects the feature \( x_j \in X \setminus S \) that maximizes:
+Minimal Redundancy Maximum Relevance (mRMR) \cite{peng2005} is a filter-based feature selection method that iteratively selects features by maximizing relevance to the target variable while minimizing redundancy with respect to the already selected subset. Relevance and redundancy are defined in Sections XXXXX and XXXXX, respectively. At each iteration, the method selects the feature $X^{(j)}$ that maximizes the mRMR criterion:
+\begin{equation}
+j^* = \arg\max_{j \in \{1,\dots,d\} \setminus S} \Bigl[ I\bigl(X^{(j)}; c\bigr) - R\bigl(X^{(j)}, S\bigr) \Bigr].
+\end{equation}
 
-\[
-x_j = \arg\max_{x_j \in X \setminus S} \big[ I(x_j; c) - R(x_j, S) \big]
-\]
+Here, $\{1,\dots,d\}$ denotes the set of all feature indices, and $S \subset \{1,\dots,d\}$ is the set of already selected features. The term $I(X^{(j)}; c)$ measures the relevance of feature $X^{(j)}$ with respect to the class label $c$, while $R(X^{(j)}, S)$ quantifies its redundancy with respect to the selected subset.
 
-where \( X \) is the full set of attributes, \( S \) is the set of already selected features, \( I \) is the mutual information function measuring relevance to the class label \( c \), and \( R \) is the redundancy function measuring dependence with respect to the selected subset.
-
-The algorithm is stopped after selecting a fixed number K of features. This procedure results in a weighted ranking of the K-best features.
+The algorithm is terminated after selecting a predefined number $K$ of features. This greedy algorithm returns an ordered subset of features.
 
 \subsection{ReliefF}
-ReliefF is a filter-based feature selection algorithm designed to estimate the importance of features based on how well their values distinguish between instances of different classes. Unlike univariate methods, ReliefF is able to capture feature dependencies to some extent by considering the local neighborhood of each instance.
+ReliefF \cite{kononenko1994relieff} is a filter-based feature selection algorithm designed to estimate the importance of features based on how well their values distinguish between instances of different classes. Unlike univariate methods, ReliefF is able to capture feature dependencies to some extent by considering the local neighborhood of each instance.
 
-he algorithm works by repeatedly sampling an instance from the dataset and identifying its nearest neighbors: instances from the same class (nearest hits) and instances from different classes (nearest misses). For each attribute \(A\), ReliefF updates a weight according to how differently the attribute behaves between the sampled instance and its neighbors. Differences with nearest hits decrease the weight, while differences with nearest misses increase it. The contribution of misses is weighted by the class prior probabilities \(P(c)\), ensuring that their total influence is comparable to that of hits. A pseudocode description of the algorithm is provided by XXXXXMatheus Cezimbra Barbieri XXXXXXet al., and is presented in Algorithm~\ref{alg:relieff}.
+The algorithm works by repeatedly sampling an instance from the dataset and identifying its nearest neighbors: instances from the same class (nearest hits) and instances from different classes (nearest misses). For each attribute \(A\), ReliefF updates a weight according to how differently the attribute behaves between the sampled instance and its neighbors. Differences with nearest hits decrease the weight, while differences with nearest misses increase it. The contribution of misses is weighted by the class prior probabilities \(P(c)\), ensuring that their total influence is comparable to that of hits. A pseudocode description of the algorithm is provided in \cite{barbieri2022}, and is presented in Algorithm~\ref{alg:relieff}.
 
 
 \begin{algorithm}[H]
@@ -234,13 +241,13 @@ $W \leftarrow \mathbf{0}$ of size $|R|$\;
 \end{algorithm}
 
 \subsection{Decision Tree}
-A decision tree, is a predictive tree-based model model, constructed in a top-down, recursive manner. The structure consists of internal nodes, which represent decision rules based on specific features, and leaf nodes, which represent the final predicted outcomes. The tree is built by partitioning the data at each node using an impurity measure, such as gini coefficient\footnote{The Gini coefficient (or Gini impurity in the context of decision trees) is a measure of node impurity used in classification tasks. It is defined as \( G = 1 - \sum_{i=1}^{K} p_i^2 \), where \(p_i\) is the proportion of samples belonging to class \(i\) in a given node and \(K\) is the number of classes. A Gini value of 0 indicates a perfectly pure node (all samples belong to one class), while higher values indicate greater class heterogeneity. It is commonly used in algorithms such as Classification and Regression Trees (CART) to evaluate splits.} for classification or mean squared error (MSE) for regression. This process acts as an implicit form of feature selection, as the algorithm prioritizes features that yield the greatest reduction in impurity, thereby identifying the most discriminative variables in the dataset. In addition, feature importance scores can be extracted from the trained model based on the contribution of each feature to impurity reduction across all splits. One of the most widely used decision tree algorithms is Classification and Regression Trees (CART), introduced by XXXXX Breiman et al. (1984)XX.
+A decision tree, is a predictive tree-based model model, constructed in a top-down, recursive manner. The structure consists of internal nodes, which represent decision rules based on specific features, and leaf nodes, which represent the final predicted outcomes. The tree is built by partitioning the data at each node using an impurity measure, such as gini coefficient\footnote{The Gini coefficient (or Gini impurity in the context of decision trees) is a measure of node impurity used in classification tasks. It is defined as \( G = 1 - \sum_{i=1}^{K} p_i^2 \), where \(p_i\) is the proportion of samples belonging to class \(i\) in a given node and \(K\) is the number of classes. A Gini value of 0 indicates a perfectly pure node (all samples belong to one class), while higher values indicate greater class heterogeneity. It is commonly used in algorithms such as Classification and Regression Trees (CART) to evaluate splits.} for classification or mean squared error (MSE) for regression. This process acts as an implicit form of feature selection, as the algorithm prioritizes features that yield the greatest reduction in impurity, thereby identifying the most discriminative variables in the dataset. In addition, feature importance scores can be extracted from the trained model based on the contribution of each feature to impurity reduction across all splits. One of the most widely used decision tree algorithms is Classification and Regression Trees (CART) \cite{breiman1984}.
 
 \subsection{Random Forrest}
-Random Forest is an ensemble learning method based on decision trees, used for both classification and regression tasks. It builds a collection of decision trees during training, where each tree is constructed on a bootstrap sample (i.e., random sampling of instances with replacement) and at each split considers only a random subset of features. The final prediction is obtained by aggregating the outputs of all trees, typically through majority voting for classification or averaging for regression. This randomization reduces overfitting compared to a single decision tree and improves generalization performance. Additionally, Random Forest provides feature importance measures based on the average contribution of each feature to impurity reduction across all trees, making it suitable for embedded feature selection.
+Random Forest \cite{breiman2001} is an ensemble learning method based on decision trees, used for both classification and regression tasks. It builds a collection of decision trees during training, where each tree is constructed on a bootstrap sample (i.e., random sampling of instances with replacement) and at each split considers only a random subset of features. The final prediction is obtained by aggregating the outputs of all trees, typically through majority voting for classification or averaging for regression. This randomization reduces overfitting compared to a single decision tree and improves generalization performance. Additionally, Random Forest provides feature importance measures based on the average contribution of each feature to impurity reduction across all trees, making it suitable for embedded feature selection.
 
 \subsection{Support Vector Machines}
-Support Vector Machines (SVM) are a class of supervised learning models used for classification and regression. The method seeks to find an optimal hyperplane in an n-dimensional space that separates data points of different classes with the maximum possible margin, i.e., maximizing the distance between the hyperplane and the closest observations from each class XXX(Cortes Vapnik, 1995)XXXX.When the data is not linearly separable, SVM can be extended using kernel functions and a soft-margin formulation, which allows for some misclassifications while maintaining good generalization.
+Support Vector Machines (SVM) \cite{cortes1995svm} are a class of supervised learning models used for classification and regression. The method seeks to find an optimal hyperplane in an n-dimensional space that separates data points of different classes with the maximum possible margin, i.e., maximizing the distance between the hyperplane and the closest observations from each class. When the data is not linearly separable, SVM can be extended using kernel functions and a soft-margin formulation, which allows for some misclassifications while maintaining good generalization.
 
 The optimization problem is typically expressed as:
 \[
@@ -250,9 +257,16 @@ The optimization problem is typically expressed as:
 where \( w \) is the weight vector normal to the hyperplane, \( b \) is the bias (offset), \( n \) is the number of observations, \( x_i \) is the feature vector of the \( i \)-th observation, and \( y_i \in \{-1,1\} \) denotes its class label. The first term corresponds to the hinge loss, while the second term is an \( L_2 \) regularization penalty controlled by \( \lambda \). In embedded feature selection settings, SVM can provide feature importance by analyzing the learned weight vector in linear models, where features with larger absolute coefficients contribute more to the decision boundary.
 
 \subsection{LassoNet}
-While feature selection methods have been extensively studied in the context of linear models, particularly Lasso regression, identifying relevant features in neural networks remains a challenging problem. LassoNet addresses this challenge by extending Lasso-style sparsity to feedforward neural networks.
+While feature selection methods have been extensively studied in the context of linear models, particularly Lasso regression, identifying relevant features in neural networks remains a challenging problem. LassoNet \cite{lemhadri2021lassonet} addresses this challenge by extending Lasso-style sparsity to feedforward neural networks.
 
-The key idea of LassoNet is to combine an $L_1$-penalized skip-layer (residual) connection from the input directly to the output with a hierarchical constraint, which enforces that a feature can influence the nonlinear component of the network only if its corresponding weight in the residual connection is non-zero. Residual architectures, popularized by Kaiming He, are known to be easier to train and exhibit strong approximation capabilitiesXXXXXXXX. The general architecture of LassoNet is illustrated in XXXXXX.
+The key idea of LassoNet is to combine an $L_1$-penalized skip-layer (residual) connection from the input directly to the output with a hierarchical constraint, which enforces that a feature can influence the nonlinear component of the network only if its corresponding weight in the residual connection is non-zero. Residual architectures, popularized by Kaiming He, are known to be easier to train and exhibit strong approximation capabilities \cite{he2016resnet}. The general architecture of LassoNet is illustrated in Figure~\ref{fig:lassonet}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/lassonet.png}
+    \caption{\textbf{LassoNet architecture}. It is composed of a single residual connection (highlighted in green) combined with an arbitrary feed-forward neural network (shown in black). The outputs of the residual connection and the first hidden layer are jointly processed through a hierarchical soft-thresholding optimization step.}
+    \label{fig:lassonet}
+\end{figure}
 
 In this work, we apply LassoNet to supervised learning tasks, although it can also be extended to unsupervised tasks, as discussed in the literature. We consider data in a $d$-dimensional space, where $x \in \mathbb{R}^d$ denotes the covariate vector and $y$ the corresponding response variable. The model function is defined as:
 \[

@@ -9,9 +9,6 @@ Neural networks are one of the most popular algorithms of machine learning. They
 
 Neural network can be viewed as a composition of affine transformations and non-linear activation functions, which allows them to serve as universal approximators. This property is established in many theorems; several of which are mentioned by Goodfellow in \cite{goodfellow2016}. Their ability to capture complex patterns makes them widely applicable in areas such as computer vision, natural language processing, and predictive modeling. A detailed treatment of neural network applications and methodologies can be found in the comprehensive review by Abiodun et al. \cite{abiodun2019}.
 
- 
-\textcolor{orange}{ ? including one relevant theorem for deep networks by Kidger and Lyons: }
-
 \subsection{Network architectures}
 \label{sec:network-architectures}
 The architecture of a neural network defines how these neurons are structured and how information flows through the system. Different architectures are designed to capture specific types of patterns in data, such as spatial structure, temporal dependencies, or general nonlinear relationships.
@@ -346,13 +343,13 @@ Here, \(\hat{y}_i \in (0,1)\) represents the predicted probability of the positi
 For multiclass classification with $k$ classes, the \textit{categorical cross-entropy loss} is used in combination with the softmax activation:
 
 \begin{equation}
-    l(y_i, \hat{y}_i) = - \sum_{j=1}^{k} y_{j,k} \log \hat{y}_{j,k},
+    l(y_i, \hat{y}_i) = - \sum_{j=1}^{k} y_{i,j} \log \hat{y}_{i,j},
 \end{equation}
 
 where the target vector is typically represented in one-hot encoding:
 
 \begin{equation}
-    y_{i,k} = 
+    y_{i,j} = 
     \begin{cases} 
         1 & \text{if sample $i$ belongs to class $j$,} \\
         0 & \text{otherwise,} 
@@ -631,72 +628,97 @@ MAE measures the average absolute deviation and is less sensitive to outliers co
 \emph{Information theory} is a branch of applied mathematics focused on quantifying the amount of information contained in a signal or random variable. The main idea is that observing unlikely events provides more information than observing likely ones. This framework is useful for feature selection, since it allows measuring how informative a feature is with respect to a target variable.
 
 \textbf{\\Self-information\\}
-Let $X$ be a discrete random variable with possible values $x \in \mathcal{X}$, and let $P(x)$ denote the probability mass function of $X$. The information content of a single outcome $x$ is measured by \emph{self-information}:
+Let $X$ be a discrete random variable with support $\mathcal{X}$, and let $P(x)$ denote its probability mass function. The information content of an outcome $x \in \mathcal{X}$ is measured by self-information:
 \begin{equation}
-    I(x) = -\log P(x).
+I(x) = -\log P(x).
 \end{equation}
 
-Here, $P(x)$ is the probability of observing the event $x$, and the logarithm is typically taken in base $2$ or the natural logarithm, depending on the context. 
+Here, $P(x)$ is the probability of observing the event $x$, and the logarithm is typically taken in base 2 or the natural logarithm, depending on the context.
 
-This definition satisfies three intuitive properties \cite{goodfellow2016}:
+This definition satisfies the following intuitive properties \cite{goodfellow2016}:
 \begin{itemize}
-    \item Events with high probability have low information content.
-    \item Events with probability equal to 1 carry zero information.
-    \item Independent events have additive information.
+    \item events with high probability carry low information content,
+    \item events with probability one carry zero information,
+    \item for independent random variables, the joint self-information is additive.
 \end{itemize}
 
 \textbf{\\Entropy\\}
-\emph{Self-information} deals only with a single outcome. To measure uncertainty over an entire probability distribution of random variable $X$, \emph{Shannon entropy} is used \cite{goodfellow2016}.
-
-It is defined as expected value of \emph{self-information}:
+Self-information describes the information content of a single outcome. To quantify the uncertainty of an entire probability distribution of a discrete random variable $X$, \emph{(Shannon) entropy} is used \cite{goodfellow2016}. It is defined as the expectation of self-information under $P$:
 \begin{equation}
-    H(X) = \mathbb{E}_{x \sim P}[-\log P(x)] = - \sum_{i=1}^{n} P(x_i)\log P(x_i).
-\end{equation}
-Here, $\{x_1, \ldots, x_n\} \subset \mathcal{X}$ are the possible outcomes of $X$, and $P(x_i)$ is the probability of outcome $x_i$. The entropy $H(X)$ can be interpreted as the uncertainty associated with $X$. For continuous random variables, the analogous concept is called \emph{differential entropy}, where the summation is replaced by an integral over the probability density function.
-
-Note: In practice, expressions of the form $0 \log 0$ may appear in the computation of entropy and related quantities. By convention in information theory, these terms are defined using the limit
-\[
-\lim_{x \to 0} x \log x = 0,
-\]
-and are therefore taken to be equal to zero. This ensures that entropy remains well-defined even when some events have zero probability.
-
-\textbf{\\Kullback-Leibler (KL) Divergence\\}
-To compare two probability distributions $P(x)$ and $Q(x)$ defined over the same probability space $\mathcal{X}$, the \emph{Kullback--Leibler (KL) divergence} is defined as:
-\begin{equation}
-    D_{KL}(P \parallel Q) = \mathbb{E}_{x \sim P} \left[ \log \frac{P(x)}{Q(x)} \right]
-    = \mathbb{E}_{x \sim P}[\log P(x) - \log Q(x)].
+H(X) = \mathbb{E}_{x \sim P}[-\log P(x)] = - \sum_{x \in \mathcal{X}} P(x)\log P(x).
 \end{equation}
 
-Here, $P(x)$ is the true distribution and $Q(x)$ is an approximation. The expectation is taken with respect to $P(x)$. The KL divergence measures how different $Q$ is from $P$. KL divergence is always non-negative and equals zero only when the two distributions are identical. It is not symmetric, so it is not a true distance metric.
+Here, $\mathcal{X}$ denotes the support of $X$, and $P(x)$ is the probability of outcome $x$.
+
+For continuous random variables, the analogous concept is called \emph{differential entropy}, where the summation is replaced by an integral over the probability density function.
+
+Note: In practice, expressions of the form $0 \log 0$ may appear in entropy computations. In information theory, these terms are defined via the limit
+\begin{equation}
+\lim_{p \to 0^+} p \log p = 0,
+\end{equation}
+which ensures that entropy remains well-defined even when some outcomes have zero probability.
+
+\textbf{\\Kullback-Leibler Divergence\\}
+To compare two probability distributions $P(x)$ and $Q(x)$ defined on the same support $\mathcal{X}$, the \emph{Kullback--Leibler (KL) divergence} is defined as
+\begin{equation}
+D_{\mathrm{KL}}(P \,\|\, Q) = \mathbb{E}_{x \sim P} \left[ \log \frac{P(x)}{Q(x)} \right] = \mathbb{E}_{x \sim P} [\log P(x) - \log Q(x)].
+\end{equation}
+
+The KL divergence is well-defined provided that $Q(x) > 0$ for all $x \in \mathcal{X}$ such that $P(x) > 0$.
+
+The distribution $P$ is typically interpreted as a reference (or data-generating) distribution, while $Q$ represents a model or approximation.
+
+The KL divergence quantifies the discrepancy between $P$ and $Q$ in terms of the expected log-likelihood ratio under $P$. It is always non-negative and equals zero if and only if $P = Q$ almost everywhere. It is not symmetric and does not satisfy the triangle inequality, and therefore it is not a metric.
 
 \textbf{\\Cross-entropy\\}
-Closely related to KL divergence is the \emph{cross-entropy}, which is defined as:
+Closely related to KL divergence is the \emph{cross-entropy}, defined as
 \begin{equation}
-    H(P, Q) = - \mathbb{E}_{x \sim P}[\log Q(x)],
+H(P, Q) = - \mathbb{E}_{x \sim P} [\log Q(x)].
 \end{equation}
-where $P(x)$ and $Q(x)$ are defined as above. Cross-entropy can be decomposed as:
+
+Here, $P$ and $Q$ denote probability distributions defined on the same support $\mathcal{X}$, and the expectation is taken with respect to $P$, in the same manner as in the definition of the KL divergence.
+
+Cross-entropy can be decomposed as:
 \begin{equation}
-    H(P, Q) = H(P) + D_{KL}(P \parallel Q),
+H(P, Q) = H(P) + D_{\mathrm{KL}}(P \,\|\, Q),
 \end{equation}
-where $H(P)$ is the entropy of the true distribution $P$. Since $H(P)$ does not depend on $Q$, minimizing cross-entropy with respect to $Q$ is equivalent to minimizing the KL divergence.
+where $H(P)$ denotes the entropy of the distribution $P$.
+
+Since $H(P)$ does not depend on $Q$, minimizing cross-entropy with respect to $Q$ is equivalent to minimizing the KL divergence.
+
+In machine learning, cross-entropy corresponds to the negative log-likelihood of the model $Q$ under data generated from $P$, which explains its widespread use as a loss function.
 
 \textbf{\\Mutual Information\\}
-\emph{Mutual information} quantifies the amount of information shared between two random variables $X$ and $Y$. It measures how much knowing one variable reduces uncertainty about the other. It is defined as:
+\emph{Mutual information} quantifies the amount of information shared between two random variables $X$ and $Y$. It measures how much knowledge of one variable reduces uncertainty about the other. It is defined as
 \begin{equation}
-    I(X;Y) = \mathbb{E}_{x,y}\left[\log \frac{P(x,y)}{P(x)P(y)}\right],
+I(X; Y) = \mathbb{E}_{(x,y) \sim P(x,y)} \left[ \log \frac{P(x,y)}{P(x)P(y)} \right],
 \end{equation}
-where $X$ and $Y$ are random variables with joint probability distribution $P(x,y)$, and marginal distributions $P(x)$ and $P(y)$. The expectation is taken with respect to the joint distribution of $X$ and $Y$.
 
-Mutual information is symmetric and non-negative. It equals zero if and only if the variables are independent. In feature selection, it is commonly used to measure the relevance of a feature with respect to a target variable.
+where $P(x,y)$ is the joint probability distribution of $X$ and $Y$, and $P(x)$, $P(y)$ are the corresponding marginal distributions.
+
+Mutual information is symmetric, non-negative, and equals zero if and only if $X$ and $Y$ are independent. In feature selection, it is commonly used to quantify the relevance of a feature with respect to a target variable.
+
 
 \textbf{\\Redundancy\\}
-\emph{Redundancy} measures the overlap of information between a feature and a set of other features. Given a feature $f$ and a set of variables $S$, redundancy can be defined as the average mutual information between $f$ and each variable in $S$:
-\begin{equation}
-    R(f,S) = \frac{1}{|S|} \sum_{x_i \in S} I(f,x_i),
-\end{equation}
-where $f$ is a feature represented as a random variable, $S = \{x_1, x_2, \dots, x_{|S|}\}$ is a set of random variables (features), and $I(f,x_i)$ denotes the mutual information between $f$ and $x_i$.
+Let $X^{(i)}$ be a discrete random variable representing the $i$-th feature, defined on a common probability space. Let $S \subset \{1,\dots,d\} \setminus \{i\}$ denote a subset of feature indices other than $i$.
 
-A high redundancy value indicates that the feature $f$ shares similar information with other features in the set, which may reduce its usefulness in a feature selection process.
+Here, $d \in \mathbb{N}$ denotes the total number of features in the dataset. Each observation $\mathbf{x} \in \mathbb{R}^d$ is a realization of a $d$-dimensional random vector
+\[
+\mathbf{X} = (X^{(1)}, \dots, X^{(d)}),
+\]
+defined on the same probability space.
+
+We define the redundancy of feature $X^{(i)}$ with respect to the set $S$ as the average mutual information between $X^{(i)}$ and the variables indexed by $S$:
+\begin{equation}
+R(X^{(i)}, S) = \frac{1}{|S|} \sum_{j \in S} I\bigl(X^{(i)}; X^{(j)}\bigr).
+\end{equation}
+
+Here, $I(X^{(i)}; X^{(j)})$ denotes the mutual information between two discrete random variables $X^{(i)}$ and $X^{(j)}$, defined via their joint probability mass function
+$P_{i,j}(x,y),$ induced by the underlying joint distribution of $\mathbf{X}$.
+
+This quantity measures, on average, the pairwise statistical dependence between $X^{(i)}$ and the features in $S$. A larger value of $R(X^{(i)}, S)$ indicates stronger average dependence and therefore a higher degree of information overlap with the set $S$.
+
+In feature selection, this measure can be used as a heuristic indicator of redundancy, since features with high pairwise mutual information relative to already selected variables tend to provide less additional information about the data-generating process.
 
 
 
@@ -704,30 +726,44 @@ A high redundancy value indicates that the feature $f$ shares similar informatio
 \label{sec:generalization-neural-networks}
 
 \subsection{The No Free Lunch Theorem}
-The \emph{No Free Lunch theorem} states that, averaged over all possible data-generating distributions, all learning algorithms perform equally well. In other words, no algorithm is universally superior when considering all possible problems.
+The \emph{No Free Lunch (NFL) theorem} states that, when performance is averaged uniformly over all possible data-generating distributions, all learning algorithms achieve identical expected performance.
 
-For ANNs this means, that no architecture or training method is universally optimal. Learning depends on inductive bias (e.g., architectural choices, regularization techniques), within which chosen model implicitly encodes assumptions about the underlying data.
+This result implies that no learning algorithm is universally superior across all possible problems. Any observed superiority of a given algorithm necessarily depends on the specific class of data-generating distributions under consideration.
+
+In the context of ANNs, the NFL theorem implies that no particular architecture or training algorithm is universally optimal. The effectiveness of a model depends on its inductive bias, i.e., the set of assumptions that constrain the hypothesis space. Such biases are introduced through architectural choices (e.g., depth, connectivity structure), regularization techniques, and optimization procedures,  within which chosen model implicitly encodes assumptions about the
+underlying data.
 
 \subsection{Hypothesis Space and VC Dimension}
-In statistical learning theory, the \emph{hypothesis space} is the set of all functions that a learning algorithm can select from when fitting a model to data. Formally, given an input space $\mathcal{X}$ and an output space $\mathcal{Y}$, a hypothesis space $\mathcal{H}$ is a collection of functions $h: \mathcal{X} \to \mathcal{Y}$.
+In statistical learning theory, the \emph{hypothesis space} is the set of all functions from which a learning algorithm selects when fitting a model to data. Formally, let $\mathcal{X}$ denote an input space and $\mathcal{Y}$ an output space. A hypothesis space $\mathcal{H}$ is a set of measurable functions $h: \mathcal{X} \to \mathcal{Y}$.
 
-In the context of artificial neural networks (ANNs), the hypothesis space is determined by the architecture of the network, including the number of layers, the number of neurons per layer, the type of activation functions, and the connectivity pattern. For a fixed architecture, the hypothesis space consists of all functions that can be represented by varying the network parameters (weights and biases). Thus, training an ANN can be interpreted as searching within a high-dimensional hypothesis space to find a function that minimizes a given loss function.
+In supervised learning, given a training sample $\{(x_i, y_i)\}_{i=1}^n$, the learning algorithm selects a hypothesis $\hat{h} \in \mathcal{H}$ by minimizing an empirical risk of the form
+\[
+\hat{h} = \arg\min_{h \in \mathcal{H}} \frac{1}{n} \sum_{i=1}^{n} \ell\big(h(x_i), y_i\big),
+\]
+where $\ell : \mathcal{Y} \times \mathcal{Y} \to \mathbb{R}$ is a loss function.
 
-For deep neural networks, the hypothesis space is typically extremely large due to to the multiple layers and non-linear activation functions \cite{goodfellow2016}.  
+In the context of artificial neural networks (ANNs), the hypothesis space is determined by the architecture of the network, including the number of layers, the number of neurons per layer, the type of activation functions, and the connectivity pattern. 
+
+For a fixed architecture, the hypothesis space consists of all functions that can be represented by varying the network parameters (weights and biases). Thus, training an ANN can be interpreted as searching within a high-dimensional hypothesis space to find a function that minimizes a given loss function.
+
+For deep neural networks, the hypothesis space is typically extremely large due to the composition of multiple nonlinear functions. This leads to high \emph{expressive power}, i.e., the ability to approximate a broad class of functions \cite{goodfellow2016}.  
 
 
 As an illustrative example, consider the task of recognizing handwritten digits from the MNIST dataset, which contains $70,000$ grayscale images of digits $0$--$9$, and with image dimension of $28 \times 28$ \cite{lecun1998, mnistdataset}.  
 
-A fully connected neural network with one hidden layer of 128 neurons can be used for this task. With 784 input neurons, 128 hidden neurons, and 10 output neurons, the total number of parameters is given by 
+A fully connected feed-forward neural network with one hidden layer of 128 neurons has:
+\begin{itemize}
+    \item 784 input units,
+    \item 128 hidden units,
+    \item 10 output units.
+\end{itemize}
 
+The total number of parameters is then given by:
 \[
-\underbrace{784 \times 128}_{\text{input-to-hidden weights}} + 
-\underbrace{128}_{\text{hidden biases}} + 
-\underbrace{128 \times 10}_{\text{hidden-to-output weights}} + 
-\underbrace{10}_{\text{output biases}} \approx 100{,}000 \text{.}
+784 \cdot 128 + 128 + 128 \cdot 10 + 10 = 101{,}770.
 \]
 
-Each combination of these values defines a distinct hypothesis, illustrating that even a relatively simple architecture can have a large \textit{(expressive) capacity}, which is its ability to represent a wide range of functions or patterns in the data.
+Each parameter vector $\theta \in \mathbb{R}^{101{,}770}$ defines a function $h_\theta \in \mathcal{H}$, illustrating that even relatively simple architectures induce high-dimensional hypothesis spaces.
 
 To formalize the notion of model capacity, one commonly used concept is the \emph{Vapnik–Chervonenkis (VC) dimension}. The VC dimension of a hypothesis space \( \mathcal{H} \) is defined as the largest number of points that can be \emph{shattered} by \( \mathcal{H} \). A set of points is said to be \emph{shattered} if, for every possible labeling of these points, there exists a hypothesis in \( \mathcal{H} \) that correctly classifies them.
 
@@ -735,11 +771,15 @@ To formalize the notion of model capacity, one commonly used concept is the \emp
 
 However, such a large hypothesis space can lead to poor generalization. \textit{Generalization} refers to the ability of a learning algorithm to perform well on previously unseen data drawn from the same underlying distribution as the training data. While a model is optimized using a finite dataset, the ultimate goal is to learn a function that approximates the true data-generating process rather than fitting the observed samples.
 
-The \textit{generalisation error} is the expected loss of a model over the true data distribution. It can be expressed as
-\begin{equation}
-    \mathbb{E}_{(x,y)\sim D}\left[ \mathcal{L}\big(\hat{f}_{\mathbf{\theta}}(x), y\big) \right],
-\end{equation}
-where $D$ is the data-generating distribution, $L(\cdot)$ is the loss function (defined previously), and $\hat{f}_{\mathbf{\theta}}(x)$ is the model prediction. In practice, since the true distribution is unknown, the generalisation error is approximated using a finite dataset.
+Let $\mathcal{X}$ denote the input space and $\mathcal{Y}$ the output space. The data-generating process is modeled as an unknown probability distribution $D$ over $\mathcal{X} \times \mathcal{Y}$.
+
+The \emph{generalization error} is defined as the expected loss with respect to $D$:
+\[
+\mathbb{E}_{(x,y)\sim D}\big[\,\ell(f_\theta(x), y)\,\big],
+\]
+where $\ell(\cdot,\cdot)$ is a loss function, and $f_\theta : \mathcal{X} \to \mathcal{Y}$ denotes the model parameterized by $\theta$.
+
+In practice, since the distribution $D$ is unknown, the generalization error cannot be computed exactly and is instead approximated using a finite sample drawn from $D$.
 
 \textbf{\\Training Error and Test Error\\}
 The \emph{training error} is the average loss computed on the training dataset. It reflects how well the model fits the data it was trained on.
@@ -763,18 +803,15 @@ The \textit{generalisation gap} is defined as the difference between the trainin
 A large generalization gap indicates overfitting, while a small gap suggests that the model generalizes well. In deep learning, monitoring the generalization gap is a common diagnostic tool.
 
 \textbf{\\Bias-variance trade-off\\}
-Important concept tightly linked to overfitting and underfitting is the \emph{bias-variance trade-off}. Let 
-\(\hat f(x)\) denote the estimator learned from data, and let \(f(x)\) be the true underlying function we are estimating. The \emph{expected prediction error} at a point \(x\) can be decomposed as
+A central concept closely linked to overfitting and underfitting is the \emph{bias–variance trade-off}. Let 
+\(\hat f(x)\) denote the estimator learned from data, and let \(f^\ast(x)\) be the true underlying regression function. The \emph{expected prediction error} at a fixed point \(x\) can be decomposed as
 \begin{equation}
-    \mathbb{E}\big[(\hat f(x) - f(x))^2\big]
+    \mathbb{E}\big[(\hat f(x) - f^\ast(x))^2\big]
     =
-    \underbrace{\big(\mathbb{E}[\hat f(x)] - f(x)\big)^2}_{\text{bias}^2}
+    \underbrace{\big(\mathbb{E}[\hat f(x)] - f^\ast(x)\big)^2}_{\text{bias}^2}
     +
-    \underbrace{\mathbb{E}\big[(\hat f(x) - \mathbb{E}[\hat f(x)])^2\big]}_{\text{variance}}
-    +
-    \sigma^2,
+    \underbrace{\mathbb{E}\big[(\hat f(x) - \mathbb{E}[\hat f(x)])^2\big]}_{\text{variance}}.
 \end{equation}
-where \(\sigma^2\) is the irreducible noise in the data.
 
 The bias term quantifies the error due to restrictive assumptions in the model. A model with high bias fails to approximate complex patterns and tends to underfit.
 
