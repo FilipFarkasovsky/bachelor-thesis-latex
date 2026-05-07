@@ -1,0 +1,118 @@
+\chapter{Research Methodology and Experimental Results}
+\section{Methodology}
+
+This experimental part of the study investigates the impact of feature selection methods on the performance and training efficiency of neural networks. The experimental framework is based on the implementation presented by Barbieri et al. in \cite{barbieri2022}. This framework was modified to meet the specific requirements of the present study. In particular, the original pipeline was extended by incorporating deep neural network–based feature selection methods and by introducing a neural network classifier as the predictive model used to evaluate the predictive power of the selected feature subsets.
+
+\subsection{Data generating process}
+
+The data-generating process follows standard benchmarks in feature selection literature, emphasizing high-dimensional settings with noise and redundancy. Synthetic datasets are generated with $n = 1,000$ samples and total number of features $p \in \{512, 736, 1024\}$. Across all settings, the number of informative features is fixed at $k = 6$, while the remaining $p - k$ variables are noise.
+
+Let $\mathbf{X} = (X_1, \dots, X_p) \in \mathbb{R}^p$ denote the random feature vector. Each feature $X_j$ is independently sampled from a uniform distribution:
+\begin{equation}
+X_j \sim U(0, 1), \quad j = 1, \dots, p.
+\end{equation}
+
+The target variable $Y$ is derived from a latent nonlinear function that combines multiple types of dependencies. The structural signal is defined using six informative features $X_1, \dots, X_6$. The latent random variable $\xi$ is defined as:
+\begin{equation}
+\xi = 20(X_1 - 0.5)(X_2 - 0.5) + 20(X_3 - 0.5)^2 + 15(X_4 X_5) + 10X_6 + \epsilon,
+\end{equation}
+where $\epsilon \sim \mathcal{N}(0, 0.5^2)$ is Gaussian noise.
+
+For a sample of size $n$, the observations of the latent variable are given by
+\begin{equation}
+\xi_i = 20(x_{i,1} - 0.5)(x_{i,2} - 0.5) + 20(x_{i,3} - 0.5)^2 + 15(x_{i,4} x_{i,5}) + 10x_{i,6} + e_i, \quad i = 1, \dots, n,
+\end{equation}
+where $\mathbf{x}_i = (x_{i,1}, \dots, x_{i,p})$ denotes the $i$-th realization of $\mathbf{X}$ and $e_i$ is $i$-th realization of $\epsilon$.
+
+This formulation captures four distinct relationships between the predictors and the latent variable: a continuous XOR component via the product of centered variables, a smooth nonlinear quadratic term, a multiplicative interaction between continuous variables, and a linear contribution. This enables assessment of how different methods are able to handle different types of signals.
+
+To ensure a balanced class distribution, the latent variable $\xi$ is centered by subtracting its sample median, denoted by $\tilde{\xi}$. The centered latent random variable $\xi_c$ is defined as:
+\begin{equation}
+    \xi_c = \xi - \tilde{\xi}.
+\end{equation}
+This centered variable is then transformed into a probability $p$ via the logistic function:
+\begin{equation}
+    p = \frac{1}{1 + e^{-\xi_c}}.
+\end{equation}
+For each observation $i = 1, \dots, n$, the binary labels $y_i$ are sampled from a Bernoulli distribution:
+\begin{equation}
+    y_i \sim \text{Bernoulli}(p_i),
+\end{equation}
+where $p_i$ is the probability obtained from the realized centered latent value $\xi_{c,i} = \xi_i - \tilde{\xi}$. This centering step ensures the classification task remains balanced by anchoring the decision boundary at the median of the signal. The inclusion of Gaussian noise in the latent function and the subsequent Bernoulli sampling of labels introduces stochasticity into the data-generating process, ensuring that labels are not perfectly separable.
+
+\subsection{Feature selection methods}
+
+A diverse set of feature selection approaches is considered, covering multiple methodological categories:
+\begin{itemize}
+    \item \textbf{Filter methods:} Mutual Information, Kruskal–Wallis, ReliefF, and mRMR.
+    \item \textbf{Embedded methods:} Lasso, Random Forest importance, Decision Trees, and Linear SVM.
+    \item \textbf{Wrapper methods:} SVM-based Recursive Feature Elimination (SVM RFE).
+    \item \textbf{Deep learning-based methods:} DeepPINK, LassoNet, and CancelOut.
+\end{itemize}
+Each method produces a ranking or subset of features. From these outputs, subsets of fixed size $k \in \{8, 16, 32, 64, 128\}$ are selected for downstream evaluation.
+
+The specific parameter settings are summarized in Table 3.1.
+
+\begin{table}[h!]
+\centering
+\label{tab:params}
+\begin{tabular}{ll}
+\hline
+\textbf{Algorithm} & \textbf{Parameters} \\ \hline
+
+ReliefF & Number of Neighbors: 100 \\ \hline
+
+Lasso & $\alpha = 0.001$ \\
+Decision Tree & Criterion: Gini \\
+Random Forest & Criterion: Gini; Estimators: 100 \\
+Linear SVM & Max Iterations: 1000 \\ \hline
+
+SVM-RFE & Max Iterations: 1000 \\ \hline
+
+DeepPINK & - \\
+LassoNet & - \\
+CancelOut & - \\ \hline
+
+\end{tabular}
+\caption{Hyperparameter specifications for feature selection algorithms.}
+\end{table}
+
+\subsection{Neural network model}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ll}
+\hline
+\textbf{Component} & \textbf{Specification} \\ \hline
+
+Hidden width & 32 units (same for all hidden layers) \\ 
+Network depth & 3 hidden layers + output layer \\ 
+Activation function & ReLU \\ 
+Normalization & Batch Normalization \\ 
+Weight initialization & Kaiming Uniform\\ \hline
+
+Optimizer & AdamW \\ 
+Initial learning rate & $1 \times 10^{-3}$ \\ 
+Weight decay & $1 \times 10^{-4}$ \\ 
+Learning rate scheduler & Cosine Annealing \\ 
+Minimum learning rate & $1 \times 10^{-6}$ \\ \hline
+
+Batch size & 64 \\ 
+Max epochs & 400 \\ 
+Early stopping patience & 20 \\ 
+Early stopping threshold & $1 \times 10^{-4}$ \\ 
+Train/val/test split & 70\% / 15\% / 15\% \\ 
+Loss function & Binary Cross-Entropy) \\ \hline
+\end{tabular}
+\caption{Neural network architectural and training hyperparameters.}
+\label{tab:nn_hyperparameters}
+\end{table}
+
+A feedforward neural network is used as the classification model. To ensure comparability, all experiments employ identical architecture and training settings, including the number of layers, activation functions, optimizer, learning rate, and stopping criteria. The model is trained under two conditions:
+\begin{enumerate}
+    \item Using the full feature set $\mathbf{x}$ (baseline),
+    \item using feature subsets $\mathbf{x}_S$ selected by each method.
+\end{enumerate}
+Training is repeated across multiple dataset realizations to reduce variance in the results.
+
+\subsection{Evaluation metrics}

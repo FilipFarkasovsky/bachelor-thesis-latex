@@ -79,7 +79,7 @@ The flow of signals in neural networks does not have to be strictly one-directio
     \label{fig:reccurent-neural-network}
 \end{figure}
 
-Neural networks also do not need to be fully connected. Partially connected architectures are used in \textit{convolutional neural networks (CNNs)} (see Figure~\ref{fig:convolutional-neural-network}), which are primarily applied to visual recognition tasks. These networks alternate between \textit{convolutional and pooling layers}: the input is broken into small patches, which are processed through repeated layers. Early layers detect simple patterns like edges, while later ones combine them into more complex patterns. Due to sparse connectivity, training is more efficient, and CNNs achieve strong performance in visual recognition tasks when properly designed \cite{lecun1998}.
+Neural networks also do not need to be fully connected. Partially connected architectures are used in \textit{convolutional neural networks (CNNs)} \cite{oshea2015cnn} (see Figure~\ref{fig:convolutional-neural-network}), which are primarily applied to visual recognition tasks. These networks alternate between \textit{convolutional and pooling layers}: the input is broken into small patches, which are processed through repeated layers. Early layers detect simple patterns like edges, while later ones combine them into more complex patterns. Due to sparse connectivity, training is more efficient, and CNNs achieve strong performance in visual recognition tasks when properly designed \cite{lecun1998}.
 
 % DEEP CONVOLUTIONAL NEURAL NETWORK
 \begin{figure}[ht]
@@ -217,7 +217,7 @@ A suitable activation function for hidden layers should satisfy the following pr
 \end{itemize}
 
 
-\textbf{\\Sigmoid Function\\}  
+\textbf{\\Sigmoidal Functions\\}  
 The \emph{sigmoid function} is defined as:
 \begin{equation}
     \phi(z) := \sigma(z) = \frac{1}{1 + e^{-z}}.
@@ -225,22 +225,7 @@ The \emph{sigmoid function} is defined as:
 
 However, for large values of $|z|$, the derivative $\sigma'(z) = \sigma(z)\bigl(1 - \sigma(z)\bigr)$ approaches zero, which leads to the \emph{vanishing gradient problem} (see Chapter XXXXXX) \cite{goodfellow2016}. Consequently, the sigmoid activation is rarely used in hidden layers of neural networks.
 
-\textbf{\\Hyperbolic Tangent(Tanh)\\}  
-The \emph{hyperbolic tangent function}, denoted as $\tanh(z)$, is a popular activation function in neural networks. It is mathematically defined as the ratio of the hyperbolic sine and hyperbolic cosine functions:
-
-\begin{equation}
-\phi(z) := \tanh(z) = \frac{e^{z} - e^{-z}}{e^{z} + e^{-z}}
-\end{equation}
-
-To express it in terms of the sigmoid function $\sigma(z)$, it can be rearranged as:
-
-\begin{equation}
-\tanh(z) = \frac{1 - e^{-2z}}{1 + e^{-2z}} = 2\sigma(2z) - 1
-\end{equation}
-
-The function maps $\mathbb{R}$ to $(-1,1)$ and is zero-centered, which improves optimization dynamics compared to the sigmoid function by reducing bias shift in activations \cite{goodfellow2016}.
-
-Despite this advantage, $\tanh$ still suffers from vanishing gradients for large $|z|$, since its derivative also saturates in the tails. 
+Another sigmoidal activation function, such as the \emph{hyperbolic tangent} ($\tanh(z) = 2\sigma(2z) - 1$), improve optimization dynamics by being zero-centered and reducing bias shift, yet they still suffer from vanishing gradients \cite{goodfellow2016}. To mitigate these issues, the \emph{Rectified Linear Unit} has become the standard choice for hidden layers.
 
 \textbf{\\Rectified Linear Unit (ReLU)\\}  
 The \emph{ReLU function} is defined as:
@@ -250,38 +235,23 @@ The \emph{ReLU function} is defined as:
 
 It is widely used due to its simplicity and effectiveness. ReLU allows sparse activation, where only a subset of neurons are active at a time. It is computationally more efficient than sigmoidal functions, avoids saturation for positive inputs, and converges faster in deep architectures \cite{aggarwal2018}. 
 
-A known drawback of the ReLU function is the so-called \emph{dying ReLU problem}. Consider a neuron with pre-activation $z = \mathbf{w}^\top \mathbf{x} + b$. If during training $z \leq 0$ for all inputs in the data distribution, then the output is identically zero. Since the gradient of the ReLU function is also zero for $z < 0$, i.e.,
+A known drawback of the ReLU function is the so-called \emph{dying ReLU problem}~\cite{nair2010relu}. Consider a neuron with pre-activation $z = \mathbf{w}^\top \mathbf{x} + b$. If during training $z \leq 0$ for all inputs in the data distribution, then the output is identically zero. Since the gradient of the ReLU function is also zero for $z < 0$, i.e.,
 \begin{equation}
 \frac{d}{dz} \max(0, z) = 0 \quad \text{for } z < 0,
 \end{equation}
 the corresponding parameters receive no gradient updates, effectively preventing further learning in that neuron.
 
-
-\textbf{\\Leaky ReLU\\}
-To address the dying ReLU problem, the \textit{Leaky ReLU}, introduces a small non-zero slope for negative inputs:
+To mitigate this, the \textit{Leaky ReLU} extension introduces a small positive slope $\alpha$ (typically $\alpha = 0.01$) for negative inputs:
 \begin{equation}
-    \phi(z) :=
-    \begin{cases}
-        z & \text{if } z > 0 \\
-        \alpha z & \text{otherwise}
-    \end{cases}
+\phi(z) := \max(\alpha z, z).
 \end{equation}
 
-where $\alpha$ is a small constant (e.g., $0.01$). This function addresses the ``dying ReLU'' problem by allowing a small, non-zero gradient for $z < 0$.
+This function addresses the dying ReLU problem by allowing a small, non-zero gradient for $z < 0$, and thus preventing the neurons from becoming permanently inactive during training.
 
 \textbf{\\Gaussian Error Linear Unit (GELU)\\}
-Another widely used alternative is the \textit{Gaussian Error Linear Unit (GELU)} \cite{hendrycks2016}. Its exact formulation is given by:
-\begin{equation}
-    \phi(z) := z \cdot \Phi(z)
-\end{equation}
-where \( \Phi(z) \) denotes the cumulative distribution function of the standard normal distribution. In practice, an efficient approximation is often used:
-\begin{equation}
-    \phi(z) \approx 0.5 z \left( 1 + \tanh\left( \sqrt{\frac{2}{\pi}} \left( z + 0.044715 z^3 \right) \right) \right)
-\end{equation}
+Another widely used alternative is the \textit{Gaussian Error Linear Unit (GELU)} \cite{hendrycks2016}, which weights inputs by their percentile under a standard normal cumulative distribution function $\Phi(z)$, such that $\phi(z) := z\Phi(z)$.
 
-GELU can be interpreted as a smooth gating mechanism, where inputs are weighted by the probability that a standard Gaussian variable is less than the input value. This probabilistic interpretation leads to smoother activation behavior compared to ReLU. 
-
-Empirically, GELU has been shown to improve performance in deep architectures, particularly in transformer-based models such as \textit{Generative Pre-trained Transformer (GPT)} \cite{radford2019} and \textit{Bidirectional Encoder Representations from Transformers (BERT)} \cite{devlin2018}.
+This provides a smooth, probabilistic alternative to piecewise linear activations. Empirically, GELU has been shown to improve performance in deep architectures, and thus became default choice in transformer-based models such as \textit{Generative Pre-trained Transformer (GPT)} \cite{radford2019} and \textit{Bidirectional Encoder Representations from Transformers (BERT)} \cite{devlin2018}.
 
 \subsection{Activation Functions in Output Layer}
 \label{sec:activation-functions-ouput-layer}
@@ -473,23 +443,16 @@ Once \( \boldsymbol{\delta}^{(l)} \) is known, gradients with respect to paramet
 Backpropagation avoids redundant computation of intermediate derivatives by reusing previously computed gradients. As a result, the complexity of gradient computation is linear in the number of network parameters. \cite{goodfellow2016}.
 
 \subsection{Vanishing and Exploding Gradients}
-The \emph{vanishing gradient problem} occurs when gradients decrease exponentially as they are propagated backward through a deep neural network. As a result, parameter updates in earlier layers become extremely small, effectively slowing or stopping learning in these layers.
+The \emph{vanishing gradient problem} occurs when gradients decrease exponentially as they are propagated backward through a deep neural network. As a result, parameter updates in earlier layers become undesirably small, effectively slowing or stopping learning in these layers.
 
 This issue is particularly common when using activation functions such as the sigmoid or hyperbolic tangent. For the sigmoid function, the derivative is given by
 \begin{equation}
 \phi'(z) = \phi(z)\bigl(1 - \phi(z)\bigr).
 \end{equation}
 
-Since $\phi(z) \in (0,1)$, the derivative is bounded by
-\begin{equation}
-0 < \phi'(z) \leq \frac{1}{4}, \quad \text{with the maximum attained at } z = 0.
-\end{equation}
+Since $\phi(z) \in (0,1)$, the derivative is bounded by $0 < \phi'(z) \leq 0.25$, with the maximum attained at $z = 0$. Repeated multiplication of such small values across many layers leads to gradients approaching zero.
 
-Repeated multiplication of such small values across many layers leads to gradients approaching zero.
-
-The \emph{exploding gradient problem} arises when gradients grow exponentially during backpropagation. This typically happens when derivatives are consistently greater than 1, or when weights are poorly initialized.
-
-Activation functions play a central role in these issues. In particular, activation functions such as ReLU have derivatives equal to 1 for positive inputs, which helps to alleviate vanishing gradients in deep networks. However, improper weight initialization can still lead to exploding gradients or \emph{dying neurons}.
+The \textit{exploding gradient problem} occurs when gradients grow exponentially during backpropagation, typically due to weights being initialized with large values or derivatives consistently exceeding unity. While the \textit{ReLU} activation mitigates vanishing gradients by maintaining a unit derivative for positive inputs ($\phi'(z) = 1$ for $z > 0$), deep architectures remain sensitive to initialization. Poorly scaled weights can still trigger exploding gradients or, conversely, lead to \textit{dying neurons} if pre-activations consistently fall into the zero-gradient
 
 \subsection{Learning Rate}
 
@@ -820,7 +783,7 @@ The variance, which underlies the problem of overfitting, increases with model c
 Neural networks, because of their high capacity and extremely large hypothesis space, can achieve low bias but often exhibit large variance, especially when the number of parameters is high relative to the sample size. 
 
 \textbf{\\Validation\\}
-To estimate generalization performance and tune model hyperparameters, the dataset is typically partitioned into three subsets:
+To estimate generalization performance and tune model hyperparameters, the dataset is typically partitioned into three disjoint subsets:
 
 \begin{itemize}
     \item \emph{Training set}: used to fit the model parameters,
@@ -832,16 +795,14 @@ This separation is essential to obtain an unbiased estimate of the test error an
 
 A typical workflow proceeds as follows. First, the dataset is split into training, validation, and test subsets. The model is then trained on the training set for a given choice of hyperparameters. Its performance is evaluated on the validation set, which is used to guide hyperparameter tuning and model selection. This process may be repeated multiple times for different configurations. After selecting the final model, its generalization performance is assessed once on the test set.
 
-However, when the available dataset is limited, a simple split may lead to high variance in performance estimates. In such cases, cross-validation is commonly used. The dataset is divided into \( K \) disjoint subsets (folds), and the model is trained \( K \) times. In each iteration, one fold is used as a validation set, while the remaining \( K - 1 \) folds are used for training.
+When the available dataset is limited, a single train–validation–test split may lead to high variance in performance estimates. In such cases, k-fold cross-validation is commonly used. The dataset $D = \{(x_i, y_i)\}_{i=1}^n$ is partitioned into $k$ disjoint subsets (folds) $D_1, \dots, D_k$.
 
-The cross-validation risk is defined as
-\begin{equation}
-    R_{\mathrm{CV}} =
-    \frac{1}{K} \sum_{k=1}^{K} \frac{1}{\lvert D_k \rvert}
-    \sum_{(x_i, y_i) \in D_k}
-    L\big(\hat{f}^{(-k)}(x_i), y_i\big),
-\end{equation}
-where \( D_k \) denotes the \( k \)-th fold, \( \lvert D_k \rvert \) its size, \( L \) the loss function, and \( \hat{f}^{(-k)} \) the model trained without using the \( k \)-th fold.
+For each fold $i \in \{1, \dots, k\}$, a model $\hat f^{-i}$ is trained on $D \setminus D_i$ and evaluated on $D_i$. The cross-validation risk is defined as
+
+\[
+R_{\mathrm{CV}} = \frac{1}{K} \sum_{k=1}^{k} \frac{1}{|D_k|} \sum_{(x_i, y_i)\in D_k} \ell\big(\hat f^{-k}(x_i), y_i\big),
+\]
+where $\ell$ denotes the loss function and $\hat f^{-k}$ is the model trained without the $k$-th fold.
 
 Cross-validation provides a more robust estimate of the generalization error compared to a single train-test split, as it reduces the dependence on a particular partition of the data. 
 
