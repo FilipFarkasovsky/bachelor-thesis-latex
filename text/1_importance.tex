@@ -440,7 +440,7 @@ Once \( \boldsymbol{\delta}^{(l)} \) is known, gradients with respect to paramet
 \boldsymbol{\delta}^{(l)}
 \end{equation}
 
-Backpropagation avoids redundant computation of intermediate derivatives by reusing previously computed gradients. As a result, the complexity of gradient computation is linear in the number of network parameters. \cite{goodfellow2016}.
+Backpropagation avoids redundant computation of intermediate derivatives by reusing previously computed error terms. As a result, the complexity of gradient computation is linear with respect to the number of parameters, $\mathcal{O}(|\boldsymbol{\theta}|)$ \cite{goodfellow2016}.
 
 \subsection{Vanishing and Exploding Gradients}
 The \emph{vanishing gradient problem} occurs when gradients decrease exponentially as they are propagated backward through a deep neural network. As a result, parameter updates in earlier layers become undesirably small, effectively slowing or stopping learning in these layers.
@@ -450,9 +450,11 @@ This issue is particularly common when using activation functions such as the si
 \phi'(z) = \phi(z)\bigl(1 - \phi(z)\bigr).
 \end{equation}
 
-Since $\phi(z) \in (0,1)$, the derivative is bounded by $0 < \phi'(z) \leq 0.25$, with the maximum attained at $z = 0$. Repeated multiplication of such small values across many layers leads to gradients approaching zero.
+Sinc $\phi(z) \in (0,1)$, the derivative is bounded by $0 < \phi'(z) \leq 0.25$, with the maximum attained at $z = 0$. Repeated multiplication of such small values across many layers leads to gradients approaching zero.
 
-The \textit{exploding gradient problem} occurs when gradients grow exponentially during backpropagation, typically due to weights being initialized with large values or derivatives consistently exceeding unity. While the \textit{ReLU} activation mitigates vanishing gradients by maintaining a unit derivative for positive inputs ($\phi'(z) = 1$ for $z > 0$), deep architectures remain sensitive to initialization. Poorly scaled weights can still trigger exploding gradients or, conversely, lead to \textit{dying neurons} if pre-activations consistently fall into the zero-gradient
+The \textit{exploding gradient problem} occurs when gradients grow exponentially during backpropagation, typically due to weights being initialized with large values or derivatives consistently greater than one\cite{goodfellow2016}. While the \textit{ReLU} activation mitigates vanishing gradients by maintaining a unit derivative for positive inputs ($\phi'(z) = 1$ for $z > 0$), deep architectures remain sensitive to initialization. Poorly scaled weights can still trigger exploding gradients or, conversely, lead to \textit{dying neurons} if pre-activations consistently fall into the zero-gradient region.
+
+To reduce the risk of vanishing and exploding gradients, appropriate \emph{weight initialization techniques} are commonly employed. The \emph{Xavier initialization}~\cite{glorot2010} scales the initial weights according to the number of input and output units in a layer, aiming to preserve the variance of activations across network layers. This approach is particularly suitable for symmetric activation functions such as sigmoid or hyperbolic tangent. For ReLU-based architectures, \emph{Kaiming initialization}~\cite{he2015} is more commonly used, as it adjusts the variance specifically for activation functions that suppress negative inputs. Proper initialization also improves training stability and accelerates convergence in deep neural networks \cite{glorot2010,he2015}.
 
 \subsection{Learning Rate}
 
@@ -466,9 +468,9 @@ Several strategies have been proposed to address this issue. One of the simplest
 \end{equation}
 where $\eta_0$ denotes the initial learning rate, $\gamma>0$ is the decay rate, and $t$ is an iteration index. 
 
-However, exponential decay does not adapt to the geometry of the optimization landscape. More advanced methods, known as adaptive optimization algorithms, adjust the learning rate individually for each parameter based on the history of gradients. The most effective method are so called \emph{adaptive algorithms}, such as \textit{Adam}, \textit{RMSProp}, and \textit{Adagrad}~\cite{ruder2016overview, duchi2011adaptive, kingma2015adam}. These methods typically use running estimates of first and/or second moments of the gradients to scale parameter updates, which improves performance in settings where different parameters exhibit gradients of varying magnitude. ~\cite{ruder2016overview}. 
+However, exponential decay does not adapt to the geometry of the optimization landscape. More advanced methods, known as adaptive optimization algorithms, adjust the learning rate individually for each parameter based on the history of gradients. The most effective methods are so called \emph{adaptive algorithms}, such as \textit{Adam}, \textit{RMSProp}, and \textit{Adagrad}~\cite{ruder2016overview, duchi2011adaptive, kingma2015adam}. These methods typically use running estimates of first and/or second moments of the gradients to scale parameter updates, which improves performance in settings where different parameters exhibit gradients of varying magnitude~\cite{ruder2016overview}. 
 
- Among these methods, Adam is one of the most widely used optimizers due to its strong empirical performance, robustness across a wide range of architectures, and relatively low sensitivity to the initial learning rate choice ~\cite{kingma2015adam}.
+ Among these methods, Adam is one of the most widely used optimizers due to its strong empirical performance, robustness across a wide range of architectures, and relatively low sensitivity to the initial learning rate choice~\cite{kingma2015adam}. A commonly used extension is AdamW, which often provides improved regularization and generalization performance in deep learning models~\cite{loshchilov2019}.
 
 \section{Evaluation of Model Performance}
 \label{sec:evaluation-model-performance}
@@ -591,7 +593,7 @@ MAE measures the average absolute deviation and is less sensitive to outliers co
 \emph{Information theory} is a branch of applied mathematics focused on quantifying the amount of information contained in a signal or random variable. The main idea is that observing unlikely events provides more information than observing likely ones. This framework is useful for feature selection, since it allows measuring how informative a feature is with respect to a target variable.
 
 \textbf{\\Self-information\\}
-Let $X$ be a discrete random variable with support $\mathcal{X}$, and let $P(x)$ denote its probability mass function. The information content of an outcome $x \in \mathcal{X}$ is measured by self-information:
+Let $X$ be a discrete random variable with support $\mathcal{X}$, and let $P(x)$ denote its probability mass function. The information content of an outcome $x \in \mathcal{X}$ is measured by \emph{self-information}~\cite{shannon1948}:
 \begin{equation}
 I(x) = -\log P(x).
 \end{equation}
@@ -606,7 +608,7 @@ This definition satisfies the following intuitive properties \cite{goodfellow201
 \end{itemize}
 
 \textbf{\\Entropy\\}
-Self-information describes the information content of a single outcome. To quantify the uncertainty of an entire probability distribution of a discrete random variable $X$, \emph{(Shannon) entropy} is used \cite{goodfellow2016}. It is defined as the expectation of self-information under $P$:
+Self-information describes the information content of a single outcome. To quantify the uncertainty of an entire probability distribution of a discrete random variable $X$, \emph{(Shannon) entropy}~\cite{shannon1948} is used. It is defined as the expectation of self-information under $P$:
 \begin{equation}
 H(X) = \mathbb{E}_{x \sim P}[-\log P(x)] = - \sum_{x \in \mathcal{X}} P(x)\log P(x).
 \end{equation}
@@ -622,7 +624,7 @@ Note: In practice, expressions of the form $0 \log 0$ may appear in entropy comp
 which ensures that entropy remains well-defined even when some outcomes have zero probability.
 
 \textbf{\\Kullback-Leibler Divergence\\}
-To compare two probability distributions $P(x)$ and $Q(x)$ defined on the same support $\mathcal{X}$, the \emph{Kullback--Leibler (KL) divergence} is defined as
+To compare two probability distributions $P(x)$ and $Q(x)$ defined on the same support $\mathcal{X}$, the \emph{Kullback--Leibler (KL) divergence}~\cite{kullback1951} is defined as
 \begin{equation}
 D_{\mathrm{KL}}(P \,\|\, Q) = \mathbb{E}_{x \sim P} \left[ \log \frac{P(x)}{Q(x)} \right] = \mathbb{E}_{x \sim P} [\log P(x) - \log Q(x)].
 \end{equation}
@@ -634,7 +636,7 @@ The distribution $P$ is typically interpreted as a reference (or data-generating
 The KL divergence quantifies the discrepancy between $P$ and $Q$ in terms of the expected log-likelihood ratio under $P$. It is always non-negative and equals zero if and only if $P = Q$ almost everywhere. It is not symmetric and does not satisfy the triangle inequality, and therefore it is not a metric.
 
 \textbf{\\Cross-entropy\\}
-Closely related to KL divergence is the \emph{cross-entropy}, defined as
+Closely related to KL divergence is the \emph{cross-entropy} \cite{cover2006}, defined as
 \begin{equation}
 H(P, Q) = - \mathbb{E}_{x \sim P} [\log Q(x)].
 \end{equation}
@@ -652,7 +654,7 @@ Since $H(P)$ does not depend on $Q$, minimizing cross-entropy with respect to $Q
 In machine learning, cross-entropy corresponds to the negative log-likelihood of the model $Q$ under data generated from $P$, which explains its widespread use as a loss function.
 
 \textbf{\\Mutual Information\\}
-\emph{Mutual information} quantifies the amount of information shared between two random variables $X$ and $Y$. It measures how much knowledge of one variable reduces uncertainty about the other. It is defined as
+\emph{Mutual information}\cite{shannon1948,cover2006} quantifies the amount of information shared between two random variables $X$ and $Y$. It measures how much knowledge of one variable reduces uncertainty about the other. It is defined as
 \begin{equation}
 I(X; Y) = \mathbb{E}_{(x,y) \sim P(x,y)} \left[ \log \frac{P(x,y)}{P(x)P(y)} \right],
 \end{equation}
@@ -671,7 +673,7 @@ Here, $d \in \mathbb{N}$ denotes the total number of features in the dataset. Ea
 \]
 defined on the same probability space.
 
-We define the redundancy of feature $X^{(i)}$ with respect to the set $S$ as the average mutual information between $X^{(i)}$ and the variables indexed by $S$:
+We define the \emph{redundancy}~\cite{peng2005} of feature $X^{(i)}$ with respect to the set $S$ as the average mutual information between $X^{(i)}$ and the variables indexed by $S$:
 \begin{equation}
 R(X^{(i)}, S) = \frac{1}{|S|} \sum_{j \in S} I\bigl(X^{(i)}; X^{(j)}\bigr).
 \end{equation}
@@ -685,19 +687,18 @@ In feature selection, this measure can be used as a heuristic indicator of redun
 
 
 
-\section{Statistical Learning Theory for ANNs}
+\section{Statistical Learning Theory}
 \label{sec:generalization-neural-networks}
 
-\subsection{The No Free Lunch Theorem}
-The \emph{No Free Lunch (NFL) theorem} states that, when performance is averaged uniformly over all possible data-generating distributions, all learning algorithms achieve identical expected performance.
+\subsection{The "No Free Lunch" Theorem}
+The \emph{"No Free Lunch" (NFL) theorem}~\cite{wolpert1997} states that, when performance is averaged uniformly over all possible data-generating distributions, all learning algorithms achieve identical expected performance.
 
-This result implies that no learning algorithm is universally superior across all possible problems. Any observed superiority of a given algorithm necessarily depends on the specific class of data-generating distributions under consideration.
+In the context of ANNs, the NFL theorem implies that no particular architecture or training algorithm is superior across all possible problems. The effectiveness of a model depends on its inductive bias, i.e., the set of assumptions that constrain the hypothesis space. Such biases are introduced through architectural choices (e.g., depth, connectivity structure), regularization techniques, and optimization procedures,  within which chosen model implicitly encodes assumptions about the underlying data.
 
-In the context of ANNs, the NFL theorem implies that no particular architecture or training algorithm is universally optimal. The effectiveness of a model depends on its inductive bias, i.e., the set of assumptions that constrain the hypothesis space. Such biases are introduced through architectural choices (e.g., depth, connectivity structure), regularization techniques, and optimization procedures,  within which chosen model implicitly encodes assumptions about the
-underlying data.
-
-\subsection{Hypothesis Space and VC Dimension}
-In statistical learning theory, the \emph{hypothesis space} is the set of all functions from which a learning algorithm selects when fitting a model to data. Formally, let $\mathcal{X}$ denote an input space and $\mathcal{Y}$ an output space. A hypothesis space $\mathcal{H}$ is a set of measurable functions $h: \mathcal{X} \to \mathcal{Y}$.
+\subsection{Hypothesis Space and Vapnik–Chervonenkis Dimension}
+In statistical learning theory, the \emph{hypothesis space} is the set of all functions from which a learning algorithm selects when fitting a model to data. Formally, let $\mathcal{X}$ denote an input space and $\mathcal{Y}$ an output space. A hypothesis space $\mathcal{H}$ is a set of measurable functions $h: \mathcal{X} \to \mathcal{Y}$. For models parameterized by a vector $\boldsymbol{\theta} \in \mathbb{R}^p$, such as neural networks, the hypothesis space is explicitly defined as
+$\mathcal{H} = \{ f_{\boldsymbol{\theta}} \;:\; \boldsymbol{\theta} \in \mathbb{R}^p \},$
+where each hypothesis is denoted as $h \equiv f_{\boldsymbol{\theta}}$.
 
 In supervised learning, given a training sample $\{(x_i, y_i)\}_{i=1}^n$, the learning algorithm selects a hypothesis $\hat{h} \in \mathcal{H}$ by minimizing an empirical risk of the form
 \[
@@ -726,9 +727,9 @@ The total number of parameters is then given by:
 784 \cdot 128 + 128 + 128 \cdot 10 + 10 = 101{,}770.
 \]
 
-Each parameter vector $\theta \in \mathbb{R}^{101{,}770}$ defines a function $h_\theta \in \mathcal{H}$, illustrating that even relatively simple architectures induce high-dimensional hypothesis spaces.
+Each parameter vector $\boldsymbol{\theta} \in \mathbb{R}^{101{,}770}$ defines a function $h_{\boldsymbol{\theta}} \in \mathcal{H}$, illustrating that even relatively simple architectures induce high-dimensional hypothesis spaces.
 
-To formalize the notion of model capacity, one commonly used concept is the \emph{Vapnik–Chervonenkis (VC) dimension}. The VC dimension of a hypothesis space \( \mathcal{H} \) is defined as the largest number of points that can be \emph{shattered} by \( \mathcal{H} \). A set of points is said to be \emph{shattered} if, for every possible labeling of these points, there exists a hypothesis in \( \mathcal{H} \) that correctly classifies them.
+To formalize the notion of model capacity, one commonly used concept is the \emph{Vapnik–Chervonenkis (VC) dimension}~\cite{vapnik1998}. The VC dimension of a hypothesis space \( \mathcal{H} \) is defined as the largest number of points that can be \emph{shattered} by \( \mathcal{H} \). A set of points is said to be \emph{shattered} if, for every possible labeling of these points, there exists a hypothesis in \( \mathcal{H} \) that correctly classifies them.
 
 \subsection{Generalization in ANNs}
 
@@ -747,7 +748,7 @@ In practice, since the distribution $D$ is unknown, the generalization error can
 \textbf{\\Training Error and Test Error\\}
 The \emph{training error} is the average loss computed on the training dataset. It reflects how well the model fits the data it was trained on.
 
-The \emph{test error} is the average loss computed on a separate dataset not used during training. This dataset is assumed to be representative of the same underlying distribution but is not used in parameter estimation.
+The \emph{test error} is the average loss computed on a separate dataset not used during training. This dataset is assumed to be representative of the same underlying distribution $D$ but is not used in parameter estimation. Therefore, the test error serves as a practical empirical estimate of the generalization error defined above.
 
 While the training error is directly optimised during learning, the test error serves as an estimator of the generalisation error. A small training error does not necessarily imply good generalisation, as the model may have memorised the training data rather than learned the underlying patterns.
 
@@ -759,7 +760,7 @@ Noise limits the achievable performance of any model. Even an optimal model cann
 \textbf{\\Overfitting and underfitting\\}
 When the model fits the training data too poorly it said to underfit. \textit{Underfitting} occurs when the chosen hypothesis is too simple relative to the data distribution; this prevents the model from capturing essential patterns and leads to high training error.
 
-Conversely, when the model captures not only essential patterns, but also noise, it is said to overfit. \textit{Overfitting} arises when the hypothesis is more complex than the data on which the model was trained and can lead to high \textit{generalization error}, or also called \textit{test error}.
+Conversely, \textit{overfitting} arises, when the model captures not only essential patterns, but also noise. This happens when the hypothesis is more complex than the data on which the model was trained. As a result, the model achieves low training error but high generalization error, approximated by the test error.
 
 The \textit{generalisation gap} is defined as the difference between the training error and the test (generalization) error. It measures how well the model transfers learned patterns to unseen data.
 
@@ -793,70 +794,55 @@ To estimate generalization performance and tune model hyperparameters, the datas
 
 This separation is essential to obtain an unbiased estimate of the test error and to avoid information leakage from the evaluation data into the training process.
 
-A typical workflow proceeds as follows. First, the dataset is split into training, validation, and test subsets. The model is then trained on the training set for a given choice of hyperparameters. Its performance is evaluated on the validation set, which is used to guide hyperparameter tuning and model selection. This process may be repeated multiple times for different configurations. After selecting the final model, its generalization performance is assessed once on the test set.
-
-When the available dataset is limited, a single train–validation–test split may lead to high variance in performance estimates. In such cases, k-fold cross-validation is commonly used. The dataset $D = \{(x_i, y_i)\}_{i=1}^n$ is partitioned into $k$ disjoint subsets (folds) $D_1, \dots, D_k$.
-
-For each fold $i \in \{1, \dots, k\}$, a model $\hat f^{-i}$ is trained on $D \setminus D_i$ and evaluated on $D_i$. The cross-validation risk is defined as
-
-\[
-R_{\mathrm{CV}} = \frac{1}{K} \sum_{k=1}^{k} \frac{1}{|D_k|} \sum_{(x_i, y_i)\in D_k} \ell\big(\hat f^{-k}(x_i), y_i\big),
-\]
-where $\ell$ denotes the loss function and $\hat f^{-k}$ is the model trained without the $k$-th fold.
-
-Cross-validation provides a more robust estimate of the generalization error compared to a single train-test split, as it reduces the dependence on a particular partition of the data. 
+A typical workflow proceeds as follows. First, the dataset is split into training, validation, and test subsets. The model is then trained on the training set for a given choice of hyperparameters. Its performance is evaluated on the validation set, which is used to guide hyperparameter tuning and model selection. This process may be repeated multiple times for different configurations. After selecting the final model, its generalization performance is assessed once on the test set. 
 
 \subsection{Regularisation Techniques}
 Deep neural networks are highly expressive models with large hypothesis spaces, which makes them prone to overfitting. To improve generalisation performance, it is necessary to control model complexity and prevent the model from fitting noise in the training data. This is achieved through \emph{regularisation techniques}, which impose constraints on the learning process.
 
 \textbf{\\Parameter norm penalties\\}
-One common approach to address problem of overfitting is by adding a penalty term to a loss function, which effectively controls model complexity.
+One common approach to address problem of overfitting is by adding a penalty term to a loss function, which effectively controls model complexity by discouraging large parameter values.
 
-The general form of a regularized cost functions is:
-
+The general form of a regularized cost function is given by
 \begin{equation}
-    L(h) = \frac{1}{n} \sum_{i=1}^{n} \ell\big(h(x_i), y_i\big) + \lambda \Omega(h),
+J(\boldsymbol{\theta}) = L(\boldsymbol{\theta}) + \lambda \Omega(\boldsymbol{\theta}),
 \end{equation}
 
-where $L(h)$ is the objective function to be minimized, $\ell(\cdot,\cdot)$ is the sample loss measuring the discrepancy between predictions $h(x_i)$ and true outputs $y_i$, $\Omega(h)$ is a regularization term controlling model complexity, $\lambda \ge 0$ is a regularization parameter balancing fit and complexity, and $n$ is the number of training samples. The regularization term is typically defined in terms of the model parameters by writing $h \equiv h_{\theta}$ with $\theta \in \mathbb{R}^p$.
+where $L(\boldsymbol{\theta})$ is the empirical error as defined in Section~XXXXX, $\Omega(\boldsymbol{\theta})$ is a penalty term that discourages excessive model complexity by constraining the parameters $\boldsymbol{\theta}  \in \mathbf{R}^p$, and $\lambda \geq 0$ is the regularization parameter that balances the fit to the training data against the simplicity of the model.
 
-The regularization term $\Omega(h)$ is typically defined in terms of the model parameters. Let $h \equiv h_{\theta}$, where $\theta \in \mathbb{R}^p$ denotes the parameter vector of the model.
-
-\textbf{\\L1 Regularization (Lasso)\\}
-
-Lasso (Least Absolute Shrinkage and Selection Operator) uses an L1 penalty::
+\textbf{\\$L_1$ Regularization (LASSO)\\}
+\emph{Least Absolute Shrinkage and Selection Operator (LASSO)}~\cite{tibshirani1996} uses an $L_1$ penalty:
 \begin{equation}
     \Omega(\theta) = \|\theta\|_1 = \sum_{j=1}^{p} |\theta_j|.
 \end{equation}
 
-L1 regularization promotes sparsity in the parameter vector, meaning that some coefficients are driven exactly to zero, which can also be interpreted as an implicit form of feature selection.
+$L_1$ regularization promotes sparsity in the parameter vector, meaning that some coefficients are driven exactly to zero, which can also be interpreted as an implicit form of feature selection.
 
-\textbf{\\L2 Regularization (Ridge)\\}
-In L2 regularization (also known as Ridge or Weight decay), the penalty is given by the squared Euclidean norm of the parameter vector:
+\textbf{\\$L_2$ Regularization (Ridge)\\}
+In $L_2$ regularization (also known as \emph{Ridge} or \emph{Weight decay})~\cite{hoerl1970}, the penalty is given by the squared Euclidean norm of the parameter vector:
 \begin{equation}
     \Omega(\theta) = \|\theta\|_2^2 = \sum_{j=1}^{p} \theta_j^2.
 \end{equation}
 
-L2 regularization encourages small parameter values and tends to distribute weights more evenly across features.
+$L_2$ regularization discourages large parameter values by penalizing their magnitude quadratically. Unlike $L_1$ regularization, it does not enforce sparsity but instead tends to distribute weights more evenly across features.
 
 \textbf{\\Elastic Net regularization\\}
-Elastic Net combines both L1 and L2 penalties. The regularization term is defined as
+\emph{Elastic Net}~\cite{zou2005} combines both $L_1$ and $L_2$ penalties. The regularization term is defined as
 \begin{equation}
     \Omega(\theta) = \alpha \|\theta\|_1 + (1 - \alpha)\|\theta\|_2^2,
 \end{equation}
-where $\alpha \in [0,1]$ controls the trade-off between the L1 and L2 components - it promotes sparsity and feature selection through the L1 component, while the L2 component improves stability and encourages grouping of correlated features.
+where $\alpha \in [0,1]$ controls the trade-off between the $L_1$ and $L_2$ components - it promotes sparsity and feature selection through the $L_1$ component, while the $L_2$ component improves stability and encourages grouping of correlated features.
 
 \textbf{\\Early stoping\\}
-Early stopping is a regularisation technique based on monitoring model performance on a validation set during training. Instead of training the model until convergence, the process is stopped when the validation error starts to increase, indicating the onset of overfitting.
+Early stopping\cite{aggarwal2018} is a regularisation technique based on monitoring model performance on a validation set during training. Instead of training the model until convergence, the process is stopped when the validation error starts to increase, indicating the onset of overfitting.
 
 In practice, the data are split into training and validation sets, the model is trained iteratively (e.g., via gradient descent), and its performance on the validation set is evaluated after each epoch; training is terminated once the validation error does not decrease for a predefined number of iterations, to which we refer as patience parameter.
 
 Early stopping can be interpreted as implicit regularisation, since iterative optimisation tends to increase model complexity over time, and stopping early prevents the model from reaching overly complex solutions.
 
 \textbf{\\Dropout\\}
-Dropout is a stochastic regularisation technique in which neurons are randomly removed during training: each neuron is retained with probability $p$ and set to zero otherwise. This reduces encourages more robust representations. At test time, all neurons are used with appropriately scaled outputs. Dropout can be viewed as an approximation to averaging predictions over many network architectures.
+Dropout\cite{aggarwal2018} is a stochastic regularisation technique in which neurons are randomly removed during training. Formally, each neuron is independently retained with probability $p$ and set to zero with probability $1-p$. This encourages more robust representations. At test time, all neurons are used with appropriately scaled outputs. Dropout can be also viewed as an approximation to averaging predictions over many network architectures.
 
 \textbf{\\Data Augmentation\\}
-Data augmentation increases the effective size of the training dataset by applying transformations to existing data points. In image tasks, this may include rotations, translations, or scaling; in other domains, appropriate transformations depend on the structure of the data.
+Data augmentation\cite{goodfellow2016} increases the effective size of the training dataset by applying transformations to existing samples. In image tasks, this may include rotations, translations, or scaling. In other domains, appropriate transformations depend on the structure of the data.
 
 By exposing the model to a wider variety of inputs, data augmentation reduces overfitting and improves generalisation without explicitly modifying the model or loss function.
