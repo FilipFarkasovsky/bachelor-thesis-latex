@@ -18,7 +18,7 @@ To achieve this, the edge length of the neighborhood hypercube must satisfy
 This relationship has a counterintuitive implication: as the dimension $p$ increases, the required edge length grows rapidly. In particular, the side length $\varepsilon_p(r)$ approaches $1$ as $p \to \infty$, even for small values of $r$. This means that to capture a fixed proportion of the data, one must include a large fraction of each variable’s range.
 
 For example, in ten dimensions, retaining only $1\%$ of the total volume requires an edge length of $0.01^{1/10} \approx 0.63,$
-while retaining $10\%$ requires approximately $0.1^{1/10} \approx 0.80.$ 
+while retaining $10\%$ requires approximately $0.1^{1/10} \approx 0.80$~\cite{hastie2001}. 
 
 This phenomenon highlights a key issue in high-dimensional data analysis: points that are in low-dimensional settings may become effectively distant when embedded in higher-dimensional spaces. As a consequence, data becomes increasingly sparse, meaning that most regions of the space contain few or no observations. This sparsity makes local methods less reliable and significantly complicates tasks such as distance-based learning, clustering, and density estimation in high dimensions.
 
@@ -30,103 +30,99 @@ This phenomenon highlights a key issue in high-dimensional data analysis: points
 \end{figure}
 
 \section{Feature Selection: Formal Definition and Feature Types}
+\emph{Feature selection} addresses these issues by reducing the dimensionality of the input space. Let $(\mathbf{X}, Y) \sim P$,   joint probability distribution of the random feature vector $\mathbf{X} \in \mathbb{R}^p$ and the target variable $Y$. Let $\mathbf{x} = (x_1, \dots, x_p) \in \mathbb{R}^p$ and $y$ denote their respective realizations. Let $I = \{1, \dots, p\}$ be the set of all feature indices. For any subset of indices $A \subseteq I$, let
+$\mathbf{X}_A = (X_j)_{j \in A}$
+denote the corresponding subvector of features.
 
-\url{https://ift6758.github.io/lectures/feature_selection.pdfx}
+The objective is to identify a subset $S \subseteq I$ with cardinality $|S| = k \ll p$. The learning algorithm then evaluates realizations $\mathbf{x}_S \in \mathbb{R}^k$ instead of the realizations of the full vector $\mathbf{x}$.
 
-\emph{Feature selection} addresses these issues by reducing the dimensionality of the input space.
+Kohavi categorizes features by their contribution to the conditional distribution of $Y$ \cite{kohavi1997}. Let $I_{-j} = I \setminus \{j\}$ denote the set of all indices excluding $j$.
 
-Let $(\mathbf{X}, Y) \sim P$, where $\mathbf{X} \in \mathbb{R}^p$ is a random vector of features and $Y$ is the target variable. Let $P$ denote their joint probability distribution.
-
-Realizations of $\mathbf{X}$ and $Y$ are denoted by $\mathbf{x} = (x_1, \dots, x_p) \in \mathbb{R}^p$ and $y$, respectively.
-
-The goal of feature selection is to identify a subset of feature indices $S \subseteq \{1, \dots, p\}$ such that $|S| = k \ll p$. For a given subset $S$, define the reduced random feature vector
-\[
-\mathbf{X}_S = (X_j)_{j \in S},
-\]
-whose realization is denoted by $\mathbf{x}_S \in \mathbb{R}^k$, obtained by selecting the components of $\mathbf{x}$ indexed by $S$. The learning algorithm is then applied to \( \mathbf{x}_S \) instead of the full feature vector \( \mathbf{x} \).
-
-The goal of feature selection is to identify informative features and remove those
-that do not contribute to prediction.
-
-A feature \( X_j \) is said to be \emph{relevant} if it provides additional information about \( Y \), i.e.
+A feature $X_j$ is \emph{strongly relevant} if
 \begin{equation}
-P(Y \mid \mathbf{X}) \neq P(Y \mid \mathbf{X}_{-j}),
-\end{equation}
-where \( \mathbf{X}_{-j} \) denotes the random vector with the \( j \)-th component removed.
-
-A feature \( X_j \) is \emph{irrelevant} if it does not affect the conditional distribution of \( Y \), i.e.
-\begin{equation}
-P(Y \mid \mathbf{X}) = P(Y \mid \mathbf{X}_{-j}).
+P(Y \mid X_j, \mathbf{X}_{I_{-j}}) \neq P(Y \mid \mathbf{X}_{I_{-j}}).
 \end{equation}
 
-A feature \( X_j \) is \emph{redundant} if its information is fully contained in a subset of other features \( S \subseteq \{1, \ldots, p\} \setminus \{j\} \), i.e.
+A feature $X_j$ is \emph{weakly relevant} if it is not strongly relevant, but there exists a subset $A \subset I_{-j}$ such that
 \begin{equation}
-P(Y \mid X_j, \mathbf{X}_S) = P(Y \mid \mathbf{X}_S).
+P(Y \mid X_j, \mathbf{X}_A) \neq P(Y \mid \mathbf{X}_A).
 \end{equation}
 
-Removing irrelevant features reduces noise, while removing redundant features eliminates unnecessary duplication of information. Both contribute to a more compact and efficient representation of the data.
+A feature $X_j$ is \emph{irrelevant} if it provides no additional information about $Y$ for any subset $A \subseteq I_{-j}$:
+\begin{equation}
+\forall A \subseteq I_{-j}, \quad P(Y \mid X_j, \mathbf{X}_A) = P(Y \mid \mathbf{X}_A).
+\end{equation}
 
+A weakly relevant feature $X_j$ is \emph{redundant} if there exists a subset $A \subset I_{-j}$ that fully contains its information \cite{yu2004}:
+\begin{equation}
+P(Y \mid X_j, \mathbf{X}_A) = P(Y \mid \mathbf{X}_A).
+\end{equation}
 
+Removing irrelevant features reduces noise, while removing redundant features
+eliminates unnecessary duplication of information. Both contribute to a more com-
+pact and efficient representation of the data.
 
 \section{Feature Selection vs.\ Feature Extraction}
 
-Feature selection and feature extraction are two approaches to dimensionality reduction.
+Feature selection and extraction are two fundamental approaches to dimensionality reduction. Let $\mathbf{x} \in \mathbb{R}^p$ denote an observation in a $p$-dimensional feature space. Both methods define a transformation
+$T : \mathbb{R}^p \to \mathbb{R}^k,\quad \text{where } k \ll p$. The primary motivation is to reduce computational and storage complexity, which becomes particularly relevant in high-dimensional settings. The fundamental difference between those methods lies in the structure of the transformation $T$.
 
-\subsection*{Common properties}
-XXXXXXXXXXXXXX
-Both feature selection and feature extraction aim to reduce the dimensionality of the data, which decreases storage and computational requirements. By simplifying the input space, they can improve the performance of learning algorithms, particularly in high-dimensional settings. Additionally, both approaches support the construction of models that generalize better to unseen data.
-XXXXXXXXXXXXXXXX
-Common feature selection methods include filter approaches such as mutual information and correlation-based selection, wrapper methods that evaluate subsets of features using predictive models, and embedded methods like Least Absolute Shrinkage and Selection Operator (LASSO) or decision tree–based selection. These approaches will be discussed in more detail in \textcolor{blue}{Section 2.4}. 
-XXXXXXXXXXX
-Common feature extraction methods include principal component analysis (PCA), independent component analysis (ICA), linear discriminant analysis (LDA), and autoencoders. While the underlying approaches differ, both families of methods aim to capture the most relevant information in a smaller representation of the data.
+\subsection*{Feature Selection}
+Feature selection restricts the transformation to coordinate projections. Let $S \subset \{1, \dots, p\}$ with $|S| = k$. Then feature selection defines
+\begin{equation}
+    \pi_S : \mathbb{R}^p \to \mathbb{R}^k, 
+    \qquad 
+    \pi_S(\mathbf{x}) = (x_j)_{j \in S}.
+\end{equation}
 
-\subsection*{Differences}
+Because the original variables $x_j$ are preserved, their physical meaning remains intact. This approach is preferred when model interpretability is required.
 
-The key difference lies in how the reduced representation is constructed.
+Common feature selection methods will be discussed in \textcolor{blue}{Section XXXXXXXX}. 
 
-Feature selection chooses a subset of the original features. Formally, it defines a projection
-\[
-\pi_S : \mathbb{R}^p \to \mathbb{R}^k, \quad \pi_S(x) = (x_j)_{j \in S}.
-\]
-The original variables are preserved, which maintains their physical meaning and allows direct interpretation of the model.
+\subsection*{Feature Extraction}
+Feature extraction, in contrast, constructs new features as general transformations of the full input vector. It defines a mapping
+\begin{equation}
+    \psi : \mathbb{R}^p \to \mathbb{R}^k,\qquad \psi(\mathbf{x}) = (\psi_1(\mathbf{x}), \dots, \psi_k(\mathbf{x})),
+\end{equation}
+where each component $\phi_i$ depends on all coordinates of $\mathbf{x}$. In this case, the original meaning of individual features is generally lost.
 
-Feature extraction constructs new features as transformations of the original ones. It defines a mapping
-\[
-\phi : \mathbb{R}^p \to \mathbb{R}^k,
-\]
-where the components of $\phi(x)$ are typically functions of all input variables (e.g.\ linear combinations). In this case, the original meaning of individual features is generally lost.
-
-As a result, feature selection is preferred when interpretability is important, while feature extraction is more suitable when the goal is maximal dimensionality reduction or capturing complex structure in the data.
+Common feature extraction methods include \emph{principal component analysis (PCA)}~\cite{jolliffe2002}, \emph{independent component analysis (ICA)}~\cite{hyvarinen2001}, \emph{linear discriminant analysis (LDA)}~\cite{bishop2006}, and \emph{neural autoencoders}~\cite{hinton2006}.
 
 \section{Applications of Feature Selection}
-Feature selection becomes particularly important in datasets with high dimensionality, noisy features, or a small number of samples relative to the number of features. High-dimensional datasets often contain irrelevant or redundant features, which can reduce model performance and increase computational cost. 
-For example, in genomics, a single experiment can measure tens of thousands of gene expression levels for only a few hundred samples. In such cases, most features are either irrelevant or occur with very low frequency, making it difficult for learning algorithms to identify meaningful patterns. 
-Similarly, text classification datasets may contain thousands of words that contribute little to the predictive task. Feature selection mitigates these issues by identifying a subset of informative and non-redundant features.
+Feature selection becomes particularly important in high-dimensional settings, especially in $p > n$ problems, where the number of features $p$ exceeds the number of observations $n$. High-dimensional datasets often contain irrelevant or redundant features, which can reduce model performance and increase computational cost~\cite{guyon2006}. 
 
-\section{Feature Selection Algorithms}
-\textbf{Based on label availability} \\
-Feature selection methods can be classified by whether they use label information during selection. \emph{Supervised methods} rely on labeled data to identify features that best predict the target, as in classification or regression. \emph{Unsupervised methods} do not use labels and instead select features based on intrinsic properties of the data, such as variance or similarity, making them suitable for clustering or exploratory analysis. \emph{Semi-supervised} methods combine labeled and unlabeled data, exploiting the small amount of labeled information while leveraging the structure in the unlabeled data. In this thesis, we focus exclusively on supervised feature selection methods.  
+For example, in genomics, a single experiment can measure tens of thousands of gene expression levels for only a few hundred~\cite{golub1999}. In such cases, most features are either irrelevant or occur with very low frequency, making it difficult for learning algorithms to identify meaningful patterns. 
 
-\textbf{Based on output type} \\
-Feature selection methods can also be categorized according to the form of their output. Some methods return a \emph{subset of features}, typically represented as a vector of selected feature indices. Others produce a \emph{rank of features}, often as an ordered list indicating their relative importance. A third type of output consists of \emph{feature weights}, where each feature is assigned a relevance score; these weights can subsequently be used to derive a ranking by ordering features according to their values.
+Similarly, text classification datasets may contain thousands of words that contribute little to the predictive~\cite{forman2003}. Feature selection mitigates these issues by identifying a subset of informative and non-redundant features.
 
-\textbf{Univariate or multivariate methods} \\
-Feature selection methods can also be classified as univariate or multivariate (Lazar et al., 2012). Univariate methods evaluate each feature independently with respect to the target variable, ignoring dependencies between features. These approaches are typically simple and computationally efficient, but they may fail to capture feature interactions. In contrast, multivariate methods evaluate features jointly and account for dependencies among them. While these methods are generally more complex, they tend to be more robust as they can capture feature interactions and synergy.
+\section{Taxonomy of Feature Selection Methods}
+\textbf{Based on label availability} 
 
-\textbf{Selection strategies} \\
-From the perspective of selection strategy, feature selection algorithms can be categorized into wrapper, filter, and embedded methods, with additional approaches including hybrid and ensemble methods ([1]).
+Feature selection methods are classified by usage of the label information during selection. \emph{Supervised methods} rely on labeled data to identify features that best predict the target, as in classification or regression. \emph{Unsupervised methods} do not use labels and instead select features based on intrinsic properties of the data, such as variance or similarity. \emph{Semi-supervised} methods combine labeled and unlabeled data, exploiting the small amount of labeled information while leveraging the structure in the unlabeled data. 
+
+\textbf{Based on output type} 
+
+Feature selection methods can also be categorized according to the form of their output. Some methods return a \emph{subset of features}, typically represented as a vector of selected feature indices. Others produce a \emph{rank of features}, often as an ordered list indicating their relative importance. A third type of output consists of \emph{feature weights}, where each feature is assigned a relevance score. These weights can subsequently be used to derive a ranking by ordering features according to their values.
+
+\textbf{Univariate or multivariate methods} 
+
+Feature selection methods can also be classified as univariate or multivariate~\cite{lazar2012}. Univariate methods evaluate each feature independently with respect to the target variable, ignoring dependencies between features. These approaches are typically simple and computationally efficient, but they may fail to capture feature interactions. In contrast, multivariate methods evaluate features jointly and account for dependencies among them.
+
+\textbf{Selection strategies} 
+
+From the perspective of selection strategy, feature selection algorithms can be categorized into wrapper, filter, and embedded methods, with additional approaches including hybrid and ensemble methods.
 
 \subsection{Wrapper methods} 
-Wrapper methods perform a search over the space of possible feature subsets to find the one that optimizes a predictive model’s performance. Formally, each candidate subset \(S \subseteq \{1, \dots, d\}\) is assessed using a cost function \(\mathcal{L}(S)\), , which represents an empirical estimate of the prediction error of a model trained using only the features in $S$.
+\emph{Wrapper methods} perform a search over the feature space to find the one that optimizes predictive model performance. Formally, each candidate subset \(S \subseteq \{1, \dots, d\}\) is assessed using an empirical cost function \(\mathcal{L}(S)\). This function estimates the generalization error of a model trained exclusively on the features in $S$.
 
-Let $\mathbf{x}_i^{(S)}$ denote the feature vector of the $i$-th observation restricted to the indices in $S$. For a fixed model $f_S$, the empirical risk can be written as
+Let $\mathbf{x}_i^{(S)}$ denote the feature vector of the $i$-th observation restricted to the indices in $S$. For a fixed model $f_S$ trained on $S$, the empirical risk is defined as
 \begin{equation}
 \mathcal{L}(S) = \frac{1}{n} \sum_{i=1}^{n} \ell\bigl(y_i, f_S(\mathbf{x}_i^{(S)})\bigr),
 \end{equation}
 
-where $\ell(\cdot,\cdot)$ is a task-dependent loss function, $y_i$ is the observed target value, and $f_S$ is a model trained using only the subset of features $S$.
+where $\ell(\cdot,\cdot)$ is a task-dependent loss function and $y_i$ is the observed target value.
 
-In practice, $\mathcal{L}(S)$ is often computed using cross-validation in order to obtain a more reliable estimate of the generalization error, especially when the dataset is small or the model has high variance. Typical choices of the loss function $\ell$ depend on the learning task, such as misclassification error for classification problems or mean squared error for regression problems.
+In practice, $\mathcal{L}(S)$ is often computed using cross-validation in order to obtain a more reliable estimate of the generalization error, especially when the dataset is small or the model has high variance. Typical loss functions include misclassification error for classification and mean squared error for regression.
 
 The objective of the wrapper approach is then to solve
 \begin{equation}
@@ -137,46 +133,48 @@ These methods evaluate subsets according to a search strategy, which determines 
 
 The iterations continue until a stopping criterion is satisfied, such as a fixed number of iterations, a maximum number of selected features, or convergence in the improvement of the objective function.
 
-Different search strategies exist, ranging from \emph{forward or backward selection} to more sophisticated heuristic or metaheuristic approaches. These will be discussed in the XXXXXXXX.
+Different search strategies exist; some of them are introduced in section~\ref{sec:search-strategies}.
 
-Wrapper methods are model-agnostic, meaning they can be applied to any predictive model. However, they are computationally expensive, since each evaluation of a feature subset requires training and validating at least one model. This leads to a significantly higher computational cost compared to filter-based methods \cite{guyon2006}. In this thesis, we examine \emph{Support Vector Machine Recursive Feature Elimination (SVM-RFE)} as an example of a wrapper method. 
+Wrapper methods are model-agnostic, meaning they can be applied to any predictive model. However, they are computationally expensive, since each evaluation requires full model training and validation. This leads to a significantly higher computational cost compared to filter-based methods \cite{guyon2006}. In this thesis, we examine \emph{Support Vector Machine Recursive Feature Elimination (SVM-RFE)}~\cite{guyon2002} (in subsection~\ref{sec:feature-selection-methods}) as an example of a wrapper method. 
 
 \subsection{Filter methods}
-Filter methods are independent of any learning algorithm and rely on intrinsic properties of the data. They usually rank or score features using statistical or information-theoretic criteria such as correlation, chi-squared statistics, mutual information, or information gain. Filter methods are computationally efficient and often serve as a preprocessing step.
+\emph{Filter methods} are independent of any learning algorithm and rely on intrinsic properties of the data. They usually rank features based on statistical or information-theoretic criteria such as correlation, chi-squared statistics, mutual information, or information gain. 
 
-Some of the Filter methods
+Unlike wrapper methods, the evaluation criterion in filter approaches does not depend on the predictive performance of a particular classifier or regression model. As a result, filter methods are computationally efficient and scalable to high-dimensional datasets, which makes them particularly suitable as a preprocessing step prior to model training.
 
- The main difference lies in the scoring function.
-In filtering approaches, the cost function is defined in terms of data
-intrinsic characteristics. In contrast, in wrapper approaches, the cost
-function is based on the predictive error of a single classifier
+However, many filter methods evaluate features independently and therefore may fail to capture dependencies or interactions between variables.
 
-In this thesis, we discuss Kruskal--Wallis, Mutual Information, ReliefF, and mRMR as representative filter methods.
+In section~\ref{sec:feature-selection-methods}, we consider Kruskal--Wallis~\cite{kruskal1952}, Mutual Information~\cite{cover2006}, ReliefF~\cite{kononenko1994relieff}, and mRMR~\cite{peng2005} as representative filter methods.
 
 \subsection{Embedded methods}
-Embedded methods perform feature selection during the training of the model. These methods are part of the model either as built-in functionality or via regularization. Common embedded approaches include decision tree--based algorithms such as Classifcation and Regression Trees (CART), and Random Forest, as well as variants of multinomial logistic regression. Some embedded methods apply regularization to perform feature weighting, forcing coefficients to shrink or become exactly zero, as in LASSO or Elastic Net. Embedded methods inherit the merits of wrapper and filter methods: they account for feature interactions with the learning algorithm and are generally more efficient than wrappers. 
+\emph{Embedded methods} perform feature selection as part of the model training procedure. In contrast to filter methods, feature selection is directly integrated into the learning algorithm, while unlike wrapper methods, no separate subset search procedure is required.
 
+Common embedded approaches include decision tree--based algorithms such as \emph{Classifcation and Regression Trees (CART)}~\cite{breiman1984}, and \emph{Random Forest}~\cite{breiman2001}, as well as regularized linear models. Some embedded methods apply regularization to perform feature weighting, forcing coefficients to shrink or become exactly zero, as in \emph{LASSO}~\cite{tibshirani1996} or \emph{Elastic Net}~\cite{zou2005}. 
+
+Because embedded methods optimize feature selection jointly with model training, they can account for interactions between features and the predictive model. At the same time, they are generally computationally more efficient than wrapper methods, since feature selection is incorporated directly into the optimization procedure.
 
 \section{Search strategies}
-A \textit{search strategy} defines the order in which the variable subsets are evaluated. These strategies are particularly important for wrapper methods. Few of the search strategies are proposed by Guyon et al. \cite{guyon2006}. Most common strategies are forward selection, backward elimination, floating search, and randomized search. 
+\label{sec:search-strategies}
+A \textit{search strategy} defines the order in which the variable subsets are evaluated. Search strategies are particularly important for wrapper methods. Few of the search strategies are proposed by Guyon et al. \cite{guyon2006}. Common strategies include forward selection, backward elimination, floating search, and randomized search. 
 
-\textit{Forward selection} starts with an empty feature set and adds features one at a time, keeping those that improve the model's performance. \textit{Backward elimination} starts with all features and removes them iteratively, discarding those that contribute least to the predictive power.
+\textit{Sequential forward selection (SFS)}~\cite{jain1997} starts with an empty feature set and adds features one at a time, keeping those that improve the model's performance. \textit{Sequential backward elimination (SBS)}~\cite{jain1997} starts with all features and removes them iteratively, discarding those that contribute least to the predictive power.
 
-Both methods are considered \cite{exhaustive searches}, as they evaluate all possible subsets of features up to a certain size. For datasets with many features, forward and backward selection can be computationally expensive. In forward selection, if the optimal number of features $k$ is unknown, one may need to evaluate all subsets of size $1$ to $k$, requiring $\binom{N}{1} + \binom{N}{2} + \dots + \binom{N}{k}$ combinations, which gives a time complexity of $O(2^N)$. 
+Both SFS and SBS are \emph{greedy} heuristic procedures. They are computationally substantially more efficient than \emph{exhaustive search}, since they evaluate only a limited number of candidate subsets. However, because decisions made in earlier iterations cannot generally be reversed, these methods do not guarantee identification of the globally optimal subset.
 
-For this reason, more efficient algorithms have been developed, such as \emph{sequential forward selection (SFS)} and \emph{sequential backward selection (SBS)}. SFS starts with an empty feature set and iteratively adds the feature, that yields the greatest improvement in model performance, while previously selected features remain selected. SBS is similar to SFS, but it starts with the full feature set and iteratively removes the feature that contributes the least. Both SFS and SBS are heuristic, thus they do not guarantee the optimal subset. Research also shows that exhaustive search is more prone to overfitting, than sequential methods. \cite{guyon2006}
+\emph{Exhaustive search} of $p$ features evaluates all possible feature subsets, requiring the assessment of $\binom{p}{1} + \binom{p}{2} + \dots + \binom{p}{p}$ combinations~\cite{guyon2006}.
 
-\emph{Floating search} extends forward or backward selection by allowing conditional inclusion or exclusion of features. \emph{Sequential Forward Floating Selection} (SFFS) can remove previously added features if they later become redundant, and \emph{Sequential Backward Floating Selection} (SBFS) can re-add previously removed features, making the search more flexible.
+\emph{Floating search}~\cite{pudil1994} extends forward or backward selection by allowing conditional inclusion or exclusion of features. \emph{Sequential Forward Floating Selection} (SFFS) can remove previously added features if they later become redundant, and \emph{Sequential Backward Floating Selection} (SBFS) can re-add previously removed features, making the search more flexible. This additional flexibility often leads to improved subset quality compared to purely sequential approaches.
 
-\emph{Randomized search} explores the subset space probabilistically, using heuristics or metaheuristics such as genetic algorithms.
+\emph{Randomized search}~\cite{holland1975} explores the subset space probabilistically, using heuristics or metaheuristics such as \emph{genetic algorithms}. These methods are particularly useful in high-dimensional settings where deterministic search procedures become computationally impractical.
 
-\section{Classical Methods}
+\section{Feature Selection Methods}
+\label{sec:feature-selection-methods}
 
 \subsection{Kruskal Wallis Filter}
 
-One-way analysis of variance (ANOVA) represents a class of statistical methods used to test whether multiple groups originate from the same distribution.The method is based on decomposing total variability into within-group and between-group components. Formally, the ANOVA test statistic can be expressed as the ratio of within-group to between-group variation.
+\emph{One-way analysis of variance (ANOVA)}~\cite{montgomery2013} represents a class of statistical methods used to test whether multiple groups have equal means. The method is based on decomposing total variability into within-group and between-group components. Formally, the ANOVA test statistic can be expressed as the ratio of between-group to within-group variation.
 
-However, ANOVA relies on the assumption of normally distributed data. In cases where this assumption is violated, a nonparametric alternative is required. For this reason, we employ the Kruskal–Wallis H test, which does not assume normality and is based on rank statistics.
+Classical ANOVA relies on several assumptions, including independence of observations, homoscedasticity, and normality of the data within each group. When the normality assumption is violated, a nonparametric alternative may be more appropriate. For this reason, we employ the \emph{Kruskal–Wallis H-test}~\cite{kruskal1952}, which does not assume normality and is based on rank statistics.
 
 The Kruskal--Wallis test statistic is given by:
 \[
@@ -189,72 +187,40 @@ Each feature is evaluated independently with respect to the target variable, and
 Since the test evaluates each feature separately, the method is univariate and does not account for potential dependencies or interactions between features. Kruskal Wallis test yields feature importance scores and is therefore classified as a weight-based feature selection approach.
 
 \subsection{Mutual Information Filter}
-Mutual Information, as introduced in Section XXXXX, is applied as a filter-based feature selection method. It allows measuring the relevance of each feature by quantifying how much information it provides about the target variable. Based on these values, features can be assigned importance weights. Similarly to other univariate filters, each feature is evaluated independently, without accounting for dependencies or interactions between variables.
+\emph{Mutual Information}, as introduced in Section XXXXX, is applied as a filter-based feature selection method. It allows measuring the relevance of each feature by quantifying how much information it provides about the target variable. Based on these values, features can be assigned importance weights. This method is univariate, as it evaluates each feature independently, without accounting for dependencies or interactions between variables.
 
 \subsection{The Minimum Redundancy Maximum Relevance}
-Minimal Redundancy Maximum Relevance (mRMR) \cite{peng2005} is a filter-based feature selection method that iteratively selects features by maximizing relevance to the target variable while minimizing redundancy with respect to the already selected subset. Relevance and redundancy are defined in Sections XXXXX and XXXXX, respectively. At each iteration, the method selects the feature $X^{(j)}$ that maximizes the mRMR criterion:
+\emph{Minimal Redundancy Maximum Relevance (mRMR)}~\cite{peng2005} is a filter-based feature selection method that iteratively selects features by maximizing relevance to the target variable while minimizing redundancy with respect to the already selected subset. Relevance and redundancy are defined in Subections XXXXX and XXXXX, respectively. At each iteration, the method selects the feature $X^{(j)}$ that maximizes the mRMR criterion:
 \begin{equation}
 j^* = \arg\max_{j \in \{1,\dots,d\} \setminus S} \Bigl[ I\bigl(X^{(j)}; c\bigr) - R\bigl(X^{(j)}, S\bigr) \Bigr].
 \end{equation}
 
-Here, $\{1,\dots,d\}$ denotes the set of all feature indices, and $S \subset \{1,\dots,d\}$ is the set of already selected features. The term $I(X^{(j)}; c)$ measures the relevance of feature $X^{(j)}$ with respect to the class label $c$, while $R(X^{(j)}, S)$ quantifies its redundancy with respect to the selected subset.
+Here, $\{1,2,\dots,d\}$ denotes the set of all feature indices, and $S \subset \{1,\dots,d\}$ is the set of already selected features. The term $I(X^{(j)}; c)$ measures the relevance of feature $X^{(j)}$ with respect to the class label $c$, while $R(X^{(j)}, S)$ quantifies its redundancy with respect to the selected subset.
 
-The algorithm is terminated after selecting a predefined number $K$ of features. This greedy algorithm returns an ordered subset of features.
+The algorithm is terminated after selecting a predefined number of features. This greedy algorithm returns an ordered subset of features.
 
 \subsection{ReliefF}
-ReliefF \cite{kononenko1994relieff} is a filter-based feature selection algorithm designed to estimate the importance of features based on how well their values distinguish between instances of different classes. Unlike univariate methods, ReliefF is able to capture feature dependencies to some extent by considering the local neighborhood of each instance.
+\emph{ReliefF} \cite{kononenko1994relieff} is a filter-based feature selection algorithm that estimates importance of features based on how well their values distinguish between instances of different classes. Unlike univariate methods, ReliefF is able to capture feature dependencies to some extent by considering the local neighborhood of each instance.
 
-The algorithm works by repeatedly sampling an instance from the dataset and identifying its nearest neighbors: instances from the same class (nearest hits) and instances from different classes (nearest misses). For each attribute \(A\), ReliefF updates a weight according to how differently the attribute behaves between the sampled instance and its neighbors. Differences with nearest hits decrease the weight, while differences with nearest misses increase it. The contribution of misses is weighted by the class prior probabilities \(P(c)\), ensuring that their total influence is comparable to that of hits. A pseudocode description of the algorithm is provided in \cite{barbieri2022}, and is presented in Algorithm~\ref{alg:relieff}.
+The algorithm works by repeatedly sampling an instance from the dataset and identifying its nearest neighbors: instances from the same class (nearest hits) and instances from different classes (nearest misses). For each feature vector $X^{j}$, ReliefF updates a weight according to how differently the attribute behaves between the sampled instance and its neighbors. Differences with nearest hits decrease the weight, while differences with nearest misses increase it. 
 
-
-\begin{algorithm}[H]
-\caption{ReliefF Pseudo-code}
-\label{alg:relieff}
-\KwIn{$R$: set of all instances, $C$: set of classes, $k$: number of neighbors}
-\KwOut{$W$: vector of feature weights}
-
-$n \leftarrow |A|$\;
-$W \leftarrow \mathbf{0}$ of size $|R|$\;
-
-\For{$i = 1$ \KwTo $|R|$}{
-    $H \leftarrow k\_nearest\_hits(k, R_i, R)$\;
-
-    \ForEach{$c \in C \setminus class(R_i)$}{
-        $M_c \leftarrow k\_nearest\_misses(c, k, R_i, R)$\;
-    }
-
-    \For{$a = 1$ \KwTo $|A|$}{
-        \ForEach{$hit \in H$}{
-            $W[a] \leftarrow W[a] - \frac{diff(R_i, hit)}{n \cdot k}$\;
-        }
-
-        \ForEach{$c \in C \setminus class(R_i)$}{
-            \ForEach{$miss \in M_c$}{
-                $d \leftarrow \frac{P(c)}{1 - P(class(R_i))} \cdot \frac{diff(R_i, miss)}{n \cdot k}$\;
-                $W[a] \leftarrow W[a] + d$\;
-            }
-        }
-    }
-}
-
-\Return $W$\;
-\end{algorithm}
+The contribution of misses is weighted by the class prior probabilities \(P(c)\), ensuring that their total influence is comparable to that of hits. Although ReliefF does not explicitly model feature interactions, it can partially capture conditional dependencies through its use of local neighborhood information.
 
 \subsection{Decision Tree}
-A decision tree, is a predictive tree-based model model, constructed in a top-down, recursive manner. The structure consists of internal nodes, which represent decision rules based on specific features, and leaf nodes, which represent the final predicted outcomes. The tree is built by partitioning the data at each node using an impurity measure, such as gini coefficient\footnote{The Gini coefficient (or Gini impurity in the context of decision trees) is a measure of node impurity used in classification tasks. It is defined as \( G = 1 - \sum_{i=1}^{K} p_i^2 \), where \(p_i\) is the proportion of samples belonging to class \(i\) in a given node and \(K\) is the number of classes. A Gini value of 0 indicates a perfectly pure node (all samples belong to one class), while higher values indicate greater class heterogeneity. It is commonly used in algorithms such as Classification and Regression Trees (CART) to evaluate splits.} for classification or mean squared error (MSE) for regression. This process acts as an implicit form of feature selection, as the algorithm prioritizes features that yield the greatest reduction in impurity, thereby identifying the most discriminative variables in the dataset. In addition, feature importance scores can be extracted from the trained model based on the contribution of each feature to impurity reduction across all splits. One of the most widely used decision tree algorithms is Classification and Regression Trees (CART) \cite{breiman1984}.
+A \emph{decision tree}, is a predictive tree-based model model, constructed recursively in a top-down manner. The structure consists of internal nodes, which represent decision rules based on specific features, and leaf nodes, which represent the final predicted outcomes. The tree is built by partitioning the data at each node using an impurity measure, such as entropy or gini coefficient\footnote{The Gini coefficient (or Gini impurity in the context of decision trees) is a measure of node impurity used in classification tasks. It is defined as \( G = 1 - \sum_{i=1}^{K} p_i^2 \), where \(p_i\) is the proportion of samples belonging to class \(i\) in a given node and \(K\) is the number of classes. A Gini value of 0 indicates a perfectly pure node (all samples belong to one class), while higher values indicate greater class heterogenity. It is commonly used in algorithms such as Classification and Regression Trees (CART) to evaluate splits.} for classification or mean squared error (MSE) for regression. This process acts as an implicit form of feature selection, as the algorithm prioritizes features that yield the greatest reduction in impurity, thereby identifying the most discriminative variables in the dataset. In addition, feature importance scores can be extracted from the trained model based on the contribution of each feature to impurity reduction across all splits. One of the most widely used decision tree algorithms is Classification and Regression Trees (CART) \cite{breiman1984}.
 
 \subsection{Random Forrest}
-Random Forest \cite{breiman2001} is an ensemble learning method based on decision trees, used for both classification and regression tasks. It builds a collection of decision trees during training, where each tree is constructed on a bootstrap sample (i.e., random sampling of instances with replacement) and at each split considers only a random subset of features. The final prediction is obtained by aggregating the outputs of all trees, typically through majority voting for classification or averaging for regression. This randomization reduces overfitting compared to a single decision tree and improves generalization performance. Additionally, Random Forest provides feature importance measures based on the average contribution of each feature to impurity reduction across all trees, making it suitable for embedded feature selection.
+\emph{Random Forest} \cite{breiman2001} is an ensemble learning method based on decision trees, used for both classification and regression tasks. It builds a collection of decision trees during training, where each tree is constructed on a bootstrap sample (i.e., random sampling of instances with replacement) and at each split considers only a random subset of features. The final prediction is obtained by aggregating the outputs of all trees, typically through majority voting for classification or averaging for regression. This randomization reduces overfitting compared to a single decision tree and improves generalization performance. Additionally, Random Forest provides feature importance measures based on the average contribution of each feature to impurity reduction across all trees, making it suitable for embedded feature selection.
 
 \subsection{Support Vector Machines}
-Support Vector Machines (SVM) \cite{cortes1995svm} are a class of supervised learning models used for classification and regression. The method seeks to find an optimal hyperplane in an n-dimensional space that separates data points of different classes with the maximum possible margin, i.e., maximizing the distance between the hyperplane and the closest observations from each class. When the data is not linearly separable, SVM can be extended using kernel functions and a soft-margin formulation, which allows for some misclassifications while maintaining good generalization.
+\emph{Support Vector Machines (SVM)} \cite{cortes1995svm} are a class of supervised learning models used for classification and regression. The method seeks to find an optimal hyperplane in an n-dimensional space that separates data points of different classes with the maximum possible margin, i.e., maximizing the distance between the hyperplane and the closest observations from each class. When the data is not linearly separable, SVM can be extended using kernel functions and a soft-margin formulation, which allows for some misclassifications while maintaining good generalization.
 
 The optimization problem is typically expressed as:
 \[
 \min_{w,b} \; \frac{1}{n} \sum_{i=1}^{n} \max\left(0,\, 1 - y_i (w^\top x_i - b)\right) + \lambda \|w\|^2
 \]
 
-where \( w \) is the weight vector normal to the hyperplane, \( b \) is the bias (offset), \( n \) is the number of observations, \( x_i \) is the feature vector of the \( i \)-th observation, and \( y_i \in \{-1,1\} \) denotes its class label. The first term corresponds to the hinge loss, while the second term is an \( L_2 \) regularization penalty controlled by \( \lambda \). In embedded feature selection settings, SVM can provide feature importance by analyzing the learned weight vector in linear models, where features with larger absolute coefficients contribute more to the decision boundary.
+where \( w \) is the weight vector normal to the hyperplane, \( b \) is the bias (offset), \( n \) is the number of observations, \( x_i \) is the feature vector of the \( i \)-th observation, and \( y_i \in \{-1,1\} \) denotes its class label. The first term corresponds to the \emph{hinge loss}, while the second term is an \( L_2 \) regularization penalty controlled by \( \lambda \). In embedded feature selection settings, SVM can provide feature importance by analyzing the learned weight vector in linear models, where features with larger absolute coefficients contribute more to the decision boundary.
 
 \subsection{LassoNet}
 While feature selection methods have been extensively studied in the context of linear models, particularly Lasso regression, identifying relevant features in neural networks remains a challenging problem. LassoNet \cite{lemhadri2021lassonet} addresses this challenge by extending Lasso-style sparsity to feedforward neural networks.

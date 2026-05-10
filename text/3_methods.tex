@@ -1,7 +1,9 @@
 \chapter{Research Methodology and Experimental Results}
 \section{Methodology}
 
-This experimental part of the study investigates the impact of feature selection methods on the performance and training efficiency of neural networks. The experimental framework is based on the implementation presented by Barbieri et al. in \cite{barbieri2022}. This framework was modified to meet the specific requirements of the present study. In particular, the original pipeline was extended by incorporating deep neural network–based feature selection methods and by introducing a neural network classifier as the predictive model used to evaluate the predictive power of the selected feature subsets.
+This experimental part of the study investigates the impact of feature selection methods on the performance and training efficiency of neural networks. The experimental framework is based on the implementation presented by Barbieri et al. in \cite{barbieri2022}. This framework was modified to meet the specific requirements of the present study. In particular, the original pipeline was extended by incorporating deep neural network–based feature selection methods and by introducing a neural network classifier as the predictive model used to evaluate the predictive power of the selected feature subsets. The implementation was carried out in Python 3.12 using the libraries \emph{SciPy}~\cite{scipy2020}, \emph{PyTorch}~\cite{pytorch2019}, \emph{Keras}~\cite{keras2015}, and \emph{TensorFlow}~\cite{tensorflow2016}.
+
+To ensure reproducibility and provide a baseline for time complexity analysis, all experiments were conducted on a \emph{ROG Zephyrus G14 GA401QC system}. The hardware configuration consists of an \emph{AMD Ryzen 7 5800HS processor} (8 cores, 16 logical processors) clocked at 3.2 GHz, 16 GB of physical RAM, and an \emph{NVIDIA GeForce RTX 3050 Laptop GPU}. The GPU was utilized to accelerate tensor operations for deep learning–based feature selection methods and neural network training using \emph{Compute Unified Device Architecture (CUDA) technology}~\cite{cuda_docs}. Due to the non-deterministic nature of certain GPU-accelerated operations, minor numerical differences happen despite identical experimental settings.
 
 \subsection{Data generating process}
 
@@ -51,7 +53,7 @@ A diverse set of feature selection approaches is considered, covering multiple m
 \end{itemize}
 Each method produces a ranking or subset of features. From these outputs, subsets of fixed size $k \in \{8, 16, 32, 64, 128\}$ are selected for downstream evaluation.
 
-The specific parameter settings are summarized in Table 3.1.
+The specific parameter settings are summarized in Table~\ref{tab:params-methods}
 
 \begin{table}[h!]
 \centering
@@ -75,6 +77,7 @@ CancelOut & - \\ \hline
 
 \end{tabular}
 \caption{Hyperparameter specifications for feature selection algorithms.}
+\label{tab:params-methods}
 \end{table}
 
 \subsection{Neural network model}
@@ -85,34 +88,93 @@ CancelOut & - \\ \hline
 \hline
 \textbf{Component} & \textbf{Specification} \\ \hline
 
-Hidden width & 32 units (same for all hidden layers) \\ 
-Network depth & 3 hidden layers + output layer \\ 
+Architecture & 3 Hidden Layers, 32 units per layer \\ 
 Activation function & ReLU \\ 
-Normalization & Batch Normalization \\ 
-Weight initialization & Kaiming Uniform\\ \hline
+Weight initialization & Kaiming\\ \hline
 
 Optimizer & AdamW \\ 
 Initial learning rate & $1 \times 10^{-3}$ \\ 
-Weight decay & $1 \times 10^{-4}$ \\ 
-Learning rate scheduler & Cosine Annealing \\ 
-Minimum learning rate & $1 \times 10^{-6}$ \\ \hline
+Weight decay & $1 \times 10^{-4}$ \\ \hline
 
 Batch size & 64 \\ 
 Max epochs & 400 \\ 
 Early stopping patience & 20 \\ 
 Early stopping threshold & $1 \times 10^{-4}$ \\ 
 Train/val/test split & 70\% / 15\% / 15\% \\ 
-Loss function & Binary Cross-Entropy) \\ \hline
+Loss function & Binary Cross-Entropy \\ \hline
 \end{tabular}
 \caption{Neural network architectural and training hyperparameters.}
 \label{tab:nn_hyperparameters}
 \end{table}
 
-A feedforward neural network is used as the classification model. To ensure comparability, all experiments employ identical architecture and training settings, including the number of layers, activation functions, optimizer, learning rate, and stopping criteria. The model is trained under two conditions:
+A feedforward neural network is used as the classification model. To ensure comparability, all experiments employ identical architecture and training settings, including the number of layers, activation functions, optimizer, learning rate, and stopping criteria. Hyperparameters of the network are presented in Table~\ref{tab:nn_hyperparameters}.
+
+The model is trained under two conditions:
 \begin{enumerate}
     \item Using the full feature set $\mathbf{x}$ (baseline),
     \item using feature subsets $\mathbf{x}_S$ selected by each method.
 \end{enumerate}
-Training is repeated across multiple dataset realizations to reduce variance in the results.
 
 \subsection{Evaluation metrics}
+Across the entire experimental study, four main evaluation criteria are considered. Predictive performance is measured using the macro-averaged F1-score, defined in Subsection XXXX. Computational efficiency is assessed through the number of training epochs required for model convergence. Feature selection quality is evaluated as the percentage of truly informative features correctly identified by each method. Finally, we measure the computational cost of each approach by recording the time required to perform feature selection.
+
+\section{Experimental Results}
+The baseline neural network was evaluated using the full feature set across datasets with different dimensionalities. Table~\ref{tab:baseline_nn_results} reports the macro-averaged F1-score, training time, and number of epochs required for convergence.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcccc}
+\hline
+Dataset & $F1_{macro}$ & Training time (s) & Epochs \\
+\hline
+Dataset 1 ($n=1000$, $p=512$)  & 0.604 & 5.81 & 35 \\
+Dataset 2 ($n=1000$, $p=768$)  & 0.523 & 4.99 & 27 \\
+Dataset 3 ($n=1000$, $p=1024$) & 0.547 & 4.72 & 23 \\
+\hline
+\end{tabular}
+\caption{Performance of the baseline neural network across different feature dimensionalities.}
+\label{tab:baseline_nn_results}
+\end{table}
+
+The baseline model achieves moderate performance, with F1-scores between 0.52 and 0.60 depending on dimensionality. Training time and convergence are relatively stable, though higher-dimensional inputs require slightly more epochs. These results serve as a reference for subsequent comparisons with feature selection methods.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccccc}
+\hline
+Method & 8 & 16 & 32 & 64 & 128 \\
+\hline
+\multicolumn{6}{l}{\textit{Filter Methods}} \\
+Kruskal-Wallis Filter     & 40.0 & 40.0 & 40.0 & 40.0 & 53.3 \\
+Mutual Information Filter & 40.0 & 40.0 & 46.7 & 53.3 & 60.0 \\
+mRMR                      & 33.3 & 40.0 & 46.7 & 53.3 & 60.0 \\
+ReliefF                   & 53.3 & 53.3 & 53.3 & 60.0 & 60.0 \\
+\hline
+\multicolumn{6}{l}{\textit{Embedded Methods}} \\
+Decision Tree             & 53.3 & 53.3 & 53.3 & 73.3 & 100.0 \\
+Lasso                     & 40.0 & 40.0 & 46.7 & 60.0 & 60.0 \\
+Linear SVM                & 46.7 & 53.3 & 60.0 & 60.0 & 66.7 \\
+Random Forest             & 60.0 & 60.0 & 60.0 & 60.0 & 66.7 \\
+\hline
+\multicolumn{6}{l}{\textit{Wrapper Methods}} \\
+SVM RFE                   & 60.0 & 66.7 & 66.7 & 66.7 & 66.7 \\
+\hline
+\multicolumn{6}{l}{\textit{Deep Learning Methods}} \\
+CancelOut                 & 26.7 & 26.7 & 26.7 & 33.3 & 33.3 \\
+DeepPINK                  & 40.0 & 40.0 & 40.0 & 40.0 & 46.7 \\
+LassoNet                  & 40.0 & 40.0 & 46.7 & 46.7 & 53.3 \\
+\hline
+\end{tabular}
+\caption{Performance comparison of feature selection methods across different feature subset sizes, grouped by algorithm family.}
+\label{tab:feature_selection_comparison}
+\end{table}
+
+Table~\ref{tab:feature_selection_comparison} indicates a strong dependency between feature subset size and the proportion of correctly identified informative features. Overall, most methods improve as the number of selected features increases, which is expected given the higher probability of including relevant variables in larger subsets.
+
+Embedded and wrapper-based approaches generally outperform filter and deep learning-based methods in terms of recovering informative features. In particular, SVM-RFE is the most stable method, consistently achieving $60-66.7\%$ recovery across all subset sizes, showing robustness to the choice of k. Similarly, Random Forest and Decision Tree methods exhibit strong performance, with Decision Tree reaching perfect recovery $(100\%)$ at $k = 128$.
+
+In contrast, CancelOut and DeepPINK show relatively weak performance and limited sensitivity to increasing subset size, suggesting difficulties in effectively ranking informative variables in this setting. Filter methods such as Kruskal–Wallis and Mutual Information improve gradually with $k$ but remain below embedded and wrapper approaches.
+
+Methods like Lasso, LassoNet, and mRMR show steady improvement with increasing feature subset size, indicating moderate ranking quality at lower dimensions.
+
+This finding is consistent with prior work~\cite{passemiers2021}, which also reports that classical embedded and wrapper approaches often achieve superior performance compared to deep learning-based feature selection methods in high-dimensional settings.

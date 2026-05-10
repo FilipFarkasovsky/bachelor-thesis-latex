@@ -68,7 +68,7 @@ A network typically consists of an \emph{input layer} that receives data, \emph{
 
 Neurons in hidden layer work the same way as a perceptrons; however instead of receiving the input vector, they take the outputs of neurons from the previous layer. Because of this similarity those networks are referred to as \textit{multilayer perceptrons (MLPs)}, which are fully connected feedforward neural networks. The term \textit{feedforward network} refers to an architecture, where the information flows strictly in one direction - from the input layer to the output layer.
 
-In artificial neural networks, it is common for all neurons in the hidden layers to share the same activation function, though this is not required; the choice of activation functions will be discussed in the XXXXXSubsection XXXX. Likewise, the hidden layers do not need to have the same number of neurons, as illustrated in Figure~\ref{fig:convolutional-neural-network}.
+In artificial neural networks, it is common for all neurons in the hidden layers to share the same activation function, though this is not required; the choice of activation functions will be discussed in the subsections~\ref{subsec:activation-functions-hidden-layer} and \ref{subsec:activation-functions-ouput-layer}. Likewise, the hidden layers do not need to have the same number of neurons, as illustrated in Figure~\ref{fig:convolutional-neural-network}.
 
 The flow of signals in neural networks does not have to be strictly one-directional. In tasks involving sequential data, where the order of inputs matters, \textit{recurrent neural networks (RNNs)} are used, in which neurons are able to store information from earlier signal passes and take it into account during future activations (see Figure~\ref{fig:reccurent-neural-network}). This is achieved through feedback connections (loops), which allow information to persist over time. Such properties are essential for applications like time series analysis and speech recognition \cite{graves2013speech}.
 
@@ -196,7 +196,7 @@ Canadian psychologist Donald Hebb proposed that the connections (synapses) betwe
 
 In 1958, Frank Rosenblatt proposed the \textit{Perceptron} \cite{rosenblatt1958}, one of the first learning algorithms for neural networks. The perceptron was capable of supervised learning and classification tasks, which generated a lot of optimism about artificial neurons. 
 
-However, this progress was later reduced by theoretical limitations identified by Minsky and Papert, who proved that single-layer linear networks could not solve problems such as the XOR function \cite{minsky1969}. This critique contributed to a decline in research activity ANNs, often referred to as the “AI winter.” 
+However, this progress was later reduced by theoretical limitations identified by Minsky and Papert, who proved that single-layer linear networks could not solve problems such as the XOR function \cite{minsky1969}. This critique contributed to a decline in research activity of ANNs, often referred to as the “AI winter.” 
 
 A key milestone in neural network research in the 1980s was the introduction of the \emph{backpropagation algorithm} \cite{rumelhart1986}, popularized by Geoffrey Hinton, David Rumelhart, and Ronald Williams. Backpropagation enabled efficient training of multi-layer neural networks by computing gradients of the \emph{loss function}. This algorithm helped to overcome the limitations of single-layer models \cite{lecun2015} and enabled the transition toward more complex architectures.
 
@@ -205,15 +205,15 @@ Another important factor was the increase in computational power, particularly t
 During the 1990s, specialized neural network architectures were developed to address different types of tasks. \textit{Convolutional neural networks}, formalized by LeCun et al. \cite{lecun1998}, proved highly effective for image processing. \textit{Recurrent neural networks} were designed to model sequential data. These architectures enabled neural networks to tackle a broader range of problems, leading to significant improvements in vision, speech, and language applications \cite{lecun2015}.
 
 \subsection{Activation Functions in the Hidden Layers}
-\label{sec:activation-functions-hidden-layer}
+\label{subsec:activation-functions-hidden-layer}
 \emph{Activation functions} introduce non-linearity into neural networks, enabling them to approximate complex, non-linear functions. Without non-linear activation functions, a feedforward neural network reduces to a composition of affine transformations, which is itself an affine transformation, regardless of depth. Consequently, such a model would be equivalent to a single linear model.
 
 A suitable activation function for hidden layers should satisfy the following properties:\begin{itemize}    
-    \item \textbf{Differentiability:} The activation function should be differentiable almost everywhere to ensure that gradient-based optimization methods, such as \emph{backpropagation}, can be applied. (XXXXXXdiscussed XXXXX)
+    \item \textbf{Differentiability:} The activation function should be differentiable almost everywhere to ensure that gradient-based optimization methods, such as \emph{backpropagation}, can be applied (discussed in section~\ref{subsec:backpropagation}). 
     
     \item \textbf{Computational efficiency:} The function should be computationally inexpensive to evaluate, as activation functions are applied repeatedly during both training and inference.
     
-    \item \textbf{Gradient stability:} The function should mitigate \emph{vanishing} or \emph{exploding gradients}, ensuring stable signal propagation in deep architectures. These phenomena are discussed in Section XXXXXXXX.
+    \item \textbf{Gradient stability:} The function should mitigate \emph{vanishing} or \emph{exploding gradients}, ensuring stable signal propagation in deep architectures. These phenomena are discussed in section~\ref{subsec:vanishin-and-exploding-gradients}.
 \end{itemize}
 
 
@@ -254,7 +254,7 @@ Another widely used alternative is the \textit{Gaussian Error Linear Unit (GELU)
 This provides a smooth, probabilistic alternative to piecewise linear activations. Empirically, GELU has been shown to improve performance in deep architectures, and thus became default choice in transformer-based models such as \textit{Generative Pre-trained Transformer (GPT)} \cite{radford2019} and \textit{Bidirectional Encoder Representations from Transformers (BERT)} \cite{devlin2018}.
 
 \subsection{Activation Functions in Output Layer}
-\label{sec:activation-functions-ouput-layer}
+\label{subsec:activation-functions-ouput-layer}
 
 The choice of activation function in the output layer of a neural network depends on the type of task and the desired output representation. For regression tasks, where the goal is to predict real-valued outputs, the identity function
 \begin{equation}
@@ -369,6 +369,7 @@ This introduces stochastiity into the optimization process, which may help escap
 This approach is widely used in practice due to its computational efficiency and more stable convergence behavior compared to pure SGD \cite{gfg2025}.
 
 \subsection{Backpropagation Algorithm}
+\label{subsec:backpropagation}
 A neural network can be represented as a composition of layer-wise functions:
 \begin{equation}
     f(\mathbf{x}) = f^{(L)} \circ f^{(L-1)} \circ \cdots \circ f^{(1)}(\mathbf{x}).
@@ -443,6 +444,7 @@ Once \( \boldsymbol{\delta}^{(l)} \) is known, gradients with respect to paramet
 Backpropagation avoids redundant computation of intermediate derivatives by reusing previously computed error terms. As a result, the complexity of gradient computation is linear with respect to the number of parameters, $\mathcal{O}(|\boldsymbol{\theta}|)$ \cite{goodfellow2016}.
 
 \subsection{Vanishing and Exploding Gradients}
+\label{subsec:vanishin-and-exploding-gradients}
 The \emph{vanishing gradient problem} occurs when gradients decrease exponentially as they are propagated backward through a deep neural network. As a result, parameter updates in earlier layers become undesirably small, effectively slowing or stopping learning in these layers.
 
 This issue is particularly common when using activation functions such as the sigmoid or hyperbolic tangent. For the sigmoid function, the derivative is given by
@@ -552,7 +554,7 @@ Although intuitive, accuracy can be misleading in the presence of imbalanced cla
 \paragraph{Curve-based Metrics \\}
 The metrics above depend on a fixed \emph{classification threshold}, and they do not capture how the model behaves across all possible thresholds. To address this problem, so called \emph{curve-based methods} are used.
 
-\textit{The Receiver Operating Characteristic curve (ROC curve)} plots the true positive rate against the false positive rate for different threshold values. It describes the trade-off between correctly identifying positive samples and incorrectly classifying negative samples. An example of an ROC curve can be seen in \textcolor{green}{Figure~X.X}. Since the ROC curve reflects both TPR and FPR across all possible choices of the cut-off point \(p\), it represents a robust measure of the quality of binary classifiers. The most widely used scalar summary of the ROC curve is the \textit{Area Under the Curve (AUC)}, which corresponds to the total area lying below it. Clearly, \( \text{AUC} \in [0,1] \), and higher values indicate a better classifier.
+\textit{The Receiver Operating Characteristic curve (ROC curve)} plots the true positive rate against the false positive rate for different threshold values. It describes the trade-off between correctly identifying positive samples and incorrectly classifying negative samples. Since the ROC curve reflects both TPR and FPR across all possible choices of the cut-off point \(p\), it represents a robust measure of the quality of binary classifiers. The most widely used scalar summary of the ROC curve is the \textit{Area Under the Curve (AUC)}, which corresponds to the total area lying below it. Clearly, \( \text{AUC} \in [0,1] \), and higher values indicate a better classifier.
 
 In some applications, only a specific part of the \emph{ROC curve} is relevant. \emph{The AUC (pAUC)} measures the area under the curve over a restricted range of FPR values, typically chosen to reflect the region where the classifier is expected to operate in practice. For example, in applications where a very low false positive rate is required, one may compute the pAUC over the interval $\mathrm{FPR} \in [0, \alpha]$ for a small $\alpha$.
 
@@ -704,7 +706,7 @@ In supervised learning, given a training sample $\{(x_i, y_i)\}_{i=1}^n$, the le
 \[
 \hat{h} = \arg\min_{h \in \mathcal{H}} \frac{1}{n} \sum_{i=1}^{n} \ell\big(h(x_i), y_i\big),
 \]
-where $\ell : \mathcal{Y} \times \mathcal{Y} \to \mathbb{R}$ is a loss function.
+where $\ell : \mathcal{Y} \times \mathcal{Y} \to \mathbb{R}$ is a sample loss function.
 
 In the context of artificial neural networks (ANNs), the hypothesis space is determined by the architecture of the network, including the number of layers, the number of neurons per layer, the type of activation functions, and the connectivity pattern. 
 
@@ -832,17 +834,17 @@ $L_2$ regularization discourages large parameter values by penalizing their magn
 \end{equation}
 where $\alpha \in [0,1]$ controls the trade-off between the $L_1$ and $L_2$ components - it promotes sparsity and feature selection through the $L_1$ component, while the $L_2$ component improves stability and encourages grouping of correlated features.
 
-\textbf{\\Early stoping\\}
-Early stopping\cite{aggarwal2018} is a regularisation technique based on monitoring model performance on a validation set during training. Instead of training the model until convergence, the process is stopped when the validation error starts to increase, indicating the onset of overfitting.
+\textbf{\\Early stopping\\}
+Early stopping~\cite{aggarwal2018} is a regularisation technique based on monitoring model performance on a validation set during training. Instead of training the model until convergence, the process is stopped when the validation error starts to increase, indicating the onset of overfitting.
 
 In practice, the data are split into training and validation sets, the model is trained iteratively (e.g., via gradient descent), and its performance on the validation set is evaluated after each epoch; training is terminated once the validation error does not decrease for a predefined number of iterations, to which we refer as patience parameter.
 
 Early stopping can be interpreted as implicit regularisation, since iterative optimisation tends to increase model complexity over time, and stopping early prevents the model from reaching overly complex solutions.
 
 \textbf{\\Dropout\\}
-Dropout\cite{aggarwal2018} is a stochastic regularisation technique in which neurons are randomly removed during training. Formally, each neuron is independently retained with probability $p$ and set to zero with probability $1-p$. This encourages more robust representations. At test time, all neurons are used with appropriately scaled outputs. Dropout can be also viewed as an approximation to averaging predictions over many network architectures.
+Dropout~\cite{aggarwal2018} is a stochastic regularisation technique in which neurons are randomly removed during training. Formally, each neuron is independently retained with probability $p$ and set to zero with probability $1-p$. This encourages more robust representations. At test time, all neurons are used with appropriately scaled outputs. Dropout can be also viewed as an approximation to averaging predictions over many network architectures.
 
 \textbf{\\Data Augmentation\\}
-Data augmentation\cite{goodfellow2016} increases the effective size of the training dataset by applying transformations to existing samples. In image tasks, this may include rotations, translations, or scaling. In other domains, appropriate transformations depend on the structure of the data.
+Data augmentation~\cite{goodfellow2016} increases the effective size of the training dataset by applying transformations to existing samples. In image tasks, this may include rotations, translations, or scaling. In other domains, appropriate transformations depend on the structure of the data.
 
 By exposing the model to a wider variety of inputs, data augmentation reduces overfitting and improves generalisation without explicitly modifying the model or loss function.
