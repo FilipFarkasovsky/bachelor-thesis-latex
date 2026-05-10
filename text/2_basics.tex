@@ -77,7 +77,7 @@ Feature selection restricts the transformation to coordinate projections. Let $S
 
 Because the original variables $x_j$ are preserved, their physical meaning remains intact. This approach is preferred when model interpretability is required.
 
-Common feature selection methods will be discussed in \textcolor{blue}{Section XXXXXXXX}. 
+Common feature selection methods will be discussed in section~\ref{sec:feature-selection-methods}. 
 
 \subsection*{Feature Extraction}
 Feature extraction, in contrast, constructs new features as general transformations of the full input vector. It defines a mapping
@@ -187,10 +187,10 @@ Each feature is evaluated independently with respect to the target variable, and
 Since the test evaluates each feature separately, the method is univariate and does not account for potential dependencies or interactions between features. Kruskal Wallis test yields feature importance scores and is therefore classified as a weight-based feature selection approach.
 
 \subsection{Mutual Information Filter}
-\emph{Mutual Information}, as introduced in Section XXXXX, is applied as a filter-based feature selection method. It allows measuring the relevance of each feature by quantifying how much information it provides about the target variable. Based on these values, features can be assigned importance weights. This method is univariate, as it evaluates each feature independently, without accounting for dependencies or interactions between variables.
+\emph{Mutual Information}, as introduced in section~\ref{sec:information-theory}, is applied as a filter-based feature selection method. It allows measuring the relevance of each feature by quantifying how much information it provides about the target variable. Based on these values, features can be assigned importance weights. This method is univariate, as it evaluates each feature independently, without accounting for dependencies or interactions between variables.
 
 \subsection{The Minimum Redundancy Maximum Relevance}
-\emph{Minimal Redundancy Maximum Relevance (mRMR)}~\cite{peng2005} is a filter-based feature selection method that iteratively selects features by maximizing relevance to the target variable while minimizing redundancy with respect to the already selected subset. Relevance and redundancy are defined in Subections XXXXX and XXXXX, respectively. At each iteration, the method selects the feature $X^{(j)}$ that maximizes the mRMR criterion:
+\emph{Minimal Redundancy Maximum Relevance (mRMR)}~\cite{peng2005} is a filter-based feature selection method that iteratively selects features by maximizing relevance to the target variable while minimizing redundancy with respect to the already selected subset. Relevance and redundancy are defined in subection~\ref{sec:information-theory}. At each iteration, the method selects the feature $X^{(j)}$ that maximizes the mRMR criterion:
 \begin{equation}
 j^* = \arg\max_{j \in \{1,\dots,d\} \setminus S} \Bigl[ I\bigl(X^{(j)}; c\bigr) - R\bigl(X^{(j)}, S\bigr) \Bigr].
 \end{equation}

@@ -16,7 +16,7 @@ The architecture of a neural network defines how these neurons are structured an
 The architecture of a neural network describes how neurons and layers are organized, connected, and how they transform information.
 
 \textbf{\\Neuron in an Artificial Neural Network\\} 
-\emph{Neuron} is the fundamental computational unit of an Artificial Neural Network (ANN). It is defined as a parametric function that maps an input vector to a scalar output through a composition of a affine transformation and activation function. The structure of a single neuron is illustrated in Figure~\ref{fig:neuron}.
+\emph{Neuron} is the fundamental computational unit of an Artificial Neural Network, abbreviated as ANN. It is defined as a parametric function that maps an input vector to a scalar output through a composition of a affine transformation and activation function. The structure of a single neuron is illustrated in Figure~\ref{fig:neuron}.
 
 Let $\mathbf{x} \in \mathbb{R}^d$ denote the input vector, where $d$ is the number of input features. A neuron is parameterized by weights $\mathbf{w} \in \mathbb{R}^d$ and bias $b \in \mathbb{R}$, which are collectively referred to as learnable parameters and often denoted by $\boldsymbol{\theta} = (\mathbf{w}, b)^{\top}$.
 
@@ -75,7 +75,7 @@ The flow of signals in neural networks does not have to be strictly one-directio
 \begin{figure}[ht]
     \centering
     \includegraphics[width=1\textwidth]{figures/recurrent_neural_network.png}
-    \caption{Scheme of the Recurrent Neural Network}
+    \caption{Scheme of the Recurrent Neural Network. Reproduced from~\cite{gfg_rnn}}
     \label{fig:reccurent-neural-network}
 \end{figure}
 
@@ -85,7 +85,7 @@ Neural networks also do not need to be fully connected. Partially connected arch
 \begin{figure}[ht]
 \centering
 \includegraphics[width=1\textwidth]{figures/convolutional_neural_network.jpg}
-\caption{Scheme of the Convolutional Neural Network}
+\caption{Scheme of the Convolutional Neural Network. Reproduced from~\cite{gfg_cnn}}
 \label{fig:convolutional-neural-network}
 \end{figure}
 
@@ -223,12 +223,12 @@ The \emph{sigmoid function} is defined as:
     \phi(z) := \sigma(z) = \frac{1}{1 + e^{-z}}.
 \end{equation}
 
-However, for large values of $|z|$, the derivative $\sigma'(z) = \sigma(z)\bigl(1 - \sigma(z)\bigr)$ approaches zero, which leads to the \emph{vanishing gradient problem} (see Chapter XXXXXX) \cite{goodfellow2016}. Consequently, the sigmoid activation is rarely used in hidden layers of neural networks.
+However, for large values of $|z|$, the derivative $\sigma'(z) = \sigma(z)\bigl(1 - \sigma(z)\bigr)$ approaches zero, which leads to the \emph{vanishing gradient problem} (see section~\ref{subsec:vanishin-and-exploding-gradients})~\cite{goodfellow2016}. Consequently, the sigmoid activation is rarely used in hidden layers of neural networks.
 
-Another sigmoidal activation function, such as the \emph{hyperbolic tangent} ($\tanh(z) = 2\sigma(2z) - 1$), improve optimization dynamics by being zero-centered and reducing bias shift, yet they still suffer from vanishing gradients \cite{goodfellow2016}. To mitigate these issues, the \emph{Rectified Linear Unit} has become the standard choice for hidden layers.
+Another sigmoidal activation function, such as the \emph{hyperbolic tangent} ($\tanh(z) = 2\sigma(2z) - 1$), improve optimization dynamics by being zero-centered and reducing bias shift, yet they still suffer from vanishing gradients \cite{goodfellow2016}. 
 
 \textbf{\\Rectified Linear Unit (ReLU)\\}  
-The \emph{ReLU function} is defined as:
+To mitigate these issues, the \emph{Rectified Linear Unit (ReLU)} has become the standard choice for hidden layers. The ReLU function is defined as:
 \begin{equation}
     \phi(z) := \max(0, z)
 \end{equation}
@@ -484,6 +484,7 @@ In this section, we introduce commonly used metrics for evaluating the performan
 
 In classification, the goal is to assign observations to predefined classes. Model performance is evaluated by comparing predicted labels with true labels.
 
+
 In binary classification, each observation belongs to one of four categories:
 
 \begin{itemize}
@@ -520,7 +521,7 @@ The results are typicaly summarized using a \textit{confusion matrix}, as shown 
 
 From the confusion matrix, several performance measures can be derived: \\
 
-\textbf{Accuracy} is defined as the proportion of correctly classified observations:~\ref{eq:accuracy}. 
+\textbf{Accuracy} is defined as the proportion of correctly classified observations: 
 
 \begin{equation}
     \text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
@@ -566,7 +567,9 @@ In some applications, only a specific part of the \emph{ROC curve} is relevant. 
 
 \subsection{Criteria for Regression Tasks}
 \label{sec:criteria-regression-tasks}
-In regression tasks, the goal is to predict a continuous target variable. Let $\{(\mathbf{x}_i, y_i)\}_{i=1}^{n}$ denote a dataset of input-output pairs, where $\mathbf{x}_i \in \mathbb{R}^d$ is the input vector and $y_i \in \mathbb{R}$ is the corresponding target value. The predicted value is denoted by $\hat{y}_i = f_{\boldsymbol{\theta}}(\mathbf{x}_i)$, where $f_{\boldsymbol{\theta}}$ is a model parameterized by $\boldsymbol{\theta}$.
+In regression tasks, the goal is to predict a continuous target variable. 
+
+Let $\{(\mathbf{x}_i, y_i)\}_{i=1}^{n}$ denote a dataset of input-output pairs, where $\mathbf{x}_i \in \mathbb{R}^d$ is the input vector and $y_i \in \mathbb{R}$ is the corresponding target value. The predicted value is denoted by $\hat{y}_i = f_{\boldsymbol{\theta}}(\mathbf{x}_i)$, where $f_{\boldsymbol{\theta}}$ is a model parameterized by $\boldsymbol{\theta}$.
 
 The most commonly used regression metrics are defined as follows.
 
@@ -589,9 +592,10 @@ RMSE is a monotonic transformation of MSE and is expressed in the same units as 
 \text{MAE} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|.
 \end{equation}
 
-MAE measures the average absolute deviation and is less sensitive to outliers compared to MSE. It is sometimes used as a loss function, although its non-differentiability at zero may complicate optimization.
+MAE measures the average absolute deviation and is less sensitive to outliers compared to MSE. It is sometimes used as a loss function, although its \break non-differentiability at zero may complicate optimization.
 
 \section{Information Theory}
+\label{sec:information-theory}
 \emph{Information theory} is a branch of applied mathematics focused on quantifying the amount of information contained in a signal or random variable. The main idea is that observing unlikely events provides more information than observing likely ones. This framework is useful for feature selection, since it allows measuring how informative a feature is with respect to a target variable.
 
 \textbf{\\Self-information\\}
