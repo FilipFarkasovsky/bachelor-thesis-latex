@@ -5,7 +5,7 @@
 \section{Overview of Neural Networks}
 \label{sec:overview-neural-networks}
 
-Neural networks are one of the most popular algorithms of machine learning. They were loosely inspired by the structure and function of biological neurons, which are the fundamental units of nervous tissue. To distinguish them from their biological counterpart, sometimes the term \textit{Artificial neural networks (ANNs)} is used. 
+Neural networks are one of the most popular algorithms of machine learning. They were loosely inspired by the structure and function of biological neurons, which are the fundamental units of nervous tissue. To distinguish them from their biological counterpart, sometimes the term \textit{Artificial neural networks (ANNs)} is used. However, throughout this thesis, the term \textit{neural networks} will be used for simplicity. 
 
 Neural network can be viewed as a composition of affine transformations and non-linear activation functions, which allows them to serve as universal approximators. This property is established in many theorems; several of which are mentioned by Goodfellow in \cite{goodfellow2016}. Their ability to capture complex patterns makes them widely applicable in areas such as computer vision, natural language processing, and predictive modeling. A detailed treatment of neural network applications and methodologies can be found in the comprehensive review by Abiodun et al. \cite{abiodun2019}.
 
@@ -16,39 +16,40 @@ The architecture of a neural network defines how these neurons are structured an
 The architecture of a neural network describes how neurons and layers are organized, connected, and how they transform information.
 
 \textbf{\\Neuron in an Artificial Neural Network\\} 
-\emph{Neuron} is the fundamental computational unit of an Artificial Neural Network, abbreviated as ANN. It is defined as a parametric function that maps an input vector to a scalar output through a composition of a affine transformation and activation function. The structure of a single neuron is illustrated in Figure~\ref{fig:neuron}.
+\emph{Neuron} is the fundamental computational unit of an Artificial Neural Network. It is defined as a parametric function that maps an input vector to a scalar output through a composition of a affine transformation and activation function. The structure of a single neuron is illustrated in Figure~\ref{fig:neuron}.
 
-Let $\mathbf{x} \in \mathbb{R}^d$ denote the input vector, where $d$ is the number of input features. A neuron is parameterized by weights $\mathbf{w} \in \mathbb{R}^d$ and bias $b \in \mathbb{R}$, which are collectively referred to as learnable parameters and often denoted by $\boldsymbol{\theta} = (\mathbf{w}, b)^{\top}$.
+Let $\mathbf{x} \in \mathbb{R}^d$ denote the input vector, where $d$ is the number of input features. A~neuron is parameterized by weights $\mathbf{w} \in \mathbb{R}^d$ and bias $b \in \mathbb{R}$, which are collectively referred to as learnable parameters and often denoted by $\boldsymbol{\theta} = (\mathbf{w}, b)^{\top}$.
 
 First, the input undergoes an affine transformation to produce the \emph{pre-activation value}:
-\begin{equation}
-z = \mathbf{w}^\top \mathbf{x} + b = \sum_{i=1}^{d} w_i x_i + b,
-\end{equation}
+\begin{equation*}
+z = \mathbf{w}^\top \mathbf{x} + b = \sum_{i=1}^{d} w_i x_i + b.
+\end{equation*}
 The scalar $z$ is then passed through a fixed, typically non-linear \emph{activation function} $\phi: \mathbb{R} \to \mathbb{R}$, producing the \emph{activation value}:
-\begin{equation}
-a = f_{\boldsymbol{\theta}}(\mathbf{x}) = \phi(z)\end{equation}
+\begin{equation*}
+a = f_{\boldsymbol{\theta}}(\mathbf{x}) = \phi(z)
+\end{equation*}
 
 A special case of an artificial neuron is the \emph{perceptron}, which acts as a linear binary classifier. It uses \emph{Heaveside} step activation function:
 
-\begin{equation}
+\begin{equation*}
 \phi(z) =
 \begin{cases}
 1 & \text{if } z \geq 0, \\
 0 & \text{if } z < 0.
 \end{cases}
-\end{equation}
+\end{equation*}
 
 This defines a decision boundary given by:
 
-\begin{equation}
+\begin{equation*}
 \sum_{i=1}^{d} w_i x_i + b = 0.
-\end{equation}
+\end{equation*}
 
 which corresponds to a hyperplane in $\mathbb{R}^d$, provided that the data are linearly separable. 
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/tikz3.pdf}    \caption{Schematic of a single artificial neuron}
+    \includegraphics[width=0.7\textwidth]{figures/tikz3.pdf}    \caption{Schematic of a single artificial neuron. Adapted from:~\cite{medina2013}}
     \label{fig:neuron}
 \end{figure}
 
@@ -99,26 +100,31 @@ In this section, we introduce notation for individual neurons and their weights.
 
 \begin{itemize}
     \item $n^{(0)}, n^{(1)}, \dots, n^{(L)}$: number of neurons in each layer, where $d = n^{(0)}$ is the dimensionality of the input vector and $k = n^{(L)}$ is the number of neurons in the output layer,
-    \item $\mathbf{w}_{j}^{(i)}$: weight vector of the $j$-th neuron in the $i$-th layer
+    \item $\mathbf{w}_{j}^{(i)}$: weight vector of the $j$-th neuron in the $i$-th layer,
     \item $b_{j}^{(i)}$: bias of the $j$-th neuron in the $i$-th layer,
     \item $z_{j}^{(i)}$: pre-activation value of the $j$-th neuron in the $i$-th layer, i.e., the input to the activation function,
     \item $a_{j}^{(i)}$: output of the $j$-th neuron in the $i$-th layer,
     \item $f^{(i)}$: activation function of neurons in the $i$-th layer; for simplicity, we assume it is the same for all neurons within a given layer.
 \end{itemize}
 
-The output of an arbitrary $j$-th neuron in the $i$-th layer $o_{i,j}$ can then be written as:
-\begin{equation}
+The output of an arbitrary $j$-th neuron in the $i$-th layer $a^{(i)}_j$ can then be written as:
+\begin{equation*}
 a^{(i)}_j = f^{(i)}\!\left( \langle \mathbf{w}^{(i)}_j, \mathbf{a}^{(i-1)} \rangle + b^{(i)}_j \right).
-\end{equation}
+\end{equation*}
 
-where we define the vector of activations of the $(i-1)$-th layer as
+Equivalently, the inner product can be expressed using vector multiplication as
+\[
+(\mathbf{w}^{(i)}_j)^\top \mathbf{a}^{(i-1)}.
+\]
+
+We define the vector of activations of the $(i-1)$-th layer as
 \[
 \mathbf{a}^{(i-1)} = \big(a^{(i-1)}_1, a^{(i-1)}_2, \dots, a^{(i-1)}_{n^{(i-1)}}\big)^{\top}.
 \]
 
 
-From equation (2.3), we can rewrite the vector $\mathbf{a}^{(i)}$ as:
-\begin{equation}
+The activation vector $\mathbf{a}^{(i)}$ for the $i$-th layer, can be written as:
+\begin{equation*}
 \mathbf{a}^{(i)} =
 \begin{pmatrix}
 f^{(i)}\!\big( \langle \mathbf{w}^{(i)}_1, \mathbf{a}^{(i-1)} \rangle + b^{(i)}_1 \big) \\
@@ -135,16 +141,16 @@ f^{(i)}\!\left(
 \langle \mathbf{w}^{(i)}_{n^{(i)}}, \mathbf{a}^{(i-1)} \rangle + b^{(i)}_{n^{(i)}}
 \end{array}
 \right).
-\end{equation}
+\end{equation*}
 where the function $f^{(i)}$ is applied element-wise.
 
 The input vector can further be written as:
-\begin{equation}
+\begin{equation*}
 \mathbf{a}^{(i)} = f^{(i)}\!\left(\mathbf{W}^{(i)} \mathbf{a}^{(i-1)} + \mathbf{b}^{(i)} \right),
-\end{equation}
+\end{equation*}
 
 where
-\begin{equation}
+\begin{equation*}
 \mathbf{W}^{(i)} =
 \begin{pmatrix}
 (\mathbf{w}^{(i)}_1)^\top \\
@@ -160,20 +166,20 @@ b^{(i)}_2 \\
 \vdots \\
 b^{(i)}_{n^{(i)}}
 \end{pmatrix}.
-\end{equation}
+\end{equation*}
 
 Here, $\mathbf{W}^{(i)}$ is a matrix whose rows are formed by the weight vectors of individual neurons in the $i$-th layer, and $\mathbf{b}_i$ is the vector of their biases arranged as a column vector.
 
 Altogether, we obtain a concise recursive description of the output of the $i$-th layer of the neural network for $i \in \{2,3,\dots,L\}$, with the initial equation:
-\begin{equation}
+\begin{equation*}
 \mathbf{a}^{(1)} = f^{(1)}\!\left(\mathbf{W}^{(1)} \mathbf{x} + \mathbf{b}^{(1)} \right),
-\end{equation}
+\end{equation*}
 where the vector $\mathbf{x} \in \mathbb{R}^d$ represents the input observations at the input layer. It should again be noted that the activation function $f_i$ is applied component-wise to a vector and does not represent a multivariate function in the usual sense.
 
 We denote the whole neural network model as $f(\mathbf{x})$ or $f_\theta(\mathbf{x})$, where $\theta$ represents all trainable parameters of the network. The model can be viewed as a composition of layer-wise functions:
-\begin{equation}
+\begin{equation*}
 f_\theta(\mathbf{x}) = f^{(L)} \circ f^{(L-1)} \circ \cdots \circ f^{(1)}(\mathbf{x}),
-\end{equation}
+\end{equation*}
 where each layer is a mapping
 $
 f^{(i)} : \mathbb{R}^{n^{(i-1)}} \to \mathbb{R}^{n^{(i)}},
@@ -184,9 +190,9 @@ The final output of the network $\mathbf{a}^{(L)}$ represents the predicted valu
 
 
 In general, for an observation with index $i$, we may denote:
-\begin{equation}
+\begin{equation*}
 \hat{\mathbf{y}}_i = \mathbf{a}^{(L)}_i = f(\mathbf{x}_i).
-\end{equation}
+\end{equation*}
 
 Evidently, in the special case $k = 1$, $\mathbf{y}_i$ reduces to a scalar $y_i \in \mathbb{R}$.
 
@@ -206,45 +212,45 @@ During the 1990s, specialized neural network architectures were developed to add
 
 \subsection{Activation Functions in the Hidden Layers}
 \label{subsec:activation-functions-hidden-layer}
-\emph{Activation functions} introduce non-linearity into neural networks, enabling them to approximate complex, non-linear functions. Without non-linear activation functions, a feedforward neural network reduces to a composition of affine transformations, which is itself an affine transformation, regardless of depth. Consequently, such a model would be equivalent to a single linear model.
+\emph{Activation functions} introduce non-linearity into neural networks, enabling them to approximate complex, non-linear functions. Without non-linear activation functions, a feedforward neural network reduces to a composition of affine transformations, which is itself an affine transformation, regardless of depth.
 
 A suitable activation function for hidden layers should satisfy the following properties:\begin{itemize}    
-    \item \textbf{Differentiability:} The activation function should be differentiable almost everywhere to ensure that gradient-based optimization methods, such as \emph{backpropagation}, can be applied (discussed in section~\ref{subsec:backpropagation}). 
+    \item \textbf{Differentiability:} The activation function should be differentiable almost everywhere to ensure that gradient-based optimization methods, such as \emph{backpropagation}, can be applied (discussed in Section~\ref{subsec:backpropagation}). 
     
     \item \textbf{Computational efficiency:} The function should be computationally inexpensive to evaluate, as activation functions are applied repeatedly during both training and inference.
     
-    \item \textbf{Gradient stability:} The function should mitigate \emph{vanishing} or \emph{exploding gradients}, ensuring stable signal propagation in deep architectures. These phenomena are discussed in section~\ref{subsec:vanishin-and-exploding-gradients}.
+    \item \textbf{Gradient stability:} The function should mitigate \emph{vanishing} or \emph{exploding gradients}, ensuring stable signal propagation in deep architectures. These phenomena are discussed in Section~\ref{subsec:vanishin-and-exploding-gradients}.
 \end{itemize}
 
 
 \textbf{\\Sigmoidal Functions\\}  
 The \emph{sigmoid function} is defined as:
-\begin{equation}
+\begin{equation*}
     \phi(z) := \sigma(z) = \frac{1}{1 + e^{-z}}.
-\end{equation}
+\end{equation*}
 
-However, for large values of $|z|$, the derivative $\sigma'(z) = \sigma(z)\bigl(1 - \sigma(z)\bigr)$ approaches zero, which leads to the \emph{vanishing gradient problem} (see section~\ref{subsec:vanishin-and-exploding-gradients})~\cite{goodfellow2016}. Consequently, the sigmoid activation is rarely used in hidden layers of neural networks.
+However, for large values of $|z|$, the derivative $\sigma'(z) = \sigma(z)\bigl(1 - \sigma(z)\bigr)$ approaches zero, which leads to the \emph{vanishing gradient problem} (see Section~\ref{subsec:vanishin-and-exploding-gradients})~\cite{goodfellow2016}. Consequently, the sigmoid activation is rarely used in hidden layers of neural networks.
 
-Another sigmoidal activation function, such as the \emph{hyperbolic tangent} ($\tanh(z) = 2\sigma(2z) - 1$), improve optimization dynamics by being zero-centered and reducing bias shift, yet they still suffer from vanishing gradients \cite{goodfellow2016}. 
+Another sigmoidal activation function, such as the \emph{hyperbolic tangent}, improve optimization dynamics by being zero-centered and reducing bias shift, yet they still suffer from vanishing gradients \cite{goodfellow2016}. 
 
 \textbf{\\Rectified Linear Unit (ReLU)\\}  
-To mitigate these issues, the \emph{Rectified Linear Unit (ReLU)} has become the standard choice for hidden layers. The ReLU function is defined as:
-\begin{equation}
+To mitigate aforementioned issues, the \emph{Rectified Linear Unit (ReLU)} has become the standard choice for hidden layers. The ReLU function is defined as:
+\begin{equation*}
     \phi(z) := \max(0, z)
-\end{equation}
+\end{equation*}
 
 It is widely used due to its simplicity and effectiveness. ReLU allows sparse activation, where only a subset of neurons are active at a time. It is computationally more efficient than sigmoidal functions, avoids saturation for positive inputs, and converges faster in deep architectures \cite{aggarwal2018}. 
 
 A known drawback of the ReLU function is the so-called \emph{dying ReLU problem}~\cite{nair2010relu}. Consider a neuron with pre-activation $z = \mathbf{w}^\top \mathbf{x} + b$. If during training $z \leq 0$ for all inputs in the data distribution, then the output is identically zero. Since the gradient of the ReLU function is also zero for $z < 0$, i.e.,
-\begin{equation}
+\begin{equation*}
 \frac{d}{dz} \max(0, z) = 0 \quad \text{for } z < 0,
-\end{equation}
+\end{equation*}
 the corresponding parameters receive no gradient updates, effectively preventing further learning in that neuron.
 
-To mitigate this, the \textit{Leaky ReLU} extension introduces a small positive slope $\alpha$ (typically $\alpha = 0.01$) for negative inputs:
-\begin{equation}
+To mitigate this, the \textit{Leaky ReLU} extension introduces a small positive \break slope $\alpha$~(typically $\alpha = 0.01$) for negative inputs:
+\begin{equation*}
 \phi(z) := \max(\alpha z, z).
-\end{equation}
+\end{equation*}
 
 This function addresses the dying ReLU problem by allowing a small, non-zero gradient for $z < 0$, and thus preventing the neurons from becoming permanently inactive during training.
 
@@ -257,78 +263,78 @@ This provides a smooth, probabilistic alternative to piecewise linear activation
 \label{subsec:activation-functions-ouput-layer}
 
 The choice of activation function in the output layer of a neural network depends on the type of task and the desired output representation. For regression tasks, where the goal is to predict real-valued outputs, the identity function
-\begin{equation}
+\begin{equation*}
 \phi(z) := z
-\end{equation}
+\end{equation*}
 is typically used.
 
 For binary classification, the sigmoid function is commonly applied:
-\begin{equation}
+\begin{equation*}
 \sigma(z) = \frac{1}{1 + e^{-z}}.
-\end{equation}
+\end{equation*}
 
 Its output lies in the interval $(0,1)$, allowing interpretation as a conditional probability $P(y=1 \mid z)$ under a Bernoulli model.
 
 For multiclass classification with $k$ classes, the softmax function is used. Given a vector of logits $\mathbf{z} = (z_1, z_2, \dots, z_k)^\top \in \mathbb{R}^k$, it is defined as
-\begin{equation}
-\mathrm{softmax}(z_i) = \frac{e^{z_i}}{\sum_{j=1}^{k} e^{z_j}}, \quad i = 1, \dots, k.
-\end{equation}
+\begin{equation*}
+\mathrm{softmax}(z_i) = \frac{e^{z_i}}{\sum_{j=1}^{k} e^{z_j}}, \quad i = 1,2, \dots, k.
+\end{equation*}
 
-This mapping transforms $\mathbb{R}^k$ into the probability simplex. It satisfies two fundamental properties: positivity $\mathrm{softmax}(z_i) > 0$ and normalization $\sum_{i=1}^{k} \mathrm{softmax}(z_i) = 1$. Therefore, the output can be interpreted as a categorical probability distribution over $k$ classes.
+Softmax transforms $\mathbb{R}^k$ into the probability simplex. It satisfies two fundamental properties: positivity $\mathrm{softmax}(z_i) > 0$ and normalization $\sum_{i=1}^{k} \mathrm{softmax}(z_i)=1$. Therefore, the output can be interpreted as a categorical probability distribution over $k$ classes.
 
 In practice, softmax is applied to the output of the final linear transformation (logits). The dimensionality of this layer must equal $k$, since each component corresponds to one class probability.
 
 \subsection{Loss Functions}
 \label{sec:loss-functions}
-A \emph{Loss function} quantifies the discrepancy between a model prediction $\hat{y}$ and the corresponding target value $y$. It serves two main purposes: (i) it provides a quantitative measure of model performance, and (ii) it defines the objective function used in gradient-based optimization methods.
+A \emph{Loss function} quantifies the discrepancy between a model prediction $\hat{y}$ and the corresponding target value $y$. It serves two main purposes: (i) it provides a quantitative measure of model performance, and (ii) it defines the objective function used in gradient-based optimization methods (discussed in Section~\ref{sec:gradient-descent}).
 
 Given a dataset of $n$ observations $\{(\mathbf{x}_i, y_i)\}_{i=1}^{n}$, the \emph{empirical risk (average loss)} associated with a model parameterized by $\boldsymbol{\theta}$ is defined as
-\begin{equation}
+\begin{equation*}
 \mathcal{L}(\boldsymbol{\theta}) = \frac{1}{n} \sum_{i=1}^{n} \ell\bigl(y_i, f_{\boldsymbol{\theta}}(\mathbf{x}_i)\bigr).
-\end{equation}
+\end{equation*}
 
 Here, $f_{\boldsymbol{\theta}}(\mathbf{x}_i)$ denotes the model prediction for input $\mathbf{x}_i$, and $\ell(\cdot,\cdot)$ is a \emph{sample loss function} measuring the discrepancy between prediction and target.
 
 The objective of model training is to find optimal parameters that minimize the empirical risk:
-\begin{equation}
+\begin{equation*}
 \boldsymbol{\theta}^* = \arg\min_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}).
-\end{equation}
+\end{equation*}
 
 The choice of loss function depends on the type of task. For regression tasks, the \textit{squared error loss} is commonly used:
 
-\begin{equation}
+\begin{equation*}
     l(y_i, \hat{y}_i) = {\left(y_i - \hat{y}_i\right)^2}
-\end{equation}
+\end{equation*}
 
 Minimizing the squared error loss corresponds to the \emph{ordinary least squares (OLS)} under standard assumptions, i.e., a linear model with additive noise. This loss function penalizes larger errors more heavily due to the quadratic term, which makes it sensitive to outliers.
 
 For binary classification, the \textit{binary cross-entropy} loss is used, which is the the negative log-likelihood of a Bernoulli distribution:
 
-\begin{equation}
+\begin{equation*}
     l(y_i, \hat{y}_i) = - \Big[ y_i \log \hat{y}_i + (1 - y_i) \log (1 - \hat{y}_i) \Big],
-\end{equation}
+\end{equation*}
 
 Here, \(\hat{y}_i \in (0,1)\) represents the predicted probability of the positive class.
 
 For multiclass classification with $k$ classes, the \textit{categorical cross-entropy loss} is used in combination with the softmax activation:
 
-\begin{equation}
+\begin{equation*}
     l(y_i, \hat{y}_i) = - \sum_{j=1}^{k} y_{i,j} \log \hat{y}_{i,j},
-\end{equation}
+\end{equation*}
 
 where the target vector is typically represented in one-hot encoding:
 
-\begin{equation}
+\begin{equation*}
     y_{i,j} = 
     \begin{cases} 
         1 & \text{if sample $i$ belongs to class $j$,} \\
         0 & \text{otherwise,} 
     \end{cases}
-\end{equation}
+\end{equation*}
 
 and \(\hat{y}_{i,j}\) is the predicted probability for class $j$  of sample $i$ .
 
-In classification tasks solved by neural networks, the model typically ouputs a vector of predicted probabilities obtained through the softmax or sigmoid activation function. To transform these probability scores into one class decision, a \emph{decision threshold}, or also called \textit{cut-off} point must be specified. In binary classification, a default threshold is 0.5, but by adjusting this value, we can better suit the model to the requirements of a specific application. In multinomial classification usually an observation is assigned with the class with highest predicted probability.
+In classification tasks solved by neural networks, the model typically ouputs \break a vector of predicted probabilities obtained through the softmax or sigmoid activation function. To transform these probability scores into one class decision, a \emph{decision threshold}, or also called \textit{cut-off} point must be specified. In binary classification, a~default threshold is 0.5, but by adjusting this value, we can better suit the model to the requirements of a specific application. In multinomial classification usually an observation is assigned with the class with highest predicted probability.
 
 \subsection{Gradient Descent}
 \label{sec:gradient-descent}
@@ -337,46 +343,46 @@ In classification tasks solved by neural networks, the model typically ouputs a 
 Formally, for a set of parameters $\boldsymbol{\theta}$ and a differentiable loss function $\mathcal{L}(\boldsymbol{\theta})$, the update rule is given by:
 
 
-\begin{equation}
+\begin{equation*}
     \boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t - \eta \, \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\boldsymbol{\theta}}_t),
-\end{equation}
+\end{equation*}
 
-where $\eta >0$ is the \textit{learning rate} controlling the step size, and $\nabla_{\boldsymbol{\theta}}\mathcal{L}(\boldsymbol{\theta_t})$ is the gradient of loss function with respect to all parameters at iteration $t$.
+where $\eta \in \mathbb{R}$ is the \textit{learning rate} controlling the step size, and $\nabla_{\boldsymbol{\theta}}\mathcal{L}(\boldsymbol{\theta_t})$ is the gradient of loss function with respect to all parameters at iteration $t$.
 
-Under conditions such as convexity of $\mathcal{L}_{\boldsymbol{\theta_t}}$ and Lipshitz-continuity of its gradients, convergence to the global minimum is guaranteed. However, these conditions are rarely satisfied in practice; consequently the algorithm may converge to a local minimum, or saddle points, or exhibit oscillatory behavior depending on the choice of the learning rate.
+Under conditions such as convexity of $\mathcal{L}_{\boldsymbol{\theta_t}}$ and Lipshitz-continuity of its gradients, convergence to the global minimum is guaranteed. However, these conditions are rarely satisfied in practice; consequently the algorithm may converge to a local minimum, or saddle points, or exhibit oscillatory behavior depending on the choice of the learning rate~\cite{boyd2004}.
 
 In practice, different variants of gradient descent are used depending on how the gradient is estimated from data.
 
 In \emph{batch gradient descent}, the gradient is computed over the entire dataset:
-\begin{equation}
+\begin{equation*}
 \nabla_{\boldsymbol{\theta}} L(\boldsymbol{\theta}) = \frac{1}{n} \sum_{i=1}^{n} \nabla_{\boldsymbol{\theta}} \ell\bigl(y_i, f_{\boldsymbol{\theta}}(\mathbf{x}_i)\bigr).
-\end{equation}
+\end{equation*}
 
 This provides an exact estimate of the true gradient but can be computationally expensive for large datasets.
 
 In \emph{stochastic gradient descent (SGD)}, the parameters are updated using a single randomly selected sample:
-\begin{equation}
+\begin{equation*}
 \boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t - \eta \nabla_{\boldsymbol{\theta}} \ell\bigl(y_i, f_{\boldsymbol{\theta}}(\mathbf{x}_i)\bigr).
-\end{equation}
+\end{equation*}
 
 This introduces stochastiity into the optimization process, which may help escape shallow local minima, but can lead to high variance in parameter updates.
 
-\emph{Mini-batch gradient descent} combines both approaches by using a randomly sampled subset $B \subset \{1,\dots,n\}$ of size $m$, where $1 < m < n$:
-\begin{equation}
+\emph{Mini-batch gradient descent} combines both approaches by using a randomly sampled subset $B \subset \{1,2,\dots,n\}$ of size $m$, where $1 < m < n$:
+\begin{equation*}
 \boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t - \eta \frac{1}{m} \sum_{i \in B} \nabla_{\boldsymbol{\theta}} \ell\bigl(y_i, f_{\boldsymbol{\theta}}(\mathbf{x}_i)\bigr).
-\end{equation}
+\end{equation*}
 
 This approach is widely used in practice due to its computational efficiency and more stable convergence behavior compared to pure SGD \cite{gfg2025}.
 
 \subsection{Backpropagation Algorithm}
 \label{subsec:backpropagation}
 A neural network can be represented as a composition of layer-wise functions:
-\begin{equation}
+\begin{equation*}
     f(\mathbf{x}) = f^{(L)} \circ f^{(L-1)} \circ \cdots \circ f^{(1)}(\mathbf{x}).
-\end{equation}
+\end{equation*}
 
 Each layer function is vector-valued, and thus its derivatives are understood in terms of Jacobian matrices. Applying the multivariate chain rule yields:
-\begin{equation}
+\begin{equation*}
 \frac{\partial f}{\partial \mathbf{x}}
 =
 \frac{\partial f^{(L)}(\mathbf{x})}{\partial f^{(L-1)}}
@@ -384,62 +390,62 @@ Each layer function is vector-valued, and thus its derivatives are understood in
 \frac{\partial f^{(L-1)}}{\partial f^{(L-2)}}
 \cdots
 \frac{\partial f^{(1)}}{\partial \mathbf{x}}.
-\end{equation}
+\end{equation*}
 
 Consequently, the derivative of the network output with respect to the input is given by the product of these Jacobians.
 
 Training is based on two alternating procedures: \emph{forward computation}, which produces predictions, and \emph{backpropagation}, which computes gradients needed to update parameters.
 
 \textbf{\\Forward Computation\\}
-\emph{Forward computation (forward pass)} refers to propagating input data through a feedforward neural network to obtain an output.
+\emph{Forward computation (forward pass)} refers to propagating input data through \break a feedforward neural network to obtain an output.
 
 Consider a feedforward neural network with \( L \) layers. For layer \( i \), the computation is defined as:
-\begin{equation}
+\begin{equation*}
 \mathbf{z}^{(i)} = \mathbf{W}^{(i)} \mathbf{a}^{(i-1)} + \mathbf{b}^{(i)}
-\end{equation}
-\begin{equation}
+\end{equation*}
+\begin{equation*}
 \mathbf{a}^{(i)} = \phi\!\left(\mathbf{z}^{(i)}\right)
-\end{equation}
+\end{equation*}
 
-The final output is \( \hat{\mathbf{y}} = \mathbf{a}^{(L)} \)  is compared to the target \( \mathbf{y} \) using a loss function \( \mathcal{L}(\boldsymbol{\theta}) \).
+The final output is \( \hat{\mathbf{y}}=\mathbf{a}^{(L)} \)  is compared to the target \( \mathbf{y} \) using an mepirical loss \break function \( \mathcal{L}(\boldsymbol{\theta}) \).
 
 \textbf{\\Backpropagation\\}
 \emph{Backpropagation} applies the chain rule of calculus to compute gradients efficiently by propagating \emph{error signals} from the output layer back to the input layer.
 
 Define the \emph{error at layer \( l \)} as:
 
-\begin{equation}
+\begin{equation*}
 \boldsymbol{\delta}^{(l)} = \frac{\partial \mathcal{L}}{\partial \mathbf{z}^{(l)}}
-\end{equation}
+\end{equation*}
 
 For the final layer \( L \), the error is computed as:
 
-\begin{equation}
+\begin{equation*}
 \boldsymbol{\delta}^{(L)} =
 \frac{\partial \mathcal{L}}{\partial \mathbf{a}^{(L)}} \odot \phi'\!\left(\mathbf{z}^{(L)}\right)
-\end{equation}
+\end{equation*}
 
 where \( \odot \) denotes element-wise multiplication.
 
 For hidden layers, the error is propagated recursively:
 
-\begin{equation}
+\begin{equation*}
 \boldsymbol{\delta}^{(l)} =
 \left(\mathbf{W}^{(l+1)}\right)^{\top} \boldsymbol{\delta}^{(l+1)}
 \odot \phi'\!\left(\mathbf{z}^{(l)}\right)
-\end{equation}
+\end{equation*}
 
 Once \( \boldsymbol{\delta}^{(l)} \) is known, gradients with respect to parameters are given by:
 
-\begin{equation}
+\begin{equation*}
 \frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(l)}} =
 \boldsymbol{\delta}^{(l)} \left(\mathbf{a}^{(l-1)}\right)^{\top}
-\end{equation}
+\end{equation*}
 
-\begin{equation}
+\begin{equation*}
 \frac{\partial \mathcal{L}}{\partial \mathbf{b}^{(l)}} =
 \boldsymbol{\delta}^{(l)}
-\end{equation}
+\end{equation*}
 
 Backpropagation avoids redundant computation of intermediate derivatives by reusing previously computed error terms. As a result, the complexity of gradient computation is linear with respect to the number of parameters, $\mathcal{O}(|\boldsymbol{\theta}|)$ \cite{goodfellow2016}.
 
@@ -448,13 +454,13 @@ Backpropagation avoids redundant computation of intermediate derivatives by reus
 The \emph{vanishing gradient problem} occurs when gradients decrease exponentially as they are propagated backward through a deep neural network. As a result, parameter updates in earlier layers become undesirably small, effectively slowing or stopping learning in these layers.
 
 This issue is particularly common when using activation functions such as the sigmoid or hyperbolic tangent. For the sigmoid function, the derivative is given by
-\begin{equation}
+\begin{equation*}
 \phi'(z) = \phi(z)\bigl(1 - \phi(z)\bigr).
-\end{equation}
+\end{equation*}
 
 Sinc $\phi(z) \in (0,1)$, the derivative is bounded by $0 < \phi'(z) \leq 0.25$, with the maximum attained at $z = 0$. Repeated multiplication of such small values across many layers leads to gradients approaching zero.
 
-The \textit{exploding gradient problem} occurs when gradients grow exponentially during backpropagation, typically due to weights being initialized with large values or derivatives consistently greater than one\cite{goodfellow2016}. While the \textit{ReLU} activation mitigates vanishing gradients by maintaining a unit derivative for positive inputs ($\phi'(z) = 1$ for $z > 0$), deep architectures remain sensitive to initialization. Poorly scaled weights can still trigger exploding gradients or, conversely, lead to \textit{dying neurons} if pre-activations consistently fall into the zero-gradient region.
+The \textit{exploding gradient problem} occurs when gradients grow exponentially during backpropagation, typically due to weights being initialized with large values or derivatives consistently greater than one \cite{goodfellow2016}. While the \textit{ReLU} activation mitigates vanishing gradients by maintaining a unit derivative for positive inputs ($\phi'(z) = 1$ for $z > 0$), deep architectures remain sensitive to initialization. Poorly scaled weights can still trigger exploding gradients or, conversely, lead to \textit{dying neurons} if pre-activations consistently fall into the zero-gradient region.
 
 To reduce the risk of vanishing and exploding gradients, appropriate \emph{weight initialization techniques} are commonly employed. The \emph{Xavier initialization}~\cite{glorot2010} scales the initial weights according to the number of input and output units in a layer, aiming to preserve the variance of activations across network layers. This approach is particularly suitable for symmetric activation functions such as sigmoid or hyperbolic tangent. For ReLU-based architectures, \emph{Kaiming initialization}~\cite{he2015} is more commonly used, as it adjusts the variance specifically for activation functions that suppress negative inputs. Proper initialization also improves training stability and accelerates convergence in deep neural networks \cite{glorot2010,he2015}.
 
@@ -465,9 +471,9 @@ For effective learning, it is crucial to choose appropriate \emph{learning rate}
 Several strategies have been proposed to address this issue. One of the simplest approaches is \textit{exponential decay}, defined as:
 
 % n overview of gradient descent optimization algorithms
-\begin{equation}
+\begin{equation*}
     \eta_t = \eta_0 e^{-\gamma t},
-\end{equation}
+\end{equation*}
 where $\eta_0$ denotes the initial learning rate, $\gamma>0$ is the decay rate, and $t$ is an iteration index. 
 
 However, exponential decay does not adapt to the geometry of the optimization landscape. More advanced methods, known as adaptive optimization algorithms, adjust the learning rate individually for each parameter based on the history of gradients. The most effective methods are so called \emph{adaptive algorithms}, such as \textit{Adam}, \textit{RMSProp}, and \textit{Adagrad}~\cite{ruder2016overview, duchi2011adaptive, kingma2015adam}. These methods typically use running estimates of first and/or second moments of the gradients to scale parameter updates, which improves performance in settings where different parameters exhibit gradients of varying magnitude~\cite{ruder2016overview}. 
@@ -498,7 +504,7 @@ These four outcomes form the basis for evaluation.
 
 In the multinomial case, \emph{one-vs-rest approach} is commonly used. Each class, observations belonging to one particular class are treated as positive, while all remaining observations are treated as negative. This reduces the problem to a series of binary classifications, allowing the same evaluation criteria to be used.
 
-The results are typicaly summarized using a \textit{confusion matrix}, as shown in \ref{tab:confusion_matrix}:
+The results are typicaly summarized using a \textit{confusion matrix}, \break as shown in Table~\ref{tab:confusion_matrix}:
 
 
 \begin{table}[h!]
@@ -523,31 +529,31 @@ From the confusion matrix, several performance measures can be derived: \\
 
 \textbf{Accuracy} is defined as the proportion of correctly classified observations: 
 
-\begin{equation}
-    \text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
-\end{equation}
+\begin{equation*}
+    \text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}.
+\end{equation*}
 
 Although intuitive, accuracy can be misleading in the presence of imbalanced class distributions. For example, consider a disease with a low prevalence of $0.5\%$. A naive model that classifies every observation as negative achieves an accuracy of 99.5\%. Despite this high value, the model fails to identify any positive cases. This shows that accuracy alone might not not be sufficient for evaluation of the model. 
 
 \textbf{Precision} measures the proportion of correctly predicted positive samples among all predicted positive samples:
-\begin{equation}
-    \text{Precision} = \frac{TP}{TP + FP}
-\end{equation}
+\begin{equation*}
+    \text{Precision} = \frac{TP}{TP + FP}.
+\end{equation*}
 
 \textbf{Recall (Sensitivity)} is proportion of correctly identified positive samples out of all actual positives: 
-\begin{equation}
-    \text{Recall} = \frac{TP}{TP + FN}
-\end{equation}
+\begin{equation*}
+    \text{Recall} = \frac{TP}{TP + FN}.
+\end{equation*}
 
 \textbf{Specificity} measures the proportion of correctly identified negative samples out of all actual negatives:
-\begin{equation}
-    \text{Specificity} = \frac{TN}{TN + FP}
-\end{equation}
+\begin{equation*}
+    \text{Specificity} = \frac{TN}{TN + FP}.
+\end{equation*}
 
 \textbf{F1 score} is the harmonic mean of precision and recall:
-\begin{equation}
-    F1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
-\end{equation}
+\begin{equation*}
+    F1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}.
+\end{equation*}
 
 
 \textit{The true positive rate (TPR)} corresponds to recall. \textit{The false positive rate (FPR)} is defined as $1 - \textit{specificity}$ and quantifies the proportion of negative samples incorrectly classified as positive.
@@ -559,12 +565,6 @@ The metrics above depend on a fixed \emph{classification threshold}, and they do
 
 In some applications, only a specific part of the \emph{ROC curve} is relevant. \emph{The AUC (pAUC)} measures the area under the curve over a restricted range of FPR values, typically chosen to reflect the region where the classifier is expected to operate in practice. For example, in applications where a very low false positive rate is required, one may compute the pAUC over the interval $\mathrm{FPR} \in [0, \alpha]$ for a small $\alpha$.
 
-\emph{The Youden index} is another useful measure for threshold selection. It is defined as the sum of sensitivity and specificity minus one, and is often used to identify an optimal operating point.
-
-\emph{The precision–recall (PR) curve} plots precision against recall across thresholds. It is particularly useful for imbalanced datasets, where ROC curves may present an overly optimistic view of performance.
-
-\emph{The area under the PR curve (AUPR)} summarizes the PR curve into a single value and reflects the model’s ability to identify positive samples when they are rare.
-
 \subsection{Criteria for Regression Tasks}
 \label{sec:criteria-regression-tasks}
 In regression tasks, the goal is to predict a continuous target variable. 
@@ -574,23 +574,23 @@ Let $\{(\mathbf{x}_i, y_i)\}_{i=1}^{n}$ denote a dataset of input-output pairs, 
 The most commonly used regression metrics are defined as follows.
 
 \textbf{Mean Squared Error (MSE):}
-\begin{equation}
+\begin{equation*}
 \text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2.
-\end{equation}
+\end{equation*}
 
 MSE measures the average squared deviation and is widely used as a loss function due to its differentiability and strong penalization of large errors.
 
 \textbf{Root Mean Squared Error (RMSE):}
-\begin{equation}
+\begin{equation*}
 \text{RMSE} = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}.
-\end{equation}
+\end{equation*}
 
 RMSE is a monotonic transformation of MSE and is expressed in the same units as the target variable, which facilitates interpretation.
 
 \textbf{Mean Absolute Error (MAE):}
-\begin{equation}
+\begin{equation*}
 \text{MAE} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|.
-\end{equation}
+\end{equation*}
 
 MAE measures the average absolute deviation and is less sensitive to outliers compared to MSE. It is sometimes used as a loss function, although its \break non-differentiability at zero may complicate optimization.
 
@@ -600,9 +600,9 @@ MAE measures the average absolute deviation and is less sensitive to outliers co
 
 \textbf{\\Self-information\\}
 Let $X$ be a discrete random variable with support $\mathcal{X}$, and let $P(x)$ denote its probability mass function. The information content of an outcome $x \in \mathcal{X}$ is measured by \emph{self-information}~\cite{shannon1948}:
-\begin{equation}
+\begin{equation*}
 I(x) = -\log P(x).
-\end{equation}
+\end{equation*}
 
 Here, $P(x)$ is the probability of observing the event $x$, and the logarithm is typically taken in base 2 or the natural logarithm, depending on the context.
 
@@ -615,25 +615,25 @@ This definition satisfies the following intuitive properties \cite{goodfellow201
 
 \textbf{\\Entropy\\}
 Self-information describes the information content of a single outcome. To quantify the uncertainty of an entire probability distribution of a discrete random variable $X$, \emph{(Shannon) entropy}~\cite{shannon1948} is used. It is defined as the expectation of self-information under $P$:
-\begin{equation}
+\begin{equation*}
 H(X) = \mathbb{E}_{x \sim P}[-\log P(x)] = - \sum_{x \in \mathcal{X}} P(x)\log P(x).
-\end{equation}
+\end{equation*}
 
 Here, $\mathcal{X}$ denotes the support of $X$, and $P(x)$ is the probability of outcome $x$.
 
 For continuous random variables, the analogous concept is called \emph{differential entropy}, where the summation is replaced by an integral over the probability density function.
 
 Note: In practice, expressions of the form $0 \log 0$ may appear in entropy computations. In information theory, these terms are defined via the limit
-\begin{equation}
+\begin{equation*}
 \lim_{p \to 0^+} p \log p = 0,
-\end{equation}
+\end{equation*}
 which ensures that entropy remains well-defined even when some outcomes have zero probability.
 
 \textbf{\\Kullback-Leibler Divergence\\}
 To compare two probability distributions $P(x)$ and $Q(x)$ defined on the same support $\mathcal{X}$, the \emph{Kullback--Leibler (KL) divergence}~\cite{kullback1951} is defined as
-\begin{equation}
+\begin{equation*}
 D_{\mathrm{KL}}(P \,\|\, Q) = \mathbb{E}_{x \sim P} \left[ \log \frac{P(x)}{Q(x)} \right] = \mathbb{E}_{x \sim P} [\log P(x) - \log Q(x)].
-\end{equation}
+\end{equation*}
 
 The KL divergence is well-defined provided that $Q(x) > 0$ for all $x \in \mathcal{X}$ such that $P(x) > 0$.
 
@@ -643,11 +643,11 @@ The KL divergence quantifies the discrepancy between $P$ and $Q$ in terms of the
 
 \textbf{\\Cross-entropy\\}
 Closely related to KL divergence is the \emph{cross-entropy} \cite{cover2006}, defined as
-\begin{equation}
+\begin{equation*}
 H(P, Q) = - \mathbb{E}_{x \sim P} [\log Q(x)].
-\end{equation}
+\end{equation*}
 
-Here, $P$ and $Q$ denote probability distributions defined on the same support $\mathcal{X}$, and the expectation is taken with respect to $P$, in the same manner as in the definition of the KL divergence.
+Here, $P$ and $Q$ denote probability distributions defined on the same \break support  $\mathcal{X}$, and the expectation is taken with respect to $P$, in the same manner as in the definition of the KL divergence.
 
 Cross-entropy can be decomposed as:
 \begin{equation}
@@ -657,7 +657,7 @@ where $H(P)$ denotes the entropy of the distribution $P$.
 
 Since $H(P)$ does not depend on $Q$, minimizing cross-entropy with respect to $Q$ is equivalent to minimizing the KL divergence.
 
-In machine learning, cross-entropy corresponds to the negative log-likelihood of the model $Q$ under data generated from $P$, which explains its widespread use as a loss function.
+In machine learning, cross-entropy corresponds to the negative log-likelihood of the model $Q$ under data generated from $P$, which explains its widespread use \break as a loss function.
 
 \textbf{\\Mutual Information\\}
 \emph{Mutual information}\cite{shannon1948,cover2006} quantifies the amount of information shared between two random variables $X$ and $Y$. It measures how much knowledge of one variable reduces uncertainty about the other. It is defined as
@@ -671,18 +671,18 @@ Mutual information is symmetric, non-negative, and equals zero if and only if $X
 
 
 \textbf{\\Redundancy\\}
-Let $X^{(i)}$ be a discrete random variable representing the $i$-th feature, defined on a common probability space. Let $S \subset \{1,\dots,d\} \setminus \{i\}$ denote a subset of feature indices other than $i$.
+Let $X^{(i)}$ be a discrete random variable representing the $i$-th feature, defined \break on a common probability space. Let $S \subset \{1,\dots,d\} \setminus \{i\}$ denote a subset of feature indices other than $i$.
 
 Here, $d \in \mathbb{N}$ denotes the total number of features in the dataset. Each observation $\mathbf{x} \in \mathbb{R}^d$ is a realization of a $d$-dimensional random vector
 \[
-\mathbf{X} = (X^{(1)}, \dots, X^{(d)}),
+\mathbf{X} = (X^{(1)},X^{(2)}, \dots, X^{(d)}),
 \]
 defined on the same probability space.
 
 We define the \emph{redundancy}~\cite{peng2005} of feature $X^{(i)}$ with respect to the set $S$ as the average mutual information between $X^{(i)}$ and the variables indexed by $S$:
-\begin{equation}
+\begin{equation*}
 R(X^{(i)}, S) = \frac{1}{|S|} \sum_{j \in S} I\bigl(X^{(i)}; X^{(j)}\bigr).
-\end{equation}
+\end{equation*}
 
 Here, $I(X^{(i)}; X^{(j)})$ denotes the mutual information between two discrete random variables $X^{(i)}$ and $X^{(j)}$, defined via their joint probability mass function
 $P_{i,j}(x,y),$ induced by the underlying joint distribution of $\mathbf{X}$.
@@ -770,27 +770,27 @@ Conversely, \textit{overfitting} arises, when the model captures not only essent
 
 The \textit{generalisation gap} is defined as the difference between the training error and the test (generalization) error. It measures how well the model transfers learned patterns to unseen data.
 
-A large generalization gap indicates overfitting, while a small gap suggests that the model generalizes well. In deep learning, monitoring the generalization gap is a common diagnostic tool.
+A large generalization gap indicates overfitting, while a small gap suggests that the model generalizes well. In deep learning, monitoring the generalization gap \break is a common diagnostic tool.
 
 \textbf{\\Bias-variance trade-off\\}
 A central concept closely linked to overfitting and underfitting is the \emph{bias–variance trade-off}. Let 
 \(\hat f(x)\) denote the estimator learned from data, and let \(f^\ast(x)\) be the true underlying regression function. The \emph{expected prediction error} at a fixed point \(x\) can be decomposed as
-\begin{equation}
+\begin{equation*}
     \mathbb{E}\big[(\hat f(x) - f^\ast(x))^2\big]
     =
     \underbrace{\big(\mathbb{E}[\hat f(x)] - f^\ast(x)\big)^2}_{\text{bias}^2}
     +
     \underbrace{\mathbb{E}\big[(\hat f(x) - \mathbb{E}[\hat f(x)])^2\big]}_{\text{variance}}.
-\end{equation}
+\end{equation*}
 
-The bias term quantifies the error due to restrictive assumptions in the model. A model with high bias fails to approximate complex patterns and tends to underfit.
+The bias term quantifies the error due to restrictive assumptions in the model. \break A model with high bias fails to approximate complex patterns and tends to underfit.
 
 The variance, which underlies the problem of overfitting, increases with model complexity. As complexity grows, bias decreases while variance rises. A larger number of parameters allows the model to capture more complex relationships between predictors and the response.
 
 Neural networks, because of their high capacity and extremely large hypothesis space, can achieve low bias but often exhibit large variance, especially when the number of parameters is high relative to the sample size. 
 
 \textbf{\\Validation\\}
-To estimate generalization performance and tune model hyperparameters, the dataset is typically partitioned into three disjoint subsets:
+To estimate generalization performance and tune model hyperparameters, which are parameters not learned during training but set prior to optimization, such as network architecture, learning rate or connectivity pasttern. The dataset is typically partitioned into three disjoint subsets \cite{goodfellow2016}:
 
 \begin{itemize}
     \item \emph{Training set}: used to fit the model parameters,
@@ -809,33 +809,33 @@ Deep neural networks are highly expressive models with large hypothesis spaces, 
 One common approach to address problem of overfitting is by adding a penalty term to a loss function, which effectively controls model complexity by discouraging large parameter values.
 
 The general form of a regularized cost function is given by
-\begin{equation}
+\begin{equation*}
 J(\boldsymbol{\theta}) = L(\boldsymbol{\theta}) + \lambda \Omega(\boldsymbol{\theta}),
-\end{equation}
+\end{equation*}
 
-where $L(\boldsymbol{\theta})$ is the empirical error as defined in Section~XXXXX, $\Omega(\boldsymbol{\theta})$ is a penalty term that discourages excessive model complexity by constraining the parameters $\boldsymbol{\theta}  \in \mathbf{R}^p$, and $\lambda \geq 0$ is the regularization parameter that balances the fit to the training data against the simplicity of the model.
+where $L(\boldsymbol{\theta})$ is the empirical error as defined in Section~\ref{sec:loss-functions}, $\Omega(\boldsymbol{\theta})$ is a penalty term that discourages excessive model complexity by constraining the parameters $\boldsymbol{\theta}  \in \mathbf{R}^p$, and $\lambda \geq 0$ is the regularization parameter that balances the fit to the training data against the simplicity of the model.
 
 \textbf{\\$L_1$ Regularization (LASSO)\\}
 \emph{Least Absolute Shrinkage and Selection Operator (LASSO)}~\cite{tibshirani1996} uses an $L_1$ penalty:
-\begin{equation}
-    \Omega(\theta) = \|\theta\|_1 = \sum_{j=1}^{p} |\theta_j|.
-\end{equation}
+\begin{equation*}
+    \Omega(\boldsymbol{\theta}) = \|\boldsymbol{\theta}|_1 = \sum_{j=1}^{p} |\theta_j|.
+\end{equation*}
 
 $L_1$ regularization promotes sparsity in the parameter vector, meaning that some coefficients are driven exactly to zero, which can also be interpreted as an implicit form of feature selection.
 
 \textbf{\\$L_2$ Regularization (Ridge)\\}
 In $L_2$ regularization (also known as \emph{Ridge} or \emph{Weight decay})~\cite{hoerl1970}, the penalty is given by the squared Euclidean norm of the parameter vector:
-\begin{equation}
-    \Omega(\theta) = \|\theta\|_2^2 = \sum_{j=1}^{p} \theta_j^2.
-\end{equation}
+\begin{equation*}
+    \Omega(\boldsymbol{\theta}) = \|\boldsymbol{\theta}|_2^2 = \sum_{j=1}^{p} \theta_j^2.
+\end{equation*}
 
 $L_2$ regularization discourages large parameter values by penalizing their magnitude quadratically. Unlike $L_1$ regularization, it does not enforce sparsity but instead tends to distribute weights more evenly across features.
 
 \textbf{\\Elastic Net regularization\\}
 \emph{Elastic Net}~\cite{zou2005} combines both $L_1$ and $L_2$ penalties. The regularization term is defined as
-\begin{equation}
+\begin{equation*}
     \Omega(\theta) = \alpha \|\theta\|_1 + (1 - \alpha)\|\theta\|_2^2,
-\end{equation}
+\end{equation*}
 where $\alpha \in [0,1]$ controls the trade-off between the $L_1$ and $L_2$ components - it promotes sparsity and feature selection through the $L_1$ component, while the $L_2$ component improves stability and encourages grouping of correlated features.
 
 \textbf{\\Early stopping\\}

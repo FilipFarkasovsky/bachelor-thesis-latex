@@ -1,46 +1,46 @@
 \chapter{Research Methodology and Experimental Results}
 \section{Methodology}
 
-This experimental part of the study investigates the impact of feature selection methods on the performance and training efficiency of neural networks. The experimental framework is based on the implementation presented by Barbieri et al. in \cite{barbieri2022}. This framework was modified to meet the specific requirements of the present study. In particular, the original pipeline was extended by incorporating deep neural network–based feature selection methods and by introducing a neural network classifier as the predictive model used to evaluate the predictive power of the selected feature subsets. The implementation was carried out in Python 3.12 using the libraries \emph{SciPy}~\cite{scipy2020}, \emph{PyTorch}~\cite{pytorch2019}, \emph{Keras}~\cite{keras2015}, and \emph{TensorFlow}~\cite{tensorflow2016}.
+The experimental part of the study investigates the impact of feature selection methods on the performance and training efficiency of neural networks. The experimental framework is based on the implementation presented by Barbieri et al. in \cite{barbieri2022}. The framework was modified to meet the specific requirements of the present study. In particular, the original pipeline was extended by incorporating deep neural network–based feature selection methods and by introducing a neural network classifier as the predictive model used to evaluate the predictive power of the selected feature subsets. The implementation was carried out in \emph{Python 3.11.15} using the libraries \emph{SciPy 1.17.1}~\cite{scipy2020}, \emph{PyTorch 2.5.1}~\cite{pytorch2019}, \emph{Keras 2.13.2}~\cite{keras2015}, and \emph{TensorFlow 2.21.0}~\cite{tensorflow2016}.
 
-To ensure reproducibility and provide a baseline for time complexity analysis, all experiments were conducted on a \emph{ROG Zephyrus G14 GA401QC system}. The hardware configuration consists of an \emph{AMD Ryzen 7 5800HS processor} (8 cores, 16 logical processors) clocked at 3.2 GHz, 16 GB of physical RAM, and an \emph{NVIDIA GeForce RTX 3050 Laptop GPU}. The GPU was utilized to accelerate tensor operations for deep learning–based feature selection methods and neural network training using \emph{Compute Unified Device Architecture (CUDA) technology}~\cite{cuda_docs}. Due to the non-deterministic nature of GPU-accelerated operations, numerical differences happen despite identical experimental settings.
+To ensure reproducibility and provide a baseline for time complexity analysis, all experiments were conducted on a \emph{ROG Zephyrus G14 GA401QC} system. The hardware configuration consists of an \emph{AMD Ryzen 7 5800HS processor} (8 cores, 16 logical processors) clocked at 3.2 GHz, 16 GB of physical RAM, and an \emph{NVIDIA GeForce RTX 3050 Laptop GPU}. The GPU was utilized to accelerate tensor operations for deep learning–based feature selection methods and neural network training using \emph{Compute Unified Device Architecture 12.1 (CUDA) technology}~\cite{cuda_docs}. Due to the non-deterministic nature of GPU-accelerated operations, numerical differences happen despite identical experimental settings.
 
 \subsection{Data generating process}
 
 The data-generating process follows standard benchmarks in feature selection literature, emphasizing high-dimensional settings with noise and redundancy. Synthetic datasets are generated with $n = 1,000$ samples and total number of features $p \in \{512, 736, 1024\}$. Across all settings, the number of informative features is fixed at $k = 6$, while the remaining $p - k$ variables are noise.
 
-Let $\mathbf{X} = (X_1, \dots, X_p) \in \mathbb{R}^p$ denote the random feature vector. Each feature $X_j$ is independently sampled from a uniform distribution:
-\begin{equation}
-X_j \sim U(0, 1), \quad j = 1, \dots, p.
-\end{equation}
+Let $\mathbf{X} = (X_1,X_2, \dots, X_p) \in \mathbb{R}^p$ denote the random feature vector. Each feature $X_j$ is independently sampled from uniform distribution:
+\begin{equation*}
+X_j \sim U(0, 1), \quad j = 1,2 \dots, p.
+\end{equation*}
 
-The target variable $Y$ is derived from a latent nonlinear function that combines multiple types of dependencies. The structural signal is defined using six informative features $X_1, \dots, X_6$. The latent random variable $\xi$ is defined as:
-\begin{equation}
+The target variable $Y$ is derived from a latent nonlinear function that combines multiple types of dependencies. The structural signal is defined using six informative features $X_1,X_2, \dots, X_6$. The latent random variable $\xi$ is defined as:
+\begin{equation*}
 \xi = 20(X_1 - 0.5)(X_2 - 0.5) + 20(X_3 - 0.5)^2 + 15(X_4 X_5) + 10X_6 + \epsilon,
-\end{equation}
+\end{equation*}
 where $\epsilon \sim \mathcal{N}(0, 0.5^2)$ is Gaussian noise.
 
 For a sample of size $n$, the observations of the latent variable are given by
-\begin{equation}
-\xi_i = 20(x_{i,1} - 0.5)(x_{i,2} - 0.5) + 20(x_{i,3} - 0.5)^2 + 15(x_{i,4} x_{i,5}) + 10x_{i,6} + e_i, \quad i = 1, \dots, n,
-\end{equation}
-where $\mathbf{x}_i = (x_{i,1}, \dots, x_{i,p})$ denotes the $i$-th realization of $\mathbf{X}$ and $e_i$ is $i$-th realization of $\epsilon$.
+\begin{equation*}
+\xi_i = 20(x_{i,1} - 0.5)(x_{i,2} - 0.5) + 20(x_{i,3} - 0.5)^2 + 15(x_{i,4} x_{i,5}) + 10x_{i,6} + e_i, \quad i = 1,2, \dots, n,
+\end{equation*}
+where $\mathbf{x}_i = (x_{i,1},x_{i,2}\dots, x_{i,p})$ denotes the $i$-th realization of $\mathbf{X}$ and $e_i$ is $i$-th realization of $\epsilon$.
 
 This formulation captures four distinct relationships between the predictors and the latent variable: a continuous XOR component via the product of centered variables, a smooth nonlinear quadratic term, a multiplicative interaction between continuous variables, and a linear contribution. This enables assessment of how different methods are able to handle different types of signals.
 
 To ensure a balanced class distribution, the latent variable $\xi$ is centered by subtracting its sample median, denoted by $\tilde{\xi}$. The centered latent random variable $\xi_c$ is defined as:
-\begin{equation}
+\begin{equation*}
     \xi_c = \xi - \tilde{\xi}.
-\end{equation}
+\end{equation*}
 This centered variable is then transformed into a probability $p$ via the logistic function:
-\begin{equation}
+\begin{equation*}
     p = \frac{1}{1 + e^{-\xi_c}}.
-\end{equation}
-For each observation $i = 1, \dots, n$, the binary labels $y_i$ are sampled from a Bernoulli distribution:
-\begin{equation}
+\end{equation*}
+For each observation the binary labels $y_i$ are sampled from a Bernoulli distribution:
+\begin{equation*}
     y_i \sim \text{Bernoulli}(p_i),
-\end{equation}
-where $p_i$ is the probability obtained from the realized centered latent value $\xi_{c,i} = \xi_i - \tilde{\xi}$. This centering step ensures the classification task remains balanced by anchoring the decision boundary at the median of the signal. The inclusion of Gaussian noise in the latent function and the subsequent Bernoulli sampling of labels introduces stochasticity into the data-generating process, ensuring that labels are not perfectly separable.
+\end{equation*}
+where $p_i$ is the probability obtained from the realized centered latent value $\xi_{c,i} = \xi_i - \tilde{\xi}$. This centering step shifts the latent signal such that the logistic decision boundary corresponding to $p = 0.5$ is aligned with the sample median of $\xi$, thereby promoting an approximately balanced class distribution. The inclusion of Gaussian noise in the latent function and the subsequent Bernoulli sampling of labels introduces stochasticity into the data-generating process, ensuring that labels are not perfectly separable.
 
 \subsection{Feature selection methods}
 
@@ -115,8 +115,8 @@ The model is trained under two conditions:
     \item using feature subsets $\mathbf{x}_S$ selected by each method.
 \end{enumerate}
 
-\subsection{Evaluation metrics}
-Across the entire experimental study, four main evaluation criteria are considered. Predictive performance is measured using the macro-averaged F1-score, defined in section~\ref{sec:criteria-classification-tasks}. Computational efficiency is assessed through the number of training epochs required for model convergence. Feature selection quality is evaluated as the percentage of truly informative features correctly identified by each method. Finally, we measure the computational cost of each approach by recording the time required to perform feature selection.
+\subsection{Evaluation Metrics}
+Across the entire experimental study, four main evaluation criteria are considered. Predictive performance is measured using the macro-averaged F1-score, defined in Section~\ref{sec:criteria-classification-tasks}. Computational efficiency is assessed by the number of training epochs required until convergence. The stopping condition is based on the early stopping procedure defined in Table~\ref{tab:nn_hyperparameters} (patience = $20$, threshold = $10^{-4}$). Feature selection quality is evaluated as the percentage of truly informative features correctly identified by each method. Finally, we measure the computational cost of each approach by recording the time required to perform feature selection.
 
 \section{Experimental Results}
 \subsection{Baseline Model Performance}
@@ -169,7 +169,7 @@ DeepPINK                  & 50.0 & 50.0 & 50.0 & 50.0 & 55.6 \\
 LassoNet                  & 50.0 & 50.0 & 55.6 & 55.6 & 61.1 \\
 \hline
 \end{tabular}
-\caption{Performance comparison of feature selection methods across different feature subset sizes, grouped by algorithm family.}
+\caption{Performance comparison of feature selection methods across different subset sizes (number of selected features). The reported values correspond to the macro-averaged F1-score. Results are grouped by algorithm family.}
 \label{tab:feature_selection_comparison}
 \end{table}
 
@@ -199,7 +199,7 @@ mRMR                     & 514.0  & 0.759 & 4.39 & 78.6 \\
 CancelOut                & 39.4   & 0.732 & 4.66 & 83.7 \\
 \hline
 \end{tabular}
-\caption{Comparison of feature selection methods based on preprocessing time and neural network classification performance. Methods are ordered by decreasing macro F1-score.}
+\caption{Comparison of feature selection methods based on preprocessing time and neural network classification performance. Methods are ordered by decreasing macro F1-score. All reported values are averaged over different total numbers of features, $p \in \{512, 736, 1024\}$.}
 \label{tab:fs_nn_comparison}
 \end{table}
 
@@ -208,11 +208,11 @@ Table~\ref{tab:fs_nn_comparison} reveals important trade-offs between predictive
 
 The behavior of SVM-RFE is consistent with the characteristics of wrapper methods, which typically achieve strong predictive performance at the expense of high computational complexity. 
 
-A relationship between feature selection quality and neural network training efficiency is observed but is not strictly monotonic. Stronger methods (SVM-RFE, Kruskal-Wallis, DeepPINK, LassoNet) converge in fewer than $78$ epochs, while \break weaker ones (ReliefF, Decision Tree, CancelOut) require more epochs. However, the baseline model already converges efficiently ($23-35$ epochs), indicating that feature selection does not consistently improve convergence speed and may have a limited effect.
+A relationship between feature selection quality and neural network training efficiency is observed but is not strictly monotonic. Stronger methods (SVM-RFE, Kruskal-Wallis, DeepPINK, LassoNet) converge in fewer than $78$ epochs, while \break weaker ones (ReliefF, Decision Tree, CancelOut) require more epochs. However, the baseline model already converges efficiently ($23-35$ epochs), indicating that feature selection does not consistently improve convergence speed and may have \break a limited effect.
 
 Neural network training time after feature selection ranges between 4.07 s and 4.85 s, which is slightly lower than the baseline training time before feature selection ($4.72-5.81 s$), suggesting a moderate improvement in computational efficiency.
 
-The deep learning-based feature selection methods exhibit mixed behavior. DeepPINK achieves competitive predictive performance with moderate preprocessing \break time, whereas LassoNet provides similarly strong classification performance but at a substantially higher computational cost. CancelOut performs noticeably worse than the remaining deep learning-based approaches across most evaluation metrics.
+The deep learning-based feature selection methods exhibit mixed behavior. DeepPINK achieves competitive predictive performance with moderate preprocessing \break time, whereas LassoNet provides similarly strong classification performance but \break at a substantially higher computational cost. CancelOut performs noticeably worse than the remaining deep learning-based approaches across most evaluation metrics.
 
 Finally, mRMR demonstrates particularly poor computational efficiency in the present setting. Despite requiring the longest preprocessing time of all evaluated methods ($514.0 s$), it achieves relatively weak predictive performance. This may indicate difficulties in capturing the nonlinear signals.
 

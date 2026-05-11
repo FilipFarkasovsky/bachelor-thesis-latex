@@ -111,18 +111,27 @@ Klíčové slovo; Klíčové slovo}{Neural networks; Keyword; Keyword; Keyword; 
 Keyword; Keyword}
 
 \Abstrakty%
-{V této bakalářské/diplomové/rigorózní práci se věnujeme ...}%
-{In this thesis we study ...}
+{Tato práce se zabývá zkoumáním role výběru prediktoru při zlepšování predikcnych schopnosti neuronových sítí ve vysokodimenzionálních datech. Neuronové sítě jsou modely strojového učení schopné zachytit komplexne nelineární vztahy, avšak jejich výkon a výpočetní narocnost se mohou zhoršovat v případě přítomnosti irelevantních nebo redundantních prediktorov v datech. K řešení tohoto problému jsou zkoumány různé metody výběru prediktorov, včetně filtrových, wrapper a embedded přístupů.
+
+Práce kombinuje teoretický přehled neuronových sítí a metod výběru prediktorov s praktickou ukazkou na syntetických datech obsahujících lineární, interakční, kvadratické a XOR cleny. Rozobranych je niekolko metod výběru příznaků, jako jsou Lasso, LassoNet, Mutual Information, ReliefF, Random Forest, rozhodovací stromy a metody založené na SVM, a to z hlediska jejich schopnosti identifikovat relevantní prediktory a jejich vlivu na následný predikcne schopnosti neuronových sítí.
+
+Vysledky praktickej casti ukazují, že většina metod spolehlivě zachycuje lineární a interakční vztahy, zatímco nelineární XOR závislosti jsou pro většinu přístupů výrazně obtížnější. Z hlediska predikčního výkonu výběr příznaků obecně zlepšuje přesnost klasifikace a snižuje čas potřebný pro trénování neuronove site. Zároveň však může vést ke zvýšení počtu epoch pri trenovani modelu, což naznačuje kompromis mezi redukcí dimenzionality a dynamikou optimalizace.
+
+Celkově výsledky ukazují, že výběr příznaků může zlepšit jak dobu trénování, tak predikční výkon neuronových sítí.}%
+{This thesis investigates the role of feature selection in improving the performance of neural networks in high-dimensional settings. Neural networks are powerful machine learning models capable of capturing complex nonlinear relationships, however their performance and efficiency may degrade when irrelevant or redundant features are present in the data. To address this issue, several feature selection methods are examined, including filter, wrapper, and embedded approaches.
+
+The study combines a theoretical overview of neural networks and feature selection with an empirical analysis based on synthetic datasets containing linear, interaction, quadratic, and XOR-type structures. A range of feature selection techniques, such as Lasso, LassoNet, Mutual Information, ReliefF, Random Forest, Decision Trees, and SVM-based methods, are evaluated in terms of their ability to recover informative features and their impact on downstream neural network performance.
+
+The experimental results show that most methods reliably identify linear and interaction effects, while nonlinear XOR-type dependencies are significantly more difficult to detect. In terms of predictive performance, feature selection generally improves classification accuracy and reduces training time. However, it may also increase the number of epochs required for model training, indicating a trade-off between dimensionality reduction and optimization dynamics.
+
+Overall, the findings demonstrate that feature selection can enhance both training time and predictive performance of neural networks.}
 
 \TextPodekovani%
-{Na tomto místě bych chtěl(-a) poděkovat ...}
+{Rád bych poděkoval doc. Mgr. Janu Koláčkovi, Ph.D., za zastřešení vedoucí role a Mgr. Markétě Barać Makarové za odborné vedení, podporu a cenné připomínky během zpracování této práce.}
 
 \TextProhlaseni%
-{Prohlašuji, že jsem svoji bakalářskou/diplomovou práci vypracoval(-a) samostatně pod vedením vedoucího práce 
-s~využitím informačních zdrojů, které jsou v práci citovány.\\[10mm]
-
-Prohlašuji, že jsem svoji rigorózní práci vypracoval(-a) samostatně s~využitím informačních zdrojů, které jsou v práci 
-citovány.}
+{Prohlašuji, že jsem svoji bakalářskou/diplomovou práci vypracoval samostatně pod vedením vedoucího práce 
+s~využitím informačních zdrojů, které jsou v práci citovány.\\[10mm]}
 
 \DatumProhlaseni{xx. měsíce 2026}
 
@@ -222,11 +231,11 @@ citovány.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ABSTRAKT + ABSTRACT 
 
-\AbstraktyNaJedneStrane
+% \AbstraktyNaJedneStrane
 
 %%%%%%%%%%%%%%%%%%%%%% POKUD SE ABSTRAKTY NEVEJDOU NA JEDNU STRANU, POUZIJTE TOTO NASTAVENI %%%%%%%
 
-% \AbstraktyNaDvouStranach
+\AbstraktyNaDvouStranach
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ABSTRAKT + ABSTRAKT + ABSTRACT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -294,9 +303,6 @@ citovány.}
 \cleardoublepage
 
 \vloz{text/3_methods}
-\cleardoublepage
-
-\vloz{text/4_application}
 \cleardoublepage
 
 \HlavickaZaver

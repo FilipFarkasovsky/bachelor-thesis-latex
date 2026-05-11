@@ -11,9 +11,9 @@ As illustrated by the authors in  \cite{hastie2001}; the curse of dimensionality
 $p$-dimensional unit hypercube $[0,1]^p$, as in Figure~\ref{fig:hypercube}. We define a local neighborhood as a smaller $p$-dimensional hypercube, such that it contains a fixed fraction $r \in (0,1)$ of the total volume of the space.
 
 To achieve this, the edge length of the neighborhood hypercube must satisfy
-\begin{equation}
+\begin{equation*}
     \varepsilon_p(r) = r^{1/p}.
-\end{equation}
+\end{equation*}
 
 This relationship has a counterintuitive implication: as the dimension $p$ increases, the required edge length grows rapidly. In particular, the side length $\varepsilon_p(r)$ approaches $1$ as $p \to \infty$, even for small values of $r$. This means that to capture a fixed proportion of the data, one must include a large fraction of each variable’s range.
 
@@ -30,7 +30,9 @@ This phenomenon highlights a key issue in high-dimensional data analysis: points
 \end{figure}
 
 \section{Feature Selection: Formal Definition and Feature Types}
-\emph{Feature selection} addresses these issues by reducing the dimensionality of the input space. Let $(\mathbf{X}, Y) \sim P$,   joint probability distribution of the random feature vector $\mathbf{X} \in \mathbb{R}^p$ and the target variable $Y$. Let $\mathbf{x} = (x_1, \dots, x_p) \in \mathbb{R}^p$ and $y$ denote their respective realizations. Let $I = \{1, \dots, p\}$ be the set of all feature indices. For any subset of indices $A \subseteq I$, let
+\emph{Feature selection} addresses these issues by reducing the dimensionality of the input space. Let $(\mathbf{X}, Y) \sim P$ be a joint probability distribution of the random feature vector $\mathbf{X} \in \mathbb{R}^p$ and the target variable $Y$. 
+
+Let $\mathbf{x} = (x_1,x_2, \dots, x_p) \in \mathbb{R}^p$ and $y$ denote their respective realizations. Let $I = \{1,2, \dots, p\}$ be the set of all feature indices. For any subset of indices $A \subseteq I$, let
 $\mathbf{X}_A = (X_j)_{j \in A}$
 denote the corresponding subvector of features.
 
@@ -39,24 +41,24 @@ The objective is to identify a subset $S \subseteq I$ with cardinality $|S| = k 
 Kohavi categorizes features by their contribution to the conditional distribution of $Y$ \cite{kohavi1997}. Let $I_{-j} = I \setminus \{j\}$ denote the set of all indices excluding $j$.
 
 A feature $X_j$ is \emph{strongly relevant} if
-\begin{equation}
+\begin{equation*}
 P(Y \mid X_j, \mathbf{X}_{I_{-j}}) \neq P(Y \mid \mathbf{X}_{I_{-j}}).
-\end{equation}
+\end{equation*}
 
 A feature $X_j$ is \emph{weakly relevant} if it is not strongly relevant, but there exists a subset $A \subset I_{-j}$ such that
-\begin{equation}
+\begin{equation*}
 P(Y \mid X_j, \mathbf{X}_A) \neq P(Y \mid \mathbf{X}_A).
-\end{equation}
+\end{equation*}
 
 A feature $X_j$ is \emph{irrelevant} if it provides no additional information about $Y$ for any subset $A \subseteq I_{-j}$:
-\begin{equation}
+\begin{equation*}
 \forall A \subseteq I_{-j}, \quad P(Y \mid X_j, \mathbf{X}_A) = P(Y \mid \mathbf{X}_A).
-\end{equation}
+\end{equation*}
 
 A weakly relevant feature $X_j$ is \emph{redundant} if there exists a subset $A \subset I_{-j}$ that fully contains its information \cite{yu2004}:
-\begin{equation}
+\begin{equation*}
 P(Y \mid X_j, \mathbf{X}_A) = P(Y \mid \mathbf{X}_A).
-\end{equation}
+\end{equation*}
 
 Removing irrelevant features reduces noise, while removing redundant features
 eliminates unnecessary duplication of information. Both contribute to a more com-
@@ -65,15 +67,15 @@ pact and efficient representation of the data.
 \section{Feature Selection vs.\ Feature Extraction}
 
 Feature selection and extraction are two fundamental approaches to dimensionality reduction. Let $\mathbf{x} \in \mathbb{R}^p$ denote an observation in a $p$-dimensional feature space. Both methods define a transformation
-$T : \mathbb{R}^p \to \mathbb{R}^k,\quad \text{where } k \ll p$. The primary motivation is to reduce computational and storage complexity, which becomes particularly relevant in high-dimensional settings. The fundamental difference between those methods lies in the structure of the transformation $T$.
+$T : \mathbb{R}^p \to \mathbb{R}^k,\text{where } k \ll p$. The primary motivation is to reduce computational and storage complexity, which becomes particularly relevant in high-dimensional settings. The fundamental difference between those methods lies in the structure of the transformation $T$.
 
 \subsection*{Feature Selection}
-Feature selection restricts the transformation to coordinate projections. Let $S \subset \{1, \dots, p\}$ with $|S| = k$. Then feature selection defines
-\begin{equation}
+Feature selection restricts the transformation to coordinate projections. Let $S \subset \{1,2,\dots, p\}$ with $|S| = k$. Then feature selection defines
+\begin{equation*}
     \pi_S : \mathbb{R}^p \to \mathbb{R}^k, 
     \qquad 
     \pi_S(\mathbf{x}) = (x_j)_{j \in S}.
-\end{equation}
+\end{equation*}
 
 Because the original variables $x_j$ are preserved, their physical meaning remains intact. This approach is preferred when model interpretability is required.
 
@@ -81,17 +83,17 @@ Common feature selection methods will be discussed in section~\ref{sec:feature-s
 
 \subsection*{Feature Extraction}
 Feature extraction, in contrast, constructs new features as general transformations of the full input vector. It defines a mapping
-\begin{equation}
-    \psi : \mathbb{R}^p \to \mathbb{R}^k,\qquad \psi(\mathbf{x}) = (\psi_1(\mathbf{x}), \dots, \psi_k(\mathbf{x})),
-\end{equation}
+\begin{equation*}
+    \psi : \mathbb{R}^p \to \mathbb{R}^k,\qquad \psi(\mathbf{x}) = (\psi_1(\mathbf{x}),\psi_2(\mathbf{x}), \dots, \psi_k(\mathbf{x})),
+\end{equation*}
 where each component $\phi_i$ depends on all coordinates of $\mathbf{x}$. In this case, the original meaning of individual features is generally lost.
 
-Common feature extraction methods include \emph{principal component analysis (PCA)}~\cite{jolliffe2002}, \emph{independent component analysis (ICA)}~\cite{hyvarinen2001}, \emph{linear discriminant analysis (LDA)}~\cite{bishop2006}, and \emph{neural autoencoders}~\cite{hinton2006}.
+Feature extraction methods include \emph{principal component analysis (PCA)}~\cite{jolliffe2002}, \emph{independent component analysis (ICA)}~\cite{hyvarinen2001}, \emph{linear discriminant analysis (LDA)}~\cite{bishop2006}, and \emph{neural autoencoders}~\cite{hinton2006}.
 
 \section{Applications of Feature Selection}
 Feature selection becomes particularly important in high-dimensional settings, especially in $p > n$ problems, where the number of features $p$ exceeds the number of observations $n$. High-dimensional datasets often contain irrelevant or redundant features, which can reduce model performance and increase computational cost~\cite{guyon2006}. 
 
-For example, in genomics, a single experiment can measure tens of thousands of gene expression levels for only a few hundred~\cite{golub1999}. In such cases, most features are either irrelevant or occur with very low frequency, making it difficult for learning algorithms to identify meaningful patterns. 
+For example, in genomics, a single experiment can measure tens of thousands of gene expression levels for only a few hundred observations~\cite{golub1999}. In such cases, most features are either irrelevant or occur with very low frequency, making it difficult for learning algorithms to identify meaningful patterns. 
 
 Similarly, text classification datasets may contain thousands of words that contribute little to the predictive~\cite{forman2003}. Feature selection mitigates these issues by identifying a subset of informative and non-redundant features.
 
@@ -113,7 +115,7 @@ Feature selection methods can also be classified as univariate or multivariate~\
 From the perspective of selection strategy, feature selection algorithms can be categorized into wrapper, filter, and embedded methods, with additional approaches including hybrid and ensemble methods.
 
 \subsection{Wrapper methods} 
-\emph{Wrapper methods} perform a search over the feature space to find the one that optimizes predictive model performance. Formally, each candidate subset \(S \subseteq \{1, \dots, d\}\) is assessed using an empirical cost function \(\mathcal{L}(S)\). This function estimates the generalization error of a model trained exclusively on the features in $S$.
+\emph{Wrapper methods} perform a search over the feature space to find the one that optimizes predictive model performance. They will be discussed in in Section~\ref{sec:feature-selection-methods}. Formally, each candidate subset $S\subseteq \{1,2 \dots, d\}$ is assessed using an empirical cost function \(\mathcal{L}(S)\). This function estimates the generalization error of a model trained exclusively on the features in $S$.
 
 Let $\mathbf{x}_i^{(S)}$ denote the feature vector of the $i$-th observation restricted to the indices in $S$. For a fixed model $f_S$ trained on $S$, the empirical risk is defined as
 \begin{equation}
@@ -122,25 +124,25 @@ Let $\mathbf{x}_i^{(S)}$ denote the feature vector of the $i$-th observation res
 
 where $\ell(\cdot,\cdot)$ is a task-dependent loss function and $y_i$ is the observed target value.
 
-In practice, $\mathcal{L}(S)$ is often computed using cross-validation in order to obtain a more reliable estimate of the generalization error, especially when the dataset is small or the model has high variance. Typical loss functions include misclassification error for classification and mean squared error for regression.
+In practice, $\mathcal{L}(S)$ is often computed using cross-validation in order to obtain \break a more reliable estimate of the generalization error, especially when the dataset is small or the model has high variance. Typical loss functions include misclassification error for classification and mean squared error for regression.
 
 The objective of the wrapper approach is then to solve
 \begin{equation}
-S^* = \arg\min_{S \subset \{1,\dots,d\}} \mathcal{L}(S).
+S^* = \arg\min_{S \subset \{1,2,\dots,d\}} \mathcal{L}(S).
 \end{equation}
 
-These methods evaluate subsets according to a search strategy, which determines the order and selection of candidate subsets. These methods proceed iteratively: in each step, a candidate subset is evaluated, and the search is updated accordingly. 
+These methods evaluate subsets according to a search strategy, which determines the order and selection of candidate subsets. Additionaly, these methods proceed iteratively: in each step, a candidate subset is evaluated, and the search is updated accordingly. 
 
 The iterations continue until a stopping criterion is satisfied, such as a fixed number of iterations, a maximum number of selected features, or convergence in the improvement of the objective function.
 
-Different search strategies exist; some of them are introduced in section~\ref{sec:search-strategies}.
+Different search strategies exist; some of them are introduced in Section~\ref{sec:search-strategies}.
 
 Wrapper methods are model-agnostic, meaning they can be applied to any predictive model. However, they are computationally expensive, since each evaluation requires full model training and validation. This leads to a significantly higher computational cost compared to filter-based methods \cite{guyon2006}. In this thesis, we examine \emph{Support Vector Machine Recursive Feature Elimination (SVM-RFE)}~\cite{guyon2002} (in subsection~\ref{sec:feature-selection-methods}) as an example of a wrapper method. 
 
 \subsection{Filter methods}
-\emph{Filter methods} are independent of any learning algorithm and rely on intrinsic properties of the data. They usually rank features based on statistical or information-theoretic criteria such as correlation, chi-squared statistics, mutual information, or information gain. 
+\emph{Filter methods} are independent of any learning algorithm and rely on intrinsic properties of the data. They usually rank features based on statistical or information-theoretic criteria such as correlation, chi-squared statistics~\cite{pearson1900}, mutual information~\cite{cover2006}, or information gain~\cite{quinlan1986}. 
 
-Unlike wrapper methods, the evaluation criterion in filter approaches does not depend on the predictive performance of a particular classifier or regression model. As a result, filter methods are computationally efficient and scalable to high-dimensional datasets, which makes them particularly suitable as a preprocessing step prior to model training.
+Unlike wrapper methods, the evaluation criterion in filter approaches does not depend on the predictive performance of a particular classifier or regression model. \break As a result, filter methods are computationally efficient and scalable to high-dimensional datasets, which makes them particularly suitable as a preprocessing step prior to model training.
 
 However, many filter methods evaluate features independently and therefore may fail to capture dependencies or interactions between variables.
 
@@ -187,40 +189,40 @@ Each feature is evaluated independently with respect to the target variable, and
 Since the test evaluates each feature separately, the method is univariate and does not account for potential dependencies or interactions between features. Kruskal Wallis test yields feature importance scores and is therefore classified as a weight-based feature selection approach.
 
 \subsection{Mutual Information Filter}
-\emph{Mutual Information}, as introduced in section~\ref{sec:information-theory}, is applied as a filter-based feature selection method. It allows measuring the relevance of each feature by quantifying how much information it provides about the target variable. Based on these values, features can be assigned importance weights. This method is univariate, as it evaluates each feature independently, without accounting for dependencies or interactions between variables.
+\emph{Mutual Information}, as introduced in section~\ref{sec:information-theory}, is applied as a filter-based feature selection method. It allows measuring the relevance of each feature by quantifying how much information it provides about the target variable. Based on these values, features can be assigned importance weights, therefore classified as wieght-based. This method is univariate, as it evaluates each feature independently, without accounting for dependencies or interactions between variables.
 
 \subsection{The Minimum Redundancy Maximum Relevance}
-\emph{Minimal Redundancy Maximum Relevance (mRMR)}~\cite{peng2005} is a filter-based feature selection method that iteratively selects features by maximizing relevance to the target variable while minimizing redundancy with respect to the already selected subset. Relevance and redundancy are defined in subection~\ref{sec:information-theory}. At each iteration, the method selects the feature $X^{(j)}$ that maximizes the mRMR criterion:
-\begin{equation}
-j^* = \arg\max_{j \in \{1,\dots,d\} \setminus S} \Bigl[ I\bigl(X^{(j)}; c\bigr) - R\bigl(X^{(j)}, S\bigr) \Bigr].
-\end{equation}
+\emph{Minimal Redundancy Maximum Relevance (mRMR)}~\cite{peng2005} is a filter-based feature selection method that iteratively selects features by maximizing relevance to the target variable while minimizing redundancy with respect to the already selected subset. Relevance and redundancy are defined in Subsection~\ref{sec:information-theory}. At each iteration, the method selects the feature $X^{(j)}$ that maximizes the mRMR criterion:
+\begin{equation*}
+j^* = \arg\max_{j \in \{1,2,\dots,d\} \setminus S} \Bigl[ I\bigl(X^{(j)}; c\bigr) - R\bigl(X^{(j)}, S\bigr) \Bigr].
+\end{equation*}
 
-Here, $\{1,2,\dots,d\}$ denotes the set of all feature indices, and $S \subset \{1,\dots,d\}$ is the set of already selected features. The term $I(X^{(j)}; c)$ measures the relevance of feature $X^{(j)}$ with respect to the class label $c$, while $R(X^{(j)}, S)$ quantifies its redundancy with respect to the selected subset.
+Here, $\{1,2,\dots,d\}$ denotes the set of all feature indices, and $S \subset \{1,2,\dots,d\}$ is the set of already selected features. The term $I(X^{(j)}; c)$ measures the relevance of feature $X^{(j)}$ with respect to the class label $c$, while $R(X^{(j)}, S)$ quantifies its redundancy with respect to the selected subset.
 
-The algorithm is terminated after selecting a predefined number of features. This greedy algorithm returns an ordered subset of features.
+The procedure terminates once a predefined number of features has been selected. As a result, the greedy search produces an ordered subset of features.
 
 \subsection{ReliefF}
 \emph{ReliefF} \cite{kononenko1994relieff} is a filter-based feature selection algorithm that estimates importance of features based on how well their values distinguish between instances of different classes. Unlike univariate methods, ReliefF is able to capture feature dependencies to some extent by considering the local neighborhood of each instance.
 
 The algorithm works by repeatedly sampling an instance from the dataset and identifying its nearest neighbors: instances from the same class (nearest hits) and instances from different classes (nearest misses). For each feature vector $X^{j}$, ReliefF updates a weight according to how differently the attribute behaves between the sampled instance and its neighbors. Differences with nearest hits decrease the weight, while differences with nearest misses increase it. 
 
-The contribution of misses is weighted by the class prior probabilities \(P(c)\), ensuring that their total influence is comparable to that of hits. Although ReliefF does not explicitly model feature interactions, it can partially capture conditional dependencies through its use of local neighborhood information.
+The contribution of misses is weighted by the class prior probabilities \(P(c)\), ensuring that their total influence is comparable to that of hits.
 
 \subsection{Decision Tree}
-A \emph{decision tree}, is a predictive tree-based model model, constructed recursively in a top-down manner. The structure consists of internal nodes, which represent decision rules based on specific features, and leaf nodes, which represent the final predicted outcomes. The tree is built by partitioning the data at each node using an impurity measure, such as entropy or gini coefficient\footnote{The Gini coefficient (or Gini impurity in the context of decision trees) is a measure of node impurity used in classification tasks. It is defined as \( G = 1 - \sum_{i=1}^{K} p_i^2 \), where \(p_i\) is the proportion of samples belonging to class \(i\) in a given node and \(K\) is the number of classes. A Gini value of 0 indicates a perfectly pure node (all samples belong to one class), while higher values indicate greater class heterogenity. It is commonly used in algorithms such as Classification and Regression Trees (CART) to evaluate splits.} for classification or mean squared error (MSE) for regression. This process acts as an implicit form of feature selection, as the algorithm prioritizes features that yield the greatest reduction in impurity, thereby identifying the most discriminative variables in the dataset. In addition, feature importance scores can be extracted from the trained model based on the contribution of each feature to impurity reduction across all splits. One of the most widely used decision tree algorithms is Classification and Regression Trees (CART) \cite{breiman1984}.
+A \emph{decision tree}~\cite{breiman1984} is a predictive tree-based model model constructed recursively in a top-down manner. The structure consists of internal nodes, which represent decision rules based on specific features, and leaf nodes, which represent the final predicted outcomes. The tree is built by partitioning the data at each node using an impurity measure, such as entropy or Gini coefficient~\cite{gini1912} for classification or mean squared error (MSE) for regression. This process acts as an implicit form of feature selection, as the algorithm prioritizes features that yield the greatest reduction in impurity, thereby identifying the most discriminative variables in the dataset. In addition, feature importance scores can be extracted from the trained model based on the contribution of each feature to impurity reduction across all splits. One of the most widely used decision tree algorithms is Classification and Regression Trees (CART) \cite{breiman1984}.
 
 \subsection{Random Forrest}
 \emph{Random Forest} \cite{breiman2001} is an ensemble learning method based on decision trees, used for both classification and regression tasks. It builds a collection of decision trees during training, where each tree is constructed on a bootstrap sample (i.e., random sampling of instances with replacement) and at each split considers only a random subset of features. The final prediction is obtained by aggregating the outputs of all trees, typically through majority voting for classification or averaging for regression. This randomization reduces overfitting compared to a single decision tree and improves generalization performance. Additionally, Random Forest provides feature importance measures based on the average contribution of each feature to impurity reduction across all trees, making it suitable for embedded feature selection.
 
 \subsection{Support Vector Machines}
-\emph{Support Vector Machines (SVM)} \cite{cortes1995svm} are a class of supervised learning models used for classification and regression. The method seeks to find an optimal hyperplane in an n-dimensional space that separates data points of different classes with the maximum possible margin, i.e., maximizing the distance between the hyperplane and the closest observations from each class. When the data is not linearly separable, SVM can be extended using kernel functions and a soft-margin formulation, which allows for some misclassifications while maintaining good generalization.
+\emph{Support Vector Machines (SVM)} \cite{cortes1995svm} are a class of supervised learning models used for classification and regression. The method seeks to find an optimal hyperplane in an $n$-dimensional space that separates data points of different classes with the maximum possible margin, i.e., maximizing the distance between the hyperplane and the closest observations from each class. When the data is not linearly separable, SVM can be extended using kernel functions and a soft-margin formulation, which allows for some misclassifications while maintaining good generalization.
 
 The optimization problem is typically expressed as:
 \[
 \min_{w,b} \; \frac{1}{n} \sum_{i=1}^{n} \max\left(0,\, 1 - y_i (w^\top x_i - b)\right) + \lambda \|w\|^2
 \]
 
-where \( w \) is the weight vector normal to the hyperplane, \( b \) is the bias (offset), \( n \) is the number of observations, \( x_i \) is the feature vector of the \( i \)-th observation, and \( y_i \in \{-1,1\} \) denotes its class label. The first term corresponds to the \emph{hinge loss}, while the second term is an \( L_2 \) regularization penalty controlled by \( \lambda \). In embedded feature selection settings, SVM can provide feature importance by analyzing the learned weight vector in linear models, where features with larger absolute coefficients contribute more to the decision boundary.
+where \( w \) is the weight vector normal to the hyperplane, $b$ is the bias (offset), \break \( n \) is the number of observations, \( x_i \) is the feature vector of the \( i \)-th observation, and \( y_i \in \{-1,1\} \) denotes its class label. The first term corresponds to the \emph{hinge loss}, while the second term is an \( L_2 \) regularization penalty controlled by \( \lambda \). In embedded feature selection settings, SVM can provide feature importance by analyzing the learned weight vector in linear models, where features with larger absolute coefficients contribute more to the decision boundary.
 
 \subsection{LassoNet}
 While feature selection methods have been extensively studied in the context of linear models, particularly Lasso regression, identifying relevant features in neural networks remains a challenging problem. LassoNet \cite{lemhadri2021lassonet} addresses this challenge by extending Lasso-style sparsity to feedforward neural networks.
@@ -230,7 +232,7 @@ The key idea of LassoNet is to combine an $L_1$-penalized skip-layer (residual) 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/lassonet.png}
-    \caption{\textbf{LassoNet architecture}. It is composed of a single residual connection (highlighted in green) combined with an arbitrary feed-forward neural network (shown in black). The outputs of the residual connection and the first hidden layer are jointly processed through a hierarchical soft-thresholding optimization step.}
+    \caption{\textbf{LassoNet architecture} is composed of a single residual connection (highlighted in green) combined with an arbitrary feed-forward neural network (shown in black). The outputs of the residual connection and the first hidden layer are jointly processed through a hierarchical soft-thresholding optimization step.}
     \label{fig:lassonet}
 \end{figure}
 
@@ -243,19 +245,19 @@ where $g_W(\mathbf{x})$ denotes a arbitrary feedforward neural network with para
 Let $n$ denote the number of training observations and $d$ the input dimension. The function $g_W$ is assumed to be fully connected, and we denote by $K$ the number of units in the first hidden layer. For notational convenience, let $W^{(1)} \in \mathbb{R}^{d \times K}$ represent the weights of the first hidden layer. The empirical loss function is denoted by $L(\boldsymbol{\theta}, W)$, viewed as a function of the model parameters.
 
 The LassoNet objective is defined as
-\begin{equation}
+\begin{equation*}
 \min_{\boldsymbol{\theta}, \mathbf{W}} \; \mathcal{L}(\boldsymbol{\theta}, \mathbf{W}) + \lambda \|\boldsymbol{\theta}\|_1
-\end{equation}
+\end{equation*}
 subject to hierarchical constraint:
-\begin{equation}
+\begin{equation*}
 \|\mathbf{W}^{(1)}_j\|_{\infty} \leq M |\boldsymbol{\theta}_j|, \quad j = 1, \dots, d,
-\end{equation}
+\end{equation*}
 where $\mathcal{L}(\boldsymbol{\theta}, \mathbf{W})$ is the empirical loss function and $\mathbf{W}^{(1)}_j$ denotes the weights associated with feature $j$ in the first hidden layer.
 
 The constraint
-\begin{equation}
+\begin{equation*}
 |\mathbf{W}^{(1)}_{jk}| \leq M |\boldsymbol{\theta}_j|, \quad k = 1, \dots, K,
-\end{equation}
+\end{equation*}
 links the linear (skip-layer) and nonlinear components of the model. It enforces that the contribution of feature $j$ in the hidden layers is controlled by its corresponding coefficient $\boldsymbol{\theta}_j$. In particular, if $\boldsymbol{\theta}_j = 0$, then $\mathbf{W}^{(1)}_j = \mathbf{0}$, and the feature is completely excluded from the network. Thus, sparsity in $\boldsymbol{\theta}$, induced by the $\ell_1$-penalty, directly determines feature selection in the entire model.
 
 The parameter $M$ controls the strength of this hierarchy. For $M = 0$, the nonlinear component vanishes and the model reduces to Lasso regression. As $M \to \infty$, the constraint becomes inactive and the model approaches a standard feedforward neural network.
@@ -266,16 +268,16 @@ Training proceeds by alternating between a gradient descent step on $(\boldsymbo
 Training proceeds by alternating between a gradient descent step on $(\boldsymbol{\theta}, \mathbf{W})$ and a structured proximal update applied to $(\boldsymbol{\theta}, \mathbf{W}^{(1)})$. A proximal operator is an optimization step that solves a local regularized minimization problem, typically combining a quadratic term (which keeps the solution close to the current estimate) and a penalty term that enforces structure such as sparsity. The proximal update is applied separately for each feature $j$, where the pair $(\theta_j, \mathbf{W}^{(1)}_j)$ is updated jointly as a small block optimization problem.
 
 In LassoNet, the proximal step is defined, for each $j = 1, \dots, d$, as the solution of
-\begin{equation}
+\begin{equation*}
 \min_{\theta_j \in \mathbb{R}, \; \mathbf{W}^{(1)}_j \in \mathbb{R}^K}
 \; \frac{1}{2} (\tilde{\theta}_j - \theta_j)^2
 + \frac{1}{2} \|\tilde{\mathbf{W}}^{(1)}_j - \mathbf{W}^{(1)}_j\|_2^2
 + \lambda |\theta_j|
-\end{equation}
+\end{equation*}
 subject to
-\begin{equation}
+\begin{equation*}
 \|\mathbf{W}^{(1)}_j\|_{\infty} \leq M |\theta_j|,
-\end{equation}
+\end{equation*}
 where $\tilde{\theta}_j$ and $\tilde{\mathbf{W}}^{(1)}_j$ denote the intermediate values obtained after the gradient descent step. 
 
 LassoNet produces a sequence of models along a regularization path indexed by the parameter $\lambda$, which controls the level of sparsity. Two strategies can be used to compute this path: dense-to-sparse and sparse-to-dense. In the dense-to-sparse approach, training starts with a small value of $\lambda$, where the model is dense, and $\lambda$ is gradually increased, leading to progressively sparser solutions. In contrast, the sparse-to-dense approach starts with a large $\lambda$, where most features are inactive, and gradually decreases it.
